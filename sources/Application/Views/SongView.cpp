@@ -987,6 +987,8 @@ void SongView::DrawView() {
                 SetColor(CD_SONGVIEWFE);
             } else if (d == 0x00) {
                 SetColor(CD_SONGVIEW00);
+            } else if (d == 0xFF) {
+                SetColor(CD_BLANKSPACE);
             } else {
                 SetColor(CD_NORMAL);
             }
