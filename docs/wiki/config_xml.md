@@ -2,7 +2,7 @@ LittleGPTracker can be configured in a various ways through a series of flags. T
 
 Note that values do not necessarely affect all platforms. Also, if one of the values isn't working for you it's possible that you need to get the latest [ghetto build](https://wiki.littlegptracker.com/doku.php?id=lgpt:ghetto_builds "lgpt:ghetto_builds").
 
-##command line example
+## command line example
 
 You can specify any of the options at the command line using
 
