@@ -2,6 +2,7 @@
 name: Issue template
 about: Create issue from template
 title: "[BUG/FEATURE/OTHER] - short description of your issue"
+labels: ''
 assignees: ''
 
 ---
