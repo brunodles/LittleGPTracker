@@ -27,6 +27,7 @@ COMMONDIRS := \
 	../sources/Services/Midi \
 	../sources/Services/Time \
 	../sources/Services/Controllers \
+	../sources/Services/Themes \
 	../sources/System/FileSystem \
 	../sources/System/Timer \
 	../sources/System/Errors \
@@ -269,6 +270,7 @@ COMMONFILES := \
 	MixBus.o \
 	MixerService.o PlayerMixer.o \
 	Service.o ServiceRegistry.o SubService.o \
+	ThemeService.o \
 	Variable.o VariableContainer.o WatchedVariable.o \
 	SoundFontPreset.o SoundFontManager.o SoundFontSample.o \
 	ENAB.o HYDRA.o OMEGA.o RIFF.o SFDETECT.o SFLOOKUP.o SFNAV.o SFREADER.o WIN_MEM.o \

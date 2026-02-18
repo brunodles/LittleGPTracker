@@ -114,7 +114,7 @@ void View::drawMap() {
 		
 
 		// Change the color for the hilights
-		SetColor(CD_HILITE1);
+        SetColor(CD_HILITE1);
         // Draw C if is on project
         if (viewType_ == VT_PROJECT) {
             DrawString(pos._x, pos._y - 1, "C   ", props);
@@ -180,8 +180,8 @@ void View::drawMap() {
 
         case VT_CONFIG:
             DrawString(pos._x, pos._y -1, "C", props) ;
-			break;
-            
+            break;
+
             //        case VT_MIXER:
             //            DrawString(pos._x,  pos._y + 2, "M", props) ;
             //            break;

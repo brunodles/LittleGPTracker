@@ -21,6 +21,13 @@ inline int intConfOrFallback(int firstValue, int fallbackValue, int minValue = 0
 	return firstValue >= minValue ? firstValue : fallbackValue;
 }
 
+/**
+ * Config class is responsible for loading and storing configuration values from
+ * an XML file.
+ *
+ * It is a Singleton used by whole system.
+ * It also processes the command line arguments.
+ */
 class Config: public T_Singleton<Config>,public VariableContainer {
   public:
     Config();
@@ -31,7 +38,7 @@ class Config: public T_Singleton<Config>,public VariableContainer {
     void Load();
     void Save();
 
-	// Screen
+    // Screen
     Theme *theme;
 
     // Screen

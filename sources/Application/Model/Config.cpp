@@ -251,10 +251,10 @@ void Config::Save() {
     }
 
     if (audioDevice && sizeof(audioDevice) > 0) {
-		elem = new TiXmlElement("AUDIODEVICE");
-		elem->SetAttribute("value", audioDevice);
-		root->LinkEndChild(elem);
-	}
+        elem = new TiXmlElement("AUDIODEVICE");
+        elem->SetAttribute("value", audioDevice);
+        root->LinkEndChild(elem);
+    }
 
     if (audioBufferSize >= 0) {
 		elem = new TiXmlElement("AUDIOBUFFERSIZE");

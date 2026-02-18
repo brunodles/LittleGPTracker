@@ -9,15 +9,16 @@
 #include "Foundation/Observable.h"
 
 #define VAR_TEMPO MAKE_FOURCC('T', 'M', 'P', 'O')
-#define VAR_MASTERVOL   	MAKE_FOURCC('M', 'S', 'T', 'R')
-#define VAR_WRAP        	MAKE_FOURCC('W', 'R', 'A', 'P')
-#define VAR_MIDIDEVICE  	MAKE_FOURCC('M', 'I', 'D', 'I')
-#define VAR_TRANSPOSE   	MAKE_FOURCC('T', 'R', 'S', 'P')
-#define VAR_SOFTCLIP 		MAKE_FOURCC('S', 'F', 'T', 'C')
-#define VAR_SOFTCLIP_GAIN 	MAKE_FOURCC('S', 'F', 'G', 'N')
-#define VAR_PREGAIN   		MAKE_FOURCC('P', 'R', 'G', 'N')
-#define VAR_SCALE 			MAKE_FOURCC('S', 'C', 'A', 'L')
-#define VAR_RENDER MAKE_FOURCC('R', 'N', 'D', 'R')
+#define VAR_MASTERVOL MAKE_FOURCC('M', 'S', 'T', 'R')
+#define VAR_WRAP          MAKE_FOURCC('W', 'R', 'A', 'P')
+#define VAR_MIDIDEVICE    MAKE_FOURCC('M', 'I', 'D', 'I')
+#define VAR_TRANSPOSE     MAKE_FOURCC('T', 'R', 'S', 'P')
+#define VAR_SOFTCLIP      MAKE_FOURCC('S', 'F', 'T', 'C')
+#define VAR_SOFTCLIP_GAIN MAKE_FOURCC('S', 'F', 'G', 'N')
+#define VAR_PREGAIN       MAKE_FOURCC('P', 'R', 'G', 'N')
+#define VAR_SCALE         MAKE_FOURCC('S', 'C', 'A', 'L')
+#define VAR_RENDER        MAKE_FOURCC('R', 'N', 'D', 'R')
+#define VAR_THEME         MAKE_FOURCC('T', 'H', 'M', 'E')
 
 #define MAX_TAP 3
 
