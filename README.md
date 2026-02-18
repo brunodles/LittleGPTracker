@@ -18,13 +18,16 @@ All implemented features have been tested not to break old
 projects but make sure to backup your old cherished work
 just to be safe &#9829;
 
+### Fork of a Fork
+
+This a fork of the [djdiskmachine](https://github.com/djdiskmachine) [fork](https://github.com/djdiskmachine/LittleGPTracker).
+
+I'm looking to implement new things for lgpt, to make it fit on my work flow, creating music/beats away from computer with a console first experience.
+
 ## Releases
 
-### Current Builds
-
-Latest releases from this fork here:
-
-- [Releases](https://github.com/djdiskmachine/LittleGPTracker/releases)
+- [releases](https://github.com/brunodles/LittleGPTracker/releases)
+- [djdiskmachine / releases](https://github.com/djdiskmachine/LittleGPTracker/releases)
 
 
 ## Documentation
