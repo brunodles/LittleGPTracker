@@ -14,6 +14,10 @@ inline void hex2char(const unsigned char c,char *s) {
 	*dest__=0 ;
 }
 
+inline void h2c(const unsigned char c,char *s) {
+	*s = h2c__[c] ;
+}
+
 inline void hexshort2char(const ushort c,char *s) {
 	char *dest__=s ;
 	*dest__++=h2c__[(c&0xF000)>>12] ;
