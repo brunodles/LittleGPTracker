@@ -1213,8 +1213,10 @@ void PhraseView::DrawView() {
         (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
                                                 : SetColor(CD_NORMAL);
         if (d == 0xFF) {
+            SetColor(CD_BLANKSPACE);
             DrawString(pos._x, pos._y, "----", props);
         } else {
+            SetColor(CD_NORMAL);
             note2char(d, buffer);
             DrawString(pos._x, pos._y, buffer, props);
         }
@@ -1239,6 +1241,7 @@ void PhraseView::DrawView() {
         if (d == 0xFF) {
             SetColor(CD_NORMAL);
             DrawString(pos._x, pos._y, "I", props);
+            SetColor(CD_BLANKSPACE);
             DrawString(pos._x + 1, pos._y, "--", props);
         } else {
             hex2char(d, buffer + 1);
