@@ -674,10 +674,10 @@ void ChainView::DrawView() {
 
     char row[3];
     pos = anchor;
-    pos._x -= 3;
+    pos._x -= 2;
     for (int j = 0; j < 16; j++) {
         ((j / altRowNumber_) % 2) ? SetColor(CD_ROW) : SetColor(CD_ROW2);
-        hex2char(j, row);
+        h2c(j, row);
         DrawString(pos._x, pos._y, row, props);
         pos._y += 1;
     }

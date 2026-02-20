@@ -1184,11 +1184,12 @@ void PhraseView::DrawView() {
 
     // Display row numbers
     char buffer[6];
+    buffer[1] = 0;
     pos = anchor;
-    pos._x -= 3;
+    pos._x -= 2;
     for (int j = 0; j < 16; j++) {
         ((j / altRowNumber_) % 2) ? SetColor(CD_ROW) : SetColor(CD_ROW2);
-        hex2char(j, buffer);
+        h2c(j, buffer);
         DrawString(pos._x, pos._y, buffer, props);
         pos._y++;
     }
