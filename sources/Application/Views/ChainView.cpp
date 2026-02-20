@@ -705,6 +705,13 @@ void ChainView::DrawView() {
             DrawString(pos._x, pos._y, "--", props);
             SetColor(CD_NORMAL);
         } else {
+            if (d == 0x00) {
+                SetColor(CD_SONGVIEW00);
+            } else if (d == 0xFE) {
+                SetColor(CD_SONGVIEWFE);
+            } else {
+                SetColor(CD_NORMAL);
+            }
             hex2char(d, row);
             DrawString(pos._x, pos._y, row, props);
         }
