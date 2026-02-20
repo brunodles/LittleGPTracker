@@ -45,7 +45,7 @@ class PhraseView : public View {
     void processNormalButtonMask(unsigned short mask);
     void processSelectionButtonMask(unsigned short mask);
 
-    void setTextProps(GUITextProperties &props, int row, int col, bool restore);
+    void setTextProps(GUITextProperties &props, int row, int col);
 
   private:
     int row_;
