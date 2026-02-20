@@ -64,7 +64,7 @@ void ChainView::updateCursorValue(int offset, int dx, int dy) {
     isDirty_ = true;
 }
 
-void ChainView::updateSelectionValue(int offset) { // HERE
+void ChainView::updateSelectionValue(int offset) {
 
     int savecol = viewData_->chainCol_;
     int saverow = viewData_->chainRow_;
@@ -627,31 +627,27 @@ void ChainView::processSelectionButtonMask(unsigned short mask) {
 
 void ChainView::OnFocus() { clipboard_.active_ = false; };
 
-void ChainView::setTextProps(GUITextProperties &props, int row, int col,
-                             bool restore) {
+void ChainView::setTextProps(GUITextProperties &props, int row, int col) {
 
     bool invert = false;
 
     if (clipboard_.active_) {
         GUIRect selRect = getSelectionRect();
-        if ((row >= selRect.Left()) && (row <= selRect.Right()) &&
-            (col >= selRect.Top()) && (col <= selRect.Bottom())) {
+        if ((col >= selRect.Left()) && (col <= selRect.Right()) &&
+            (row >= selRect.Top()) && (row <= selRect.Bottom())) {
             invert = true;
         }
     } else {
-        if ((viewData_->chainCol_ == row) && (viewData_->chainRow_ == col)) {
+        if ((viewData_->chainCol_ == col) && (viewData_->chainRow_ == row)) {
             invert = true;
         }
     }
 
     if (invert) {
-        if (restore) {
-            SetColor(CD_NORMAL);
-            props.invert_ = false;
-        } else {
-            SetColor(CD_HILITE2);
-            props.invert_ = true;
-        }
+        SetColor(CD_HILITE2);
+        props.invert_ = true;
+    } else {
+        props.invert_ = false;
     }
 };
 
@@ -690,21 +686,33 @@ void ChainView::DrawView() {
 
     pos = anchor;
 
-    // Display phrases
-
-    pos = anchor;
-
     unsigned char *data =
         viewData_->song_->chain_->data_ + (16 * viewData_->currentChain_);
+    unsigned char *transposeData =
+        viewData_->song_->chain_->transpose_ + (16 * viewData_->currentChain_);
+    unsigned char d = 0;
+    unsigned char t = 0;
 
     for (int j = 0; j < 16; j++) {
-        unsigned char d = *data++;
-        setTextProps(props, 0, j, false);
+        d = *data++;
         if (d == 0xFF) {
+            // draw empty phrases with blank space color
             SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, "--", props);
+
+            // draw empty phrase transpose with blank space color
+            pos._x += 3;
+            t = *transposeData++;
+            hex2char(t, row);
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 1);
+            DrawString(pos._x, pos._y, row, props);
+            pos._x -= 3;
+
             SetColor(CD_NORMAL);
         } else {
+            // draw non empty phrases with special color if they are "00" or "FE"
             if (d == 0x00) {
                 SetColor(CD_SONGVIEW00);
             } else if (d == 0xFE) {
@@ -713,28 +721,31 @@ void ChainView::DrawView() {
                 SetColor(CD_NORMAL);
             }
             hex2char(d, row);
+            setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, row, props);
+
+            // Draw non empty phrase transpose normal color
+            pos._x += 3;
+            t = *transposeData++;
+            hex2char(t, row);
+            SetColor(CD_NORMAL);
+            setTextProps(props, j, 1);
+            DrawString(pos._x, pos._y, row, props);
+            pos._x -= 3;
         }
-        setTextProps(props, 0, j, true);
+        SetColor(CD_NORMAL);
+
+        // next line
         pos._y++;
     }
 
-    // Draw Transpose
-
-    pos = anchor;
-    pos._x += 3;
-
-    data =
-        viewData_->song_->chain_->transpose_ + (16 * viewData_->currentChain_);
 
     for (int j = 0; j < 16; j++) {
-        unsigned char d = *data++;
-        hex2char(d, row);
-        setTextProps(props, 1, j, false);
-        DrawString(pos._x, pos._y, row, props);
-        setTextProps(props, 1, j, true);
+
+
         pos._y++;
     }
+
     Player *player = Player::GetInstance();
 
     drawMap();
