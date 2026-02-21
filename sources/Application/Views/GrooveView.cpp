@@ -132,12 +132,12 @@ void GrooveView::DrawView() {
 
 // Draw title
 
-	char title[40] ;
+    char title[SCREEN_WIDTH];
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_NORMAL);
 
-	sprintf(title,"Groove: %2.2x",viewData_->currentGroove_) ;
-	DrawString(pos._x,pos._y,title,props) ;
+    sprintf(title, "Groove: %2.2x", viewData_->currentGroove_);
+    DrawString(pos._x,pos._y,title,props);
 
 // Compute song grid location
 

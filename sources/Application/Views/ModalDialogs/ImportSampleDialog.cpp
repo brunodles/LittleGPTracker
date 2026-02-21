@@ -30,72 +30,72 @@ ImportSampleDialog::~ImportSampleDialog() {
 
 void ImportSampleDialog::DrawView() {
 
-	SetWindow(LIST_WIDTH,LIST_SIZE+3) ;
+    SetWindow(LIST_WIDTH, LIST_SIZE + 3);
 
-	GUITextProperties props ;
+    GUITextProperties props;
 
-// Draw title
+    // Draw title
 
-//	char title[40] ;
+    //	char title[SCREEN_WIDTH] ;
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_NORMAL);
 
-//	sprintf(title,"Sample Import from %s",currentPath_.GetName()) ;
-//	w_.DrawString(title,pos,props) ;
+    //	sprintf(title,"Sample Import from %s",currentPath_.GetName()) ;
+    //	w_.DrawString(title,pos,props) ;
 
-// Draw samples
+    // Draw samples
 
-	int x=1 ;
-	int y=1 ;
+    int x = 1;
+    int y = 1;
 
-	if (currentSample_<topIndex_) {
-		topIndex_=currentSample_ ;
-	} ;
-	if (currentSample_>=topIndex_+LIST_SIZE) {
-		topIndex_=currentSample_ ;
-	} ;
+    if (currentSample_ < topIndex_) {
+        topIndex_=currentSample_;
+    }
+    if (currentSample_ >= topIndex_+LIST_SIZE) {
+		topIndex_=currentSample_;
+	}
 
-	IteratorPtr<Path> it(sampleList_.GetIterator()) ;
-	int count=0 ;
-	char buffer[256] ;
-	for(it->Begin();!it->IsDone();it->Next()) {
-		if ((count>=topIndex_)&&(count<topIndex_+LIST_SIZE)) {
+    IteratorPtr<Path> it(sampleList_.GetIterator());
+    int count = 0;
+    char buffer[256];
+	for(it->Begin(); !it->IsDone(); it->Next()) {
+		if ((count >= topIndex_) && (count < topIndex_ + LIST_SIZE)) {
 			Path &current=it->CurrentItem() ;
 			const std::string p=current.GetName() ;
 
-			if (count==currentSample_) {
-				SetColor(CD_HILITE2) ;
-				props.invert_=true ;
-			} else {
-				SetColor(CD_NORMAL) ;
-				props.invert_=false ;
+            if (count == currentSample_) {
+                SetColor(CD_HILITE2);
+				props.invert_=true;
+            } else {
+                SetColor(CD_NORMAL);
+                props.invert_=false;
+            }
+            if (!current.IsDirectory()) {
+                strcpy(buffer, p.c_str());
+            } else {
+                buffer[0] = '[';
+                strcpy(buffer + 1,p.c_str());
+				strcat(buffer, "]");
 			}
-			if (!current.IsDirectory()) {
-				strcpy(buffer,p.c_str()) ;
-			} else {
-				buffer[0]='[' ;
-				strcpy(buffer+1,p.c_str()) ;
-				strcat(buffer,"]") ;
-			}
-			buffer[LIST_WIDTH-1]=0 ;
-			DrawString(x,y,buffer,props) ;
-			y+=1 ;
+            buffer[LIST_WIDTH - 1] = 0;
+            DrawString(x, y, buffer, props) ;
+			y+=1;
 		}
-		count++ ;
-	} ;
+        count++;
+    };
 
-	y=LIST_SIZE+2 ;
-	int offset=LIST_WIDTH/4 ;
+    y = LIST_SIZE + 2;
+    int offset = LIST_WIDTH/4;
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_NORMAL);
 
-	for (int i=0;i<3;i++) {
-		const char *text=buttonText[i] ;
-		x=offset*(i+1)-strlen(text)/2 ;
-		props.invert_=(i==selected_)?true:false ;
-		DrawString(x,y,text,props) ;
-	}	
-} ;
+    for (int i = 0; i < 3; i++) {
+        const char *text = buttonText[i];
+		x = offset * (i + 1) - strlen(text) / 2;
+		props.invert_ = (i == selected_) ? true : false;
+		DrawString(x, y, text, props);
+    }
+}
 
 void ImportSampleDialog::warpToNextSample(int direction) {
 

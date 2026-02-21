@@ -20,8 +20,8 @@ void NullView::DrawView() {
 	SetColor(CD_HILITE2) ;
 
     GUIPoint pos;
-    pos._y=28;
-	pos._x=(40-strlen(VERSION_STRING))/2 ;
+    pos._y = POS_Y_BEFORE_LAST_LINE;
+    pos._x=(SCREEN_WIDTH-strlen(VERSION_STRING))/2 ;
     DrawString(pos._x, pos._y, VERSION_STRING, props);
 } ;
 

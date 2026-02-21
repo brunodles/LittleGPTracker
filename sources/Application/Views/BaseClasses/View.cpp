@@ -42,9 +42,8 @@ View::View(GUIWindow &w,ViewData *viewData):
 } ;
 
 GUIPoint View::GetAnchor() {
-	int width=40 ;
-	int height=30 ;
-	return GUIPoint((width-SONG_CHANNEL_COUNT*3)/2+2,(height-View::songRowCount_)/2) ;
+    return GUIPoint((SCREEN_WIDTH - SONG_CHANNEL_COUNT * 3) / 2 + 2,
+                    (SCREEN_HEIGHT - View::songRowCount_) / 2);
 }
 
 GUIPoint View::GetTitlePosition() {
