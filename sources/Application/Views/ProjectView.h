@@ -32,5 +32,8 @@ private:
   unsigned long lastTick_;
   unsigned long lastClock_;
   UIField *tempoField_;
+
+  void insertLabel(GUIPoint position, char *name);
+
 } ;
 #endif

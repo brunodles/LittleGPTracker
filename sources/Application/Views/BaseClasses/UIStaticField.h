@@ -15,9 +15,10 @@ public:
 
 	virtual bool IsStatic() ;
 
-protected:
+    ColorDefinition color = CD_NORMAL;
 
-protected:
+  protected:
+  protected:
 	const char *string_ ;
 
 } ;

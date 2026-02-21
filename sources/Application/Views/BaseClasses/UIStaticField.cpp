@@ -10,9 +10,9 @@ void UIStaticField::Draw(GUIWindow &w,int offset) {
 	GUITextProperties props ;
 	GUIPoint position=GetPosition() ;
 	position._y+=offset ;
-	
-	((AppWindow&)w).SetColor(CD_NORMAL) ;
-	w.DrawString(string_,position,props) ;	
+
+    ((AppWindow &)w).SetColor(color);
+    w.DrawString(string_,position,props) ;	
 } ;
 
 void UIStaticField::ProcessArrow(unsigned short mask){
