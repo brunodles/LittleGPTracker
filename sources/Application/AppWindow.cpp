@@ -1,4 +1,5 @@
 #include "AppWindow.h"
+#include "Application/Build.h"
 #include "Application/Commands/ApplicationCommandDispatcher.h"
 #include "Application/Commands/EventDispatcher.h"
 #include "Application/Instruments/SamplePool.h"
@@ -622,6 +623,7 @@ void AppWindow::onQuitApp() {
     player->Reset();
     System::GetInstance()->PostQuitMessage();
 }
+
 void AppWindow::Print(char *line) {
 
     //	GUIWindow::Clear(View::backgroundColor_,true) ;
@@ -636,12 +638,9 @@ void AppWindow::Print(char *line) {
     GUITextProperties props;
     SetColor(CD_NORMAL);
     DrawString(_statusLine, pos, props);
-    char buildString[80];
-    sprintf(buildString, "Piggy build %s.%s.%s", PROJECT_NUMBER,
-            PROJECT_RELEASE, BUILD_COUNT);
     pos._y = 28;
-    pos._x = (40 - strlen(buildString)) / 2;
-    DrawString(buildString, pos, props);
+    pos._x = (40 - strlen(VERSION_STRING)) / 2;
+    DrawString(VERSION_STRING, pos, props);
     Flush();
 };
 

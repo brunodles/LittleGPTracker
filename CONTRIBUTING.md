@@ -15,7 +15,7 @@ Thank you for considering contributing to this project!
 
 Before submitting a PR, ensure:
 
-- [ ] **Version bumped** in `sources/Application/Model/Project.h`:
+- [ ] **Version bumped** in `sources/Application/Build.h`:
   - Bump BUILD_COUNT (`#define BUILD_COUNT "3-bacon3"`) for the most part
   
 - [ ] **Documentation updated**:

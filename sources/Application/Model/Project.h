@@ -19,10 +19,6 @@
 #define VAR_SCALE 			MAKE_FOURCC('S', 'C', 'A', 'L')
 #define VAR_RENDER MAKE_FOURCC('R', 'N', 'D', 'R')
 
-#define PROJECT_NUMBER "1"
-#define PROJECT_RELEASE "6"
-#define BUILD_COUNT "0-bacon5"
-
 #define MAX_TAP 3
 
 class Project: public Persistent,public VariableContainer,I_Observer  {

@@ -1,3 +1,6 @@
+1.6.0-Pork1
+    Create build constants. Change version display location on Project View.
+
 1.6.0-bacon5
     Auto-load last project on startup
         * Application can now load the last project automatically on startup

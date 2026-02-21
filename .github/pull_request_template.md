@@ -31,5 +31,5 @@ Provide instructions on how to reproduce.
 - [ ] I have commented particularly in hard-to-understand areas
 - [ ] I have updated CHANGELOG
 - [ ] I have updated docs/wiki/What-is-LittlePiggyTracker.md reflecting my changes
-- [ ] I have version bumped in `sources/Application/Model/Project.h`
+- [ ] I have version bumped in `sources/Application/Build.h`
 - [ ] My changes generate no new warnings (build without your change then apply your change to check this)
