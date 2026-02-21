@@ -12,6 +12,8 @@ public:
 	~Config() ;
 	const char *GetValue(const char *key) ;
 	void ProcessArguments(int argc,char **argv) ;
+
+	bool isColumnTitleEnabled;			// Whether to show column titles in song, chain and phrase views
 } ;
 
 #endif

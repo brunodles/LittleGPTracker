@@ -67,10 +67,12 @@ LittleGPTracker uses 6 colours to do all the drawing. If you want, you can redef
 -   `MUTECOLOR`: mute indicator color
 -   `SONGVIEW_FE`: color of the chain "FE" in song screen
 -   `SONGVIEW_00`: color of the chain "00" in song screen
+-   `BLANKSPACE`: color of the blanks in song and phrase screens
 -   `ROWCOLOR1`: row count color 1
 -   `ROWCOLOR2`: row count color 2
 -   `ALTROWNUMBER`: How many rows for each rowcolor
 -   `MAJORBEAT`: color of "--" at row 00,04,08,0c in phrase screen
+-   `SHOW_COLUMN_TITLES`: set if the column titles should be presented
 
 All colors are defined by a set of hexadecimal triplet for RGB. Here's an example:
 
@@ -83,12 +85,14 @@ All colors are defined by a set of hexadecimal triplet for RGB. Here's an exampl
     <HICOLOR2     value = "DB33DB" /> <!-- Highlight color 2 -->
     <SONGVIEW_FE  value = "A55B8F" /> <!-- Color of the chain "FE" in song screen-->
     <SONGVIEW_00  value = "853B6F" /> <!-- Color of the chain "00" in song screen-->
+    <BLANKSPACE   value = "FFFFFF" /> <!-- Color of the blanks in song and phrase screens -->
     <CURSORCOLOR  value = "FF00DD" /> <!--Cursor color-->
     <PLAYCOLOR    value = "FF00DD" /> <!--Cursor color-->
     <MUTECOLOR    value = "F5EBFF" /> <!-- Text and cursor in cursor -->
     <ROWCOLOR1    value = "BA28F9" /> <!--Row count color 1 -->
     <ROWCOLOR2    value = "FF00FF" /> <!--Row count color 2-->
     <ALTROWNUMBER value = "4"/>       <!--How many rows of each ROWCOLOR-->
+-   <SHOW_COLUMN_TITLES value = "YES" /> <!--YES - enables the titles-->
 </CONFIG>
 ```
 

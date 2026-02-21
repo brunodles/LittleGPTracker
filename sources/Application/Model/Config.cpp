@@ -38,8 +38,10 @@ Config::Config()
           {
 						value=element->Attribute("VALUE") ;
 					}
-					if (key&&value)
-          {
+					if (key&&value) {
+						if (key == std::string("SHOW_COLUMN_TITLES")) {
+							isColumnTitleEnabled = strcmp(value, "YES") == 0;
+						}
 						Variable *v=new Variable(key,0,value) ;
 						Insert(v) ;
 					}
@@ -94,6 +96,5 @@ void Config::ProcessArguments(int argc,char **argv)
 		}
 	}
 } ;
-
 
 //------------------------------------------------------------------------------

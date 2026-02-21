@@ -53,19 +53,35 @@ enum ViewMode {
 };
 
 enum ColorDefinition {
+    /** background color */
     CD_BACKGROUND,
+    /** text color: default */
     CD_NORMAL,
+    /** color of the border in the start screen / dialogs */
     CD_BORDER,
+    /** row count in song screen */
     CD_HILITE1,
+    /** cursor color */
     CD_HILITE2,
+    /** text color: for console prints */
     CD_CONSOLE,
+    /** text color: cursor / selected */
     CD_CURSOR,
+    /** play indicator color */
     CD_PLAY,
+    /** mute indicator color */
     CD_MUTE,
+    /** text color: when content is "FE" */
     CD_SONGVIEWFE,
+    /** text color: when content is "00" */
     CD_SONGVIEW00,
+    /** text color: when content is empty ("--", "----") */
+    CD_BLANKSPACE,
+    /** text color: row type 1 */
     CD_ROW,
+    /** text color: row type 2 (eg. when index is multiple of 4) */
     CD_ROW2,
+    /** color of "--" at row 00,04,08,0c in phrase screen */
     CD_MAJORBEAT
 };
 
