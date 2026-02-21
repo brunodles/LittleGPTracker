@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD -- ; then
+    echo "Error: You have uncommitted changes. Please commit or stash them first."
+    exit 1
+fi
+
+# Save current directory and go to project root
+ORIGINAL_DIR=$(pwd)
+TOP_LEVEL_DIR=$(git rev-parse --show-toplevel)
+LOG_DIR="$TOP_LEVEL_DIR/.build_logs"
+mkdir -p "$LOG_DIR"
+
+# Get current branch name
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+LOG_CURRENT="${LOG_DIR}/${CURRENT_BRANCH}-build.log"
+LOG_MASTER="${LOG_DIR}/master-build.log"
+
+cd "$TOP_LEVEL_DIR/projects/"
+
+if [ -f "$LOG_MASTER" ]; then
+    echo "Log for master already exists."
+else
+    # Checkout master and build
+    echo "Checking out master..."
+    git checkout master
+    echo "Building master..."
+    make PLATFORM=X64 > "$LOG_MASTER" 2>&1
+fi
+
+# Build current branch
+echo "Checking out $CURRENT_BRANCH..."
+git checkout "$CURRENT_BRANCH"
+echo "Building $CURRENT_BRANCH..."
+make PLATFORM=X64 > "$LOG_CURRENT" 2>&1
+
+# Compare logs
+echo "Comparing logs..."
+WARNINGS_CURRENT=$(grep -oE 'warning.*' "$LOG_CURRENT" | sort -u)
+WARNINGS_MASTER=$(grep -oE 'warning.*' "$LOG_MASTER" | sort -u)
+WARNINGS_CURRENT_COUNT=$(echo "$WARNINGS_CURRENT" | wc -l)
+WARNINGS_MASTER_COUNT=$(echo "$WARNINGS_MASTER" | wc -l)
+echo "Comparing warnings..."
+echo "---"
+echo "Total warnings in $CURRENT_BRANCH: $WARNINGS_CURRENT_COUNT"
+echo "Total warnings in master: $WARNINGS_MASTER_COUNT"
+echo "---"
+
+IFS=$'\n'
+if [ $WARNINGS_CURRENT_COUNT -eq $WARNINGS_MASTER_COUNT ]; then
+    echo "Build outputs have same amount of warnings."
+elif [ $WARNINGS_CURRENT_COUNT -le $WARNINGS_MASTER_COUNT ]; then
+    echo "The $CURRENT_BRANCH has fewer warnings than master."
+else
+    echo "The $CURRENT_BRANCH has more warnings than master."
+    for warning in $WARNINGS_CURRENT; do
+        if ! grep -q "$warning" <<< "$WARNINGS_MASTER"; then
+            echo "New warning in $CURRENT_BRANCH: $warning"
+        fi
+    done
+fi
+
+cd "$ORIGINAL_DIR"

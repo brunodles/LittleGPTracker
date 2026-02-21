@@ -1,5 +1,5 @@
 Recommendation: Install pre-commit
-From repo root: cp pre-commit ./git/hooks
+From repo root: cp tools/pre-commit ./git/hooks
 
 ##### Windows: Use Visual 2008 express edition + will need the DirectX SDK (I'm using March 2008)
 

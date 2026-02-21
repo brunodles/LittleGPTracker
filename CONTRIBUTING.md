@@ -2,6 +2,31 @@
 
 Thank you for considering contributing to this project!
 
+## Setup
+Install clang-format tool.
+```
+sudo apt install clang-format
+```
+
+### Code format
+Install the pre-commig hook:
+```
+cp tools/pre-commit .git/hooks/
+```
+
+Alternatively run the post-commit-format
+```
+./tools/post-commit-format
+```
+
+### Warnings
+Check if the commited changes introduced warnings, by running:
+```
+compare-build
+```
+
+
+
 ## Branch & Merge Strategy
 
 - **master** is the integration branch. It may contain unstable/experimental features.
@@ -28,6 +53,9 @@ Before submitting a PR, ensure:
 - [ ] **Testing**:
   - Describe how you tested your changes in the PR description
   - Include relevant test results
+
+- [ ] **Code format**:
+  - Ensure to have new code formated, see how on "setup" above
 
 ## Merge Process
 
