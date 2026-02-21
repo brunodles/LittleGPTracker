@@ -246,7 +246,7 @@ void ProjectView::DrawView() {
 
     // Draw title
     SetColor(CD_NORMAL);
-    DrawString(pos._x, pos._y, "Project", props) ;
+    DrawString(pos._x, pos._y, "Project", props);
 
     // Draw version
     SetColor(CD_SONGVIEW00);

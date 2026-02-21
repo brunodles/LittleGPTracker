@@ -345,12 +345,12 @@ void Project::SaveContent(TiXmlNode *node) {
 	// store project version
 
 	TiXmlElement *element=(TiXmlElement *)node ;
-	element->SetAttribute("VERSION", VERSION_STRING) ;
+    element->SetAttribute("VERSION", VERSION_STRING);
 
-	// store table ratio if not one
+    // store table ratio if not one
 
-	int tableRatio=SyncMaster::GetInstance()->GetTableRatio() ;
-	if (tableRatio!=1) {
+    int tableRatio = SyncMaster::GetInstance()->GetTableRatio();
+    if (tableRatio!=1) {
 		element->SetAttribute("TABLERATIO",tableRatio) ;
 	}
 	// save all of the project's parameters
