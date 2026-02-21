@@ -138,8 +138,8 @@ void InstrumentView::fillSampleParameters() {
 	f1=new UIIntVarField(position,*v,"downsample: %d",0,8,1,4) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
-	position._y+=2 ;
-	UIStaticField *sf=new UIStaticField(position,"flt cut/res:") ;
+    position._y += 2;
+    UIStaticField *sf=new UIStaticField(position,"flt cut/res:") ;
 	T_SimpleList<UIField>::Insert(sf) ;
 
 	position._x+=13 ;

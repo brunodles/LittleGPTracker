@@ -720,7 +720,8 @@ void ChainView::DrawView() {
 
             SetColor(CD_NORMAL);
         } else {
-            // draw non empty phrases with special color if they are "00" or "FE"
+            // draw non empty phrases with special color if they are "00" or
+            // "FE"
             if (d == 0x00) {
                 SetColor(CD_SONGVIEW00);
             } else if (d == 0xFE) {
@@ -747,9 +748,7 @@ void ChainView::DrawView() {
         pos._y++;
     }
 
-
     for (int j = 0; j < 16; j++) {
-
 
         pos._y++;
     }
