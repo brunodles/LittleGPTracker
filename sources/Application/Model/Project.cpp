@@ -1,4 +1,5 @@
 #include "Project.h"
+#include "Application/Build.h"
 #include "Application/Instruments/SampleInstrument.h"
 #include "Application/Instruments/SamplePool.h"
 #include "Application/Persistency/PersistencyService.h"
@@ -344,7 +345,7 @@ void Project::SaveContent(TiXmlNode *node) {
 	// store project version
 
 	TiXmlElement *element=(TiXmlElement *)node ;
-	element->SetAttribute("VERSION",PROJECT_NUMBER) ;
+	element->SetAttribute("VERSION", VERSION_STRING) ;
 
 	// store table ratio if not one
 

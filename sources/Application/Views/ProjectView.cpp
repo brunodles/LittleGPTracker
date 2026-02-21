@@ -1,4 +1,5 @@
 #include "ProjectView.h"
+#include "Application/Build.h"
 #include "Application/Mixer/MixerService.h"
 #include "Application/Model/ProjectDatas.h"
 #include "Application/Model/Scale.h"
@@ -243,14 +244,13 @@ void ProjectView::DrawView() {
 	GUITextProperties props ;
 	GUIPoint pos=GetTitlePosition() ;
 
-// Draw title
-
-	char projectString[80] ;
-    sprintf(projectString, "Project (Build %s.%s.%s)", PROJECT_NUMBER,
-            PROJECT_RELEASE, BUILD_COUNT);
-
+    // Draw title
     SetColor(CD_NORMAL);
-    DrawString(pos._x,pos._y,projectString,props) ;
+    DrawString(pos._x, pos._y, "Project", props) ;
+
+    // Draw version
+    SetColor(CD_SONGVIEW00);
+    DrawString(40 - strlen(VERSION_STRING), 29, VERSION_STRING, props) ;
 
     FieldView::Redraw();
     drawMap();
