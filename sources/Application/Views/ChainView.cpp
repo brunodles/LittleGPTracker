@@ -683,12 +683,14 @@ void ChainView::DrawView() {
     }
 
     // Display column titles
-    pos = anchor;
-    pos._y -= 1;
-    SetColor(CD_BLANKSPACE);
-    DrawString(pos._x    , pos._y, "Ph", props);
-    DrawString(pos._x +3 , pos._y, "Tsp", props);
-    SetColor(CD_NORMAL);
+    if (Config::GetInstance()->isColumnTitleEnabled) {
+        pos = anchor;
+        pos._y -= 1;
+        SetColor(CD_BLANKSPACE);
+        DrawString(pos._x    , pos._y, "Ph", props);
+        DrawString(pos._x +3 , pos._y, "Tsp", props);
+        SetColor(CD_NORMAL);
+    }
 
     pos = anchor;
 
