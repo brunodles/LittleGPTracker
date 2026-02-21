@@ -1,9 +1,10 @@
 #!/bin/bash
 cd "$(git rev-parse --show-toplevel)/projects/"
-PROJECT_NUMBER=$(perl -nle 'print $1 if /PROJECT_NUMBER "([^"]*)"/' ../sources/Application/Model/Project.h)
-PROJECT_RELEASE=$(perl -nle 'print $1 if /PROJECT_RELEASE "([^"]*)"/' ../sources/Application/Model/Project.h)
-BUILD_COUNT=$(perl -nle 'print $1 if /BUILD_COUNT "([^"]*)"/' ../sources/Application/Model/Project.h)
-VERSION="${PROJECT_NUMBER}.${PROJECT_RELEASE}.${BUILD_COUNT}"
+VERSION_MAJOR=$(perl -nle 'print $1 if /VERSION_MAJOR "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_MINOR=$(perl -nle 'print $1 if /VERSION_MINOR "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_PATCH=$(perl -nle 'print $1 if /VERSION_PATCH "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_NAME=$(perl -nle 'print $1 if /VERSION_NAME "([^"]*)"/' ../sources/Application/Build.h)
+VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${VERSION_NAME}"
 
 collect_resources() { #1PLATFORM #2lgpt.*-exe
   if [[ -n $(find . -name "$2") ]]; then
