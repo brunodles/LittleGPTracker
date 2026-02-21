@@ -223,7 +223,7 @@ void AppWindow::Flush() {
     SysMutexLocker locker(drawMutex_);
 
     Lock();
-    long flushStart = System::GetInstance()->GetClock();
+    // long flushStart = System::GetInstance()->GetClock();
 
     GUITextProperties props;
     GUIPoint pos;
@@ -312,7 +312,7 @@ void AppWindow::Flush() {
         pos._y += AppWindow::charHeight_;
         pos._x = 0;
     }
-    long flushEnd = System::GetInstance()->GetClock();
+    // long flushEnd = System::GetInstance()->GetClock();
     GUIWindow::Flush();
     Unlock();
     memcpy(_preScreen, _charScreen, 1200);
