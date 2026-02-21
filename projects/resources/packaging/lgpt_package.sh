@@ -1,9 +1,9 @@
 #!/bin/bash
 cd "$(git rev-parse --show-toplevel)/projects/"
-VERSION_MAJOR=$(perl -nle 'print $1 if /VERSION_MAJOR "([^"]*)"/' ../sources/Application/Build.h)
-VERSION_MINOR=$(perl -nle 'print $1 if /VERSION_MINOR "([^"]*)"/' ../sources/Application/Build.h)
-VERSION_PATCH=$(perl -nle 'print $1 if /VERSION_PATCH "([^"]*)"/' ../sources/Application/Build.h)
-VERSION_NAME=$(perl -nle 'print $1 if /VERSION_NAME "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_MAJOR=$(perl -nle 'print $1 if /#define VERSION_MAJOR "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_MINOR=$(perl -nle 'print $1 if /#define VERSION_MINOR "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_PATCH=$(perl -nle 'print $1 if /#define VERSION_PATCH "([^"]*)"/' ../sources/Application/Build.h)
+VERSION_NAME=$(perl -nle 'print $1 if /#define VERSION_NAME "([^"]*)"/' ../sources/Application/Build.h)
 VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${VERSION_NAME}"
 
 collect_resources() { #1PLATFORM #2lgpt.*-exe
