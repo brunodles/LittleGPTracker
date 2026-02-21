@@ -1,7 +1,7 @@
 ---
 name: Feature Proposal
 about: Describe this issue template's purpose here.
-title: ''
+title: "[FEATURE] "
 labels: ''
 assignees: ''
 
