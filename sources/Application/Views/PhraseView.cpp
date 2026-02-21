@@ -1195,16 +1195,18 @@ void PhraseView::DrawView() {
     }
 
     // Display column titles
-    pos = anchor;
-    pos._y -= 1;
-    SetColor(CD_BLANKSPACE);
-    DrawString(pos._x    , pos._y, "N", props);
-    DrawString(pos._x +5 , pos._y, "I", props);
-    DrawString(pos._x +8 , pos._y, "C1", props);
-    DrawString(pos._x +13, pos._y, "P1", props);
-    DrawString(pos._x +18, pos._y, "C2", props);
-    DrawString(pos._x +23, pos._y, "P2", props);
-    SetColor(CD_NORMAL);
+    if (Config::GetInstance()->isColumnTitleEnabled) {
+        pos = anchor;
+        pos._y -= 1;
+        SetColor(CD_BLANKSPACE);
+        DrawString(pos._x    , pos._y, "N", props);
+        DrawString(pos._x +5 , pos._y, "I", props);
+        DrawString(pos._x +8 , pos._y, "Cmd1", props);
+        DrawString(pos._x +13, pos._y, "P1", props);
+        DrawString(pos._x +18, pos._y, "Cmd2", props);
+        DrawString(pos._x +23, pos._y, "P2", props);
+        SetColor(CD_NORMAL);
+    }
 
     pos = anchor;
 

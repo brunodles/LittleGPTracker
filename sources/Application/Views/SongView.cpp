@@ -937,7 +937,7 @@ void SongView::DrawView() {
     GUIPoint anchor = GetAnchor();
 
     char row[3];
-    
+
     // Display row numbers
     pos = anchor;
     pos._x -= 3;
@@ -949,18 +949,20 @@ void SongView::DrawView() {
         pos._y += 1;
     }
 
-    // Display column titles
     pos = anchor;
-    pos._y -= 1;
-    row[1] = 0;
-    row[2] = 0;
-    SetColor(CD_BLANKSPACE);
-    for (int i = 1; i <= 8; i++) {
-        h2c(i, row);
-        DrawString(pos._x, pos._y, row, props);
-        pos._x += 3;
+
+    // Display column titles
+    if (Config::GetInstance()->isColumnTitleEnabled) {
+        pos._y -= 1;
+        row[1] = 0;
+        row[2] = 0;
+        SetColor(CD_BLANKSPACE);
+        for (int i = 1; i <= 8; i++) {
+            h2c(i, row);
+            DrawString(pos._x, pos._y, row, props);
+            pos._x += 3;
+        }
     }
-    SetColor(CD_NORMAL);
 
     SetColor(CD_NORMAL);
 
