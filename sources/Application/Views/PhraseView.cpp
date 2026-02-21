@@ -366,8 +366,6 @@ void PhraseView::warpToNeighbour(int offset) {
         // Go to neighbout song channel
         viewData_->songX_ = newPos;
         unsigned char *c = viewData_->GetCurrentSongPointer();
-        // is there a chain ?
-        unsigned char oldChain = viewData_->currentChain_;
         if (*c != 0xFF) {
             // go to chain
             viewData_->currentChain_ = *c;
@@ -1138,31 +1136,27 @@ void PhraseView::processSelectionButtonMask(unsigned short mask) {
     }
 };
 
-void PhraseView::setTextProps(GUITextProperties &props, int row, int col,
-                              bool restore) {
+void PhraseView::setTextProps(GUITextProperties &props, int row, int col) {
 
     bool invert = false;
 
     if (clipboard_.active_) {
         GUIRect selRect = getSelectionRect();
-        if ((row >= selRect.Left()) && (row <= selRect.Right()) &&
-            (col >= selRect.Top()) && (col <= selRect.Bottom())) {
+        if ((col >= selRect.Left()) && (col <= selRect.Right()) &&
+            (row >= selRect.Top()) && (row <= selRect.Bottom())) {
             invert = true;
         }
     } else {
-        if ((col_ == row) && (row_ == col)) {
+        if ((col_ == col) && (row_ == row)) {
             invert = true;
         }
     }
 
     if (invert) {
-        if (restore) {
-            SetColor(CD_NORMAL);
-            props.invert_ = false;
-        } else {
-            SetColor(CD_HILITE2);
-            props.invert_ = true;
-        }
+        SetColor(CD_HILITE2);
+        props.invert_ = true;
+    } else {
+        props.invert_ = false;
     }
 };
 
@@ -1187,18 +1181,30 @@ void PhraseView::DrawView() {
     GUIPoint anchor = GetAnchor();
 
     // Display row numbers
-
     char buffer[6];
+    buffer[1] = 0;
     pos = anchor;
-    pos._x -= 3;
+    pos._x -= 2;
     for (int j = 0; j < 16; j++) {
         ((j / altRowNumber_) % 2) ? SetColor(CD_ROW) : SetColor(CD_ROW2);
-        hex2char(j, buffer);
+        h2c(j, buffer);
         DrawString(pos._x, pos._y, buffer, props);
         pos._y++;
     }
 
-    SetColor(CD_NORMAL);
+    // Display column titles
+    if (Config::GetInstance()->isColumnTitleEnabled) {
+        pos = anchor;
+        pos._y -= 1;
+        SetColor(CD_BLANKSPACE);
+        DrawString(pos._x    , pos._y, "N", props);
+        DrawString(pos._x +5 , pos._y, "I", props);
+        DrawString(pos._x +8 , pos._y, "Cmd1", props);
+        DrawString(pos._x +13, pos._y, "P1", props);
+        DrawString(pos._x +18, pos._y, "Cmd2", props);
+        DrawString(pos._x +23, pos._y, "P2", props);
+        SetColor(CD_NORMAL);
+    }
 
     pos = anchor;
 
@@ -1209,148 +1215,152 @@ void PhraseView::DrawView() {
     buffer[4] = 0;
     for (int j = 0; j < 16; j++) {
         unsigned char d = *data++;
-        setTextProps(props, 0, j, false);
-        (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                : SetColor(CD_NORMAL);
         if (d == 0xFF) {
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, "----", props);
         } else {
+            (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
+                                                    : SetColor(CD_NORMAL);
             note2char(d, buffer);
+            setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, buffer, props);
         }
-        setTextProps(props, 0, j, true);
         pos._y++;
     }
 
     // Draw instruments
 
     pos = anchor;
-    pos._x += 4;
+    pos._x += 5;
 
     data = phrase_->instr_ + (16 * viewData_->currentPhrase_);
-    buffer[0] = 'I';
+    buffer[2] = 0;
     buffer[3] = 0;
 
     for (int j = 0; j < 16; j++) {
         unsigned char d = *data++;
-        setTextProps(props, 1, j, false);
-        (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                : SetColor(CD_NORMAL);
         if (d == 0xFF) {
-            SetColor(CD_NORMAL);
-            DrawString(pos._x, pos._y, "I", props);
-            DrawString(pos._x + 1, pos._y, "--", props);
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 1);
+            DrawString(pos._x, pos._y, "--", props);
         } else {
-            hex2char(d, buffer + 1);
+            (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
+                                                    : SetColor(CD_NORMAL);
+            hex2char(d, buffer);
+            setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, buffer, props);
             if (j == row_ && (col_ == 0 || col_ == 1)) {
                 SetColor(CD_NORMAL);
                 sprintf(buffer, "I%2.2x: ", d);
                 std::string instrLine = buffer;
-                setTextProps(props, 1, j, true);
                 GUIPoint location = GetTitlePosition();
                 location._x += 12;
                 InstrumentBank *bank = viewData_->project_->GetInstrumentBank();
                 I_Instrument *instr = bank->GetInstrument(d);
                 instrLine += instr->GetName();
+                setTextProps(props, j, 1);
                 DrawString(location._x, location._y, instrLine.c_str(), props);
             }
         }
-        setTextProps(props, 1, j, true);
         pos._y++;
     }
-
-    // Draw command 1
 
     pos = anchor;
     pos._x += 8;
-
-    FourCC *f = phrase_->cmd1_ + (16 * viewData_->currentPhrase_);
-
+    // Draw command 1 and it's params
+    FourCC *cmd = phrase_->cmd1_ + (16 * viewData_->currentPhrase_);
+    ushort *param = phrase_->param1_ + (16 * viewData_->currentPhrase_);
     buffer[4] = 0;
+    for (int j = 0; j < 16; j++) {  
+        FourCC command = *cmd++;
+        ushort p = *param++;
 
-    for (int j = 0; j < 16; j++) {
-        FourCC command = *f++;
+        if (command == 0x2d2d2d2d) { // 0x2d2d2d2d = '----' in hex
+            // Draw empty command with blank color
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 2);
+            DrawString(pos._x, pos._y, "----", props);
+
+            // Draw empty command param with blank color
+            pos._x += 5;
+            hexshort2char(p, buffer);
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 3);
+            DrawString(pos._x, pos._y, buffer, props);
+            pos._x -= 5;
+
+            pos._y++;
+            continue;
+        }
+
         fourCC2char(command, buffer);
-        setTextProps(props, 2, j, false);
         (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
                                                 : SetColor(CD_NORMAL);
+        setTextProps(props, j, 2);
         DrawString(pos._x, pos._y, buffer, props);
-        setTextProps(props, 2, j, true);
-        pos._y++;
-        if (j == row_ && col_ == 2) {
+
+        // Draw commands params 1 using the same color as command
+        pos._x += 5;
+        hexshort2char(p, buffer);
+        setTextProps(props, j, 3);
+        DrawString(pos._x, pos._y, buffer, props);
+        pos._x -= 5;
+
+        if (j == row_ && col_ >= 2 && col_ <= 3) {
+            props.invert_ = false;
             printHelpLegend(command, props);
         }
-    }
 
-    // Draw commands params 1
-
-    pos = anchor;
-    pos._x += 13;
-
-    ushort *param = phrase_->param1_ + (16 * viewData_->currentPhrase_);
-    buffer[5] = 0;
-
-    for (int j = 0; j < 16; j++) {
-        ushort p = *param++;
-        setTextProps(props, 3, j, false);
-        /*		if (p==0xFFFF) {
-                    DrawString(pos._x,pos._y,"----",props) ;
-                } else {
-        */ (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                   : SetColor(CD_NORMAL);
-        hexshort2char(p, buffer);
-        DrawString(pos._x, pos._y, buffer, props);
-        /*		}
-         */
-        setTextProps(props, 3, j, true);
         pos._y++;
     }
-
-    // Draw commands 2
 
     pos = anchor;
     pos._x += 18;
-
-    f = phrase_->cmd2_ + (16 * viewData_->currentPhrase_);
-
+    // Draw command 2 and it's params
+    cmd = phrase_->cmd2_ + (16 * viewData_->currentPhrase_);
+    param = phrase_->param2_ + (16 * viewData_->currentPhrase_);
     buffer[4] = 0;
+    for (int j = 0; j < 16; j++) {  
+        FourCC command = *cmd++;
+        ushort p = *param++;
 
-    for (int j = 0; j < 16; j++) {
-        FourCC command = *f++;
+        if (command == 0x2d2d2d2d) { // 0x2d2d2d2d = '----' in hex
+            // Draw empty command with blank color
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 4);
+            DrawString(pos._x, pos._y, "----", props);
+
+            // Draw empty command param with blank color
+            pos._x += 5;
+            hexshort2char(p, buffer);
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 5);
+            DrawString(pos._x, pos._y, buffer, props);
+            pos._x -= 5;
+
+            pos._y++;
+            continue;
+        }
+
         fourCC2char(command, buffer);
         (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
                                                 : SetColor(CD_NORMAL);
-        setTextProps(props, 4, j, false);
+        setTextProps(props, j, 4);
         DrawString(pos._x, pos._y, buffer, props);
-        setTextProps(props, 4, j, true);
-        pos._y++;
-        if (j == row_ && col_ == 4) {
+
+        // Draw commands params w using the same color as command
+        pos._x += 5;
+        hexshort2char(p, buffer);
+        setTextProps(props, j, 5);
+        DrawString(pos._x, pos._y, buffer, props);
+        pos._x -= 5;
+
+        if (j == row_ && col_ >= 4 && col_ <= 5) {
+            props.invert_ = false;
             printHelpLegend(command, props);
         }
-    }
 
-    // Draw commands params
-
-    pos = anchor;
-    pos._x += 23;
-
-    param = phrase_->param2_ + (16 * viewData_->currentPhrase_);
-    buffer[5] = 0;
-
-    for (int j = 0; j < 16; j++) {
-        ushort p = *param++;
-        setTextProps(props, 5, j, false);
-        /*		if (p==0xFFFF) {
-                    DrawString(pos._x,pos._y,"----",props) ;
-                } else {
-        */ (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                   : SetColor(CD_NORMAL);
-        hexshort2char(p, buffer);
-        DrawString(pos._x, pos._y, buffer, props);
-        /*		}
-         */
-        setTextProps(props, 5, j, true);
         pos._y++;
     }
 

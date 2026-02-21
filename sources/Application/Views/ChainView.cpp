@@ -64,7 +64,7 @@ void ChainView::updateCursorValue(int offset, int dx, int dy) {
     isDirty_ = true;
 }
 
-void ChainView::updateSelectionValue(int offset) { // HERE
+void ChainView::updateSelectionValue(int offset) {
 
     int savecol = viewData_->chainCol_;
     int saverow = viewData_->chainRow_;
@@ -627,31 +627,27 @@ void ChainView::processSelectionButtonMask(unsigned short mask) {
 
 void ChainView::OnFocus() { clipboard_.active_ = false; };
 
-void ChainView::setTextProps(GUITextProperties &props, int row, int col,
-                             bool restore) {
+void ChainView::setTextProps(GUITextProperties &props, int row, int col) {
 
     bool invert = false;
 
     if (clipboard_.active_) {
         GUIRect selRect = getSelectionRect();
-        if ((row >= selRect.Left()) && (row <= selRect.Right()) &&
-            (col >= selRect.Top()) && (col <= selRect.Bottom())) {
+        if ((col >= selRect.Left()) && (col <= selRect.Right()) &&
+            (row >= selRect.Top()) && (row <= selRect.Bottom())) {
             invert = true;
         }
     } else {
-        if ((viewData_->chainCol_ == row) && (viewData_->chainRow_ == col)) {
+        if ((viewData_->chainCol_ == col) && (viewData_->chainRow_ == row)) {
             invert = true;
         }
     }
 
     if (invert) {
-        if (restore) {
-            SetColor(CD_NORMAL);
-            props.invert_ = false;
-        } else {
-            SetColor(CD_HILITE2);
-            props.invert_ = true;
-        }
+        SetColor(CD_HILITE2);
+        props.invert_ = true;
+    } else {
+        props.invert_ = false;
     }
 };
 
@@ -678,54 +674,85 @@ void ChainView::DrawView() {
 
     char row[3];
     pos = anchor;
-    pos._x -= 3;
+    pos._x -= 2;
     for (int j = 0; j < 16; j++) {
         ((j / altRowNumber_) % 2) ? SetColor(CD_ROW) : SetColor(CD_ROW2);
-        hex2char(j, row);
+        h2c(j, row);
         DrawString(pos._x, pos._y, row, props);
         pos._y += 1;
     }
 
-    SetColor(CD_NORMAL);
-
-    pos = anchor;
-
-    // Display phrases
+    // Display column titles
+    if (Config::GetInstance()->isColumnTitleEnabled) {
+        pos = anchor;
+        pos._y -= 1;
+        SetColor(CD_BLANKSPACE);
+        DrawString(pos._x    , pos._y, "Ph", props);
+        DrawString(pos._x +3 , pos._y, "Tsp", props);
+        SetColor(CD_NORMAL);
+    }
 
     pos = anchor;
 
     unsigned char *data =
         viewData_->song_->chain_->data_ + (16 * viewData_->currentChain_);
-
-    for (int j = 0; j < 16; j++) {
-        unsigned char d = *data++;
-        setTextProps(props, 0, j, false);
-        if (d == 0xFF) {
-            DrawString(pos._x, pos._y, "--", props);
-        } else {
-            hex2char(d, row);
-            DrawString(pos._x, pos._y, row, props);
-        }
-        setTextProps(props, 0, j, true);
-        pos._y++;
-    }
-
-    // Draw Transpose
-
-    pos = anchor;
-    pos._x += 3;
-
-    data =
+    unsigned char *transposeData =
         viewData_->song_->chain_->transpose_ + (16 * viewData_->currentChain_);
+    unsigned char d = 0;
+    unsigned char t = 0;
 
     for (int j = 0; j < 16; j++) {
-        unsigned char d = *data++;
-        hex2char(d, row);
-        setTextProps(props, 1, j, false);
-        DrawString(pos._x, pos._y, row, props);
-        setTextProps(props, 1, j, true);
+        d = *data++;
+        if (d == 0xFF) {
+            // draw empty phrases with blank space color
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 0);
+            DrawString(pos._x, pos._y, "--", props);
+
+            // draw empty phrase transpose with blank space color
+            pos._x += 3;
+            t = *transposeData++;
+            hex2char(t, row);
+            SetColor(CD_BLANKSPACE);
+            setTextProps(props, j, 1);
+            DrawString(pos._x, pos._y, row, props);
+            pos._x -= 3;
+
+            SetColor(CD_NORMAL);
+        } else {
+            // draw non empty phrases with special color if they are "00" or
+            // "FE"
+            if (d == 0x00) {
+                SetColor(CD_SONGVIEW00);
+            } else if (d == 0xFE) {
+                SetColor(CD_SONGVIEWFE);
+            } else {
+                SetColor(CD_NORMAL);
+            }
+            hex2char(d, row);
+            setTextProps(props, j, 0);
+            DrawString(pos._x, pos._y, row, props);
+
+            // Draw non empty phrase transpose normal color
+            pos._x += 3;
+            t = *transposeData++;
+            hex2char(t, row);
+            SetColor(CD_NORMAL);
+            setTextProps(props, j, 1);
+            DrawString(pos._x, pos._y, row, props);
+            pos._x -= 3;
+        }
+        SetColor(CD_NORMAL);
+
+        // next line
         pos._y++;
     }
+
+    for (int j = 0; j < 16; j++) {
+
+        pos._y++;
+    }
+
     Player *player = Player::GetInstance();
 
     drawMap();
@@ -811,8 +838,8 @@ void ChainView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
     pos._x += 200;
 /*
 	if (player->Clipped()) {
-           w_.DrawString("clip",pos,props); 
+           w_.DrawString("clip",pos,props);
     } else {
-           w_.DrawString("----",pos,props); 
+           w_.DrawString("----",pos,props);
     }
 */} ;
