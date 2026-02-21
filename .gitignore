@@ -13,6 +13,9 @@ projects/resources/packaging/samplelib
 projects/resources/packaging/lgpt_BETA
 .DS_Store
 
+# Build logs for compare-builds tool
+.build_logs/**
+
 # build artifacts as per projects/resources/packaging/lgpt_package.sh
 projects/lgpt.deb-exe
 projects/lgpt.x64

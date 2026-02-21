@@ -45,7 +45,7 @@ jobs:
                 git diff
                 echo "Some files need formatting. Please review the diff."
                 echo "Tip: install pre-commit from repo root:"
-                echo "cp pre-commit .git/hooks/"
+                echo "cp tools/pre-commit .git/hooks/"
                 exit 1
             else
                 echo "All files are properly formatted."
