@@ -55,9 +55,7 @@ elif [ $WARNINGS_CURRENT_COUNT -le $WARNINGS_MASTER_COUNT ]; then
 else
     echo "The $CURRENT_BRANCH has more warnings than master."
     for warning in $WARNINGS_CURRENT; do
-        if ! grep -q "$warning" <<< "$WARNINGS_MASTER"; then
-            echo "New warning in $CURRENT_BRANCH: $warning"
-        fi
+        echo $warning
     done
 fi
 
