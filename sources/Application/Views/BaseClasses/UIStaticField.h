@@ -18,8 +18,7 @@ public:
     ColorDefinition color = CD_NORMAL;
 
   protected:
-	const char *string_ ;
-
+    const char *string_;
 } ;
 
 #endif
