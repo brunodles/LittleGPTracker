@@ -6,12 +6,13 @@
 #include "Application/Model/Config.h"
 #include "ModalView.h"
 
-bool View::initPrivate_=false ;
+bool View::initPrivate_ = false;
 
-int View::margin_=0 ;
+int View::margin_ = 0;
 int View::songRowCount_; //=21 sets screen height among other things
-bool View::miniLayout_=false ;
+bool View::miniLayout_ = false;
 int View::altRowNumber_ = 4;
+int View::majorBeatNumber_ = 4;
 
 View::View(GUIWindow &w,ViewData *viewData):
 	w_(w),
@@ -19,27 +20,31 @@ View::View(GUIWindow &w,ViewData *viewData):
 	modalViewCallback_(0),
 	hasFocus_(false)
 {
-  if (!initPrivate_) 
-  {
-	   GUIRect rect=w.GetRect() ;
-     miniLayout_=(rect.Width()<320);
-	   View::margin_=0 ;
+    if (!initPrivate_) {
+        GUIRect rect = w.GetRect();
+		miniLayout_= (rect.Width() < 320);
+		View::margin_= 0;
 		songRowCount_ = miniLayout_ ? 16:22; // 22 is row display count among other things
 
 		const char *altRowStr = Config::GetInstance()->GetValue("ALTROWNUMBER");
 		if (altRowStr) {
 			altRowNumber_ = atoi(altRowStr);
 		}
+        const char *majorBeatStr =
+            Config::GetInstance()->GetValue("MAJORBEATNUMBER");
+        if (majorBeatStr) {
+			majorBeatNumber_ = atoi(majorBeatStr);
+		}
 
-     initPrivate_=true ;
-  }
-	mask_=0 ;
-	viewMode_=VM_NORMAL ;
-	locked_=false ;
-	viewData_=viewData;
+        initPrivate_ = true;
+    }
+    mask_ = 0;
+	viewMode_ = VM_NORMAL;
+	locked_= false;
+	viewData_ = viewData;
 	NOTIFICATION_TIMEOUT = 1000;
-	displayNotification_ = "";
-} ;
+    displayNotification_ = "";
+}
 
 GUIPoint View::GetAnchor() {
     return GUIPoint((SCREEN_WIDTH - SONG_CHANNEL_COUNT * 3) / 2 + 2,

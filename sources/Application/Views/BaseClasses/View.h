@@ -193,6 +193,7 @@ class View : public Observable {
     static int songRowCount_;
     static bool miniLayout_;
     static int altRowNumber_;
+    static int majorBeatNumber_;
 };
 
 #endif

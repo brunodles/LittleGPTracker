@@ -1220,8 +1220,8 @@ void PhraseView::DrawView() {
             setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, "----", props);
         } else {
-            (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                    : SetColor(CD_NORMAL);
+            ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
+                                          : SetColor(CD_NORMAL);
             note2char(d, buffer);
             setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, buffer, props);
@@ -1245,8 +1245,9 @@ void PhraseView::DrawView() {
             setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, "--", props);
         } else {
-            (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                    : SetColor(CD_NORMAL);
+            ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
+                                          : SetColor(CD_NORMAL);
+
             hex2char(d, buffer);
             setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, buffer, props);
@@ -1295,8 +1296,9 @@ void PhraseView::DrawView() {
         }
 
         fourCC2char(command, buffer);
-        (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                : SetColor(CD_NORMAL);
+        ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
+                                      : SetColor(CD_NORMAL);
+
         setTextProps(props, j, 2);
         DrawString(pos._x, pos._y, buffer, props);
 
@@ -1344,8 +1346,9 @@ void PhraseView::DrawView() {
         }
 
         fourCC2char(command, buffer);
-        (0 == j || 4 == j || 8 == j || 12 == j) ? SetColor(CD_MAJORBEAT)
-                                                : SetColor(CD_NORMAL);
+        ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
+                                      : SetColor(CD_NORMAL);
+
         setTextProps(props, j, 4);
         DrawString(pos._x, pos._y, buffer, props);
 
