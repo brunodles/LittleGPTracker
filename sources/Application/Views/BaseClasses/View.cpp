@@ -68,70 +68,129 @@ void View::Unlock() {
 
 void View::drawMap() {
     if (!miniLayout_) {
-        GUIPoint anchor=GetAnchor() ;
-		GUIPoint pos(View::margin_,anchor._y);
-    	GUITextProperties props ;
+        GUIPoint anchor = GetAnchor();
+        GUIPoint pos(View::margin_, anchor._y);
+    	GUITextProperties props;
 
-		//draw entire map
-		SetColor(CD_HILITE1) ;
-    	char buffer[5] ;
-		props.invert_=true ;
-		//row1
-		sprintf(buffer,"P G ");
-        DrawString(pos._x,pos._y,buffer,props) ;
-		pos._y++ ;		
-		//row2
-		sprintf(buffer,"SCPI");
-        DrawString(pos._x,pos._y,buffer,props) ;
-		pos._y++ ;		
-		//row3
-		sprintf(buffer,"  TT");
-        DrawString(pos._x,pos._y,buffer,props) ;
-
-		//draw current screen on map
-		SetColor(CD_HILITE2) ;
-		pos._y = anchor._y;
-		switch(viewType_)
-		{
-		case VT_CHAIN:
-			pos._x+=1;
-			pos._y+=1;
-	        DrawString(pos._x,pos._y,"C",props) ;
-			break;
-		case VT_PHRASE:
-			pos._x+=2;
-			pos._y+=1;
-	        DrawString(pos._x,pos._y,"P",props) ;
-			break;
+		// Full Map
+		// |C   |
+		// |P G |
+		// |SCPI|
+		// |M TT|
+		// Detect which column of the map is selected
+		int mapColumn = 0;
+		switch (viewType_) {	
+		case VT_CONFIG:
 		case VT_PROJECT:
-	        DrawString(pos._x,pos._y,"P",props) ;
+		case VT_SONG:
+		case VT_MIXER:
+			mapColumn = 0;
 			break;
-		case VT_INSTRUMENT:
-			pos._x+=3;
-			pos._y+=1;
-	        DrawString(pos._x,pos._y,"I",props) ;
+
+        case VT_CHAIN:
+            mapColumn = 1;
+            break;
+
+        case VT_GROOVE:
+		case VT_PHRASE:
+        case VT_TABLE: // under phrase
+            mapColumn = 2;
 			break;
-		case VT_TABLE: //under phrase
-			pos._x+=2;
-			pos._y+=2;
-	        DrawString(pos._x,pos._y,"T",props) ;
+
+        case VT_INSTRUMENT:
+        case VT_TABLE2: // under instrument
+            mapColumn = 3;
 			break;
-		case VT_TABLE2: //under instrument
-			pos._x+=3;
-			pos._y+=2;
-	        DrawString(pos._x,pos._y,"T",props) ;
-			break;
-		case VT_GROOVE:
-			pos._x+=2;
-	        DrawString(pos._x,pos._y,"G",props) ;
-			break;
-		default: //VT_SONG
-			pos._y+=1;
-	        DrawString(pos._x,pos._y,"S",props) ;
-			int foo=0;
+
+        default: //??
+			mapColumn = 0;
 		}
 
-	}//!minilayout
+		SetColor(CD_SONGVIEW00);
+		// Draw main map in empty color
+		DrawString(pos._x, pos._y,     "P G ", props);
+//		DrawString(pos._x, pos._y + 1, "SCPI", props); // not neded as it will be draw as hilite1
+		DrawString(pos._x, pos._y + 2, "  TT", props);
+		
+
+		// Change the color for the hilights
+		SetColor(CD_HILITE1);
+		// Draw C if is on project
+		if (viewType_ == VT_PROJECT) {
+        	DrawString(pos._x, pos._y - 1, "C   ", props);
+		}
+
+		// First line
+		// |P G |
+		switch (mapColumn) {
+		case 0:
+        	DrawString(pos._x, pos._y, "P", props);
+			break;
+        case 2:
+            DrawString(pos._x+2, pos._y, "G", props);
+			break;
+        default:
+            break;
+        }
+
+        DrawString(pos._x, pos._y + 1, "SCPI", props);
+
+        // Last line
+		// |M TT|
+		switch (mapColumn) {
+		case 0:
+        	DrawString(pos._x, pos._y + 2, "M", props);
+			break;
+        case 2:
+            DrawString(pos._x + 2, pos._y + 2, "T", props);
+			break;
+        case 3:
+            DrawString(pos._x + 3, pos._y + 2, "T", props);
+			break;
+		default:
+            break;
+        }
+
+        //draw current screen on map
+        SetColor(CD_HILITE2);
+        props.invert_= true ;
+		pos._y = anchor._y;
+        switch (viewType_) {
+        case VT_CHAIN:
+            DrawString(pos._x + 1, pos._y + 1, "C", props);
+            break;
+		case VT_PHRASE:
+            DrawString(pos._x + 2, pos._y + 1, "P", props);
+            break;
+		case VT_PROJECT:
+            DrawString(pos._x, pos._y, "P", props);
+            break;
+		case VT_INSTRUMENT:
+            DrawString(pos._x + 3, pos._y + 1, "I", props);
+            break;
+		case VT_TABLE: //under phrase
+            DrawString(pos._x + 2, pos._y + 2, "T", props);
+            break;
+		case VT_TABLE2: //under instrument
+            DrawString(pos._x + 3, pos._y + 2, "T", props);
+            break;
+		case VT_GROOVE:
+            DrawString(pos._x + 2, pos._y, "G", props);
+            break;
+
+		case VT_CONFIG:
+	        DrawString(pos._x, pos._y -1, "C", props) ;
+            break;
+
+        case VT_MIXER:
+            DrawString(pos._x,  pos._y + 2, "M", props) ;
+            break;
+
+        default: // VT_SONG
+            DrawString(pos._x, pos._y + 1, "S", props);
+        }
+
+    } //! minilayout
 }
 
 void View::drawNotes() {
