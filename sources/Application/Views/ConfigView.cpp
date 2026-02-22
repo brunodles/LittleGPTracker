@@ -1,4 +1,4 @@
-#include "ProjectView.h"
+#include "ConfigView.h"
 #include "Application/Build.h"
 #include "Application/Mixer/MixerService.h"
 #include "Application/Model/ProjectDatas.h"
@@ -41,8 +41,8 @@ static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 		str_dstprjdir = root.GetName() + "/" + npd.GetName();
 		str_dstsmpdir = str_dstprjdir + "/samples/";
 
-		Path path_srcprjdir("project:");
-		Path path_srcsmpdir("project:samples");
+		Path path_srcprjdir("Config:");
+		Path path_srcsmpdir("Config:samples");
 		Path path_dstprjdir = Path(str_dstprjdir);
 		Path path_dstsmpdir = Path(str_dstsmpdir);
 
@@ -50,16 +50,16 @@ static void SaveAsProjectCallback(View &v,ModalView &dialog) {
         Path path_dstlgptdatsav = path_dstprjdir.GetPath() + "/lgptsav.dat";
 
 		if (path_dstprjdir.Exists()) {
-			Trace::Log("ProjectView", "Dst Dir '%s' Exist == true",
+			Trace::Log("ConfigView", "Dst Dir '%s' Exist == true",
 			path_dstprjdir.GetPath().c_str());
 		} else {
 			if (FileSystem::GetInstance()->MakeDir(path_dstprjdir.GetPath().c_str()).Failed()) {
-				Trace::Log("ProjectView", "Failed to create dir '%s'", path_dstprjdir.GetPath().c_str());
+				Trace::Log("ConfigView", "Failed to create dir '%s'", path_dstprjdir.GetPath().c_str());
 				return;
 			};
 
 		if (FileSystem::GetInstance()->MakeDir(path_dstsmpdir.GetPath().c_str()).Failed()) {
-			Trace::Log("ProjectView", "Failed to create sample dir '%s'", path_dstprjdir.GetPath().c_str());
+			Trace::Log("ConfigView", "Failed to create sample dir '%s'", path_dstprjdir.GetPath().c_str());
 			return;
 		};
 
@@ -83,7 +83,7 @@ static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 				}
 			}
 
-		((ProjectView &)v).OnSaveAsProject((char*)str_dstprjdir.c_str());
+		((ConfigView &)v).OnSaveAsProject((char*)str_dstprjdir.c_str());
 		}
     }
 }
@@ -91,28 +91,28 @@ static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 static void LoadCallback(View &v,ModalView &dialog) {
     MixerService::GetInstance()->SetRenderMode(0);
     if (dialog.GetReturnCode()==MBL_YES) {
-		((ProjectView &)v).OnLoadProject() ;
+		((ConfigView &)v).OnLoadProject() ;
 	}
 } ;
 
 static void QuitCallback(View &v,ModalView &dialog) {
     MixerService::GetInstance()->SetRenderMode(0);
     if (dialog.GetReturnCode()==MBL_YES) {
-		((ProjectView &)v).OnQuit() ;
+		((ConfigView &)v).OnQuit() ;
 	}
 } ;
 
 static void PurgeCallback(View &v,ModalView &dialog) {
-	((ProjectView &)v).OnPurgeInstruments(dialog.GetReturnCode()==MBL_YES) ;
+	((ConfigView &)v).OnPurgeInstruments(dialog.GetReturnCode()==MBL_YES) ;
 } ;
 
-void ProjectView::insertLabel(GUIPoint position, char *name) {
+void ConfigView::insertLabel(GUIPoint position, char *name) {
     position._x = POS_X_LABEL;
     UIStaticField *f = new UIStaticField(position, name, CD_SONGVIEW00);
     Insert(f);
 }
 
-ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
+ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 
     lastClock_ = 0;
     lastTick_ = 0;
@@ -124,79 +124,6 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 
     Variable *v = project_->FindVariable(VAR_TEMPO);
 
-    // DrawString()
-    insertLabel(position, "Tempo");
-    UITempoField *f = new UITempoField(ACTION_TEMPO_CHANGED, position, *v,
-                                       "%d [%2.2x]  ", 60, 400, 1, 10);
-    Insert(f);
-	f->AddObserver(*this);
-	tempoField_=f;
-
-    v = project_->FindVariable(VAR_MASTERVOL);
-    position._y += 1;
-    insertLabel(position, "Master");
-    Insert(new UIIntVarField(position, *v, "%d", 10, 100, 1, 10));
-
-    v = project_->FindVariable(VAR_PREGAIN);
-    position._y += 2;
-    insertLabel(position, "Drive");
-    Insert(new UIIntVarField(position, *v, "%d", 10, 200, 1, 10));
-
-    position._y += 1;
-    v = project_->FindVariable(VAR_SOFTCLIP);
-    insertLabel(position, "Type");
-    Insert(new UIIntVarField(position, *v, "%s", 0, 4, 1, 4));
-
-    v = project_->FindVariable(VAR_SOFTCLIP_GAIN);
-    position._x += 7;
-    Insert(new UIIntVarField(position, *v, "%s", 0, 1, 1, 1));
-    position._x -= 7;
-
-    v = project_->FindVariable(VAR_TRANSPOSE);
-    position._y += 2;
-    insertLabel(position, "Transpose");
-    Insert(new UIIntVarField(position,*v,"%2.2d",-48,48,0x1,0xC) );
-
-    v = project_->FindVariable(VAR_SCALE);
-	// if scale name is not found, set the default chromatic scale
-	if (v->GetInt() < 0) {
-		v->SetInt(0);
-    }
-    position._y += 1;
-    insertLabel(position, "Scale");
-    Insert(new UIIntVarField(position, *v, "%s", 0, scaleCount - 1, 1, 10));
-
-    position._y += 2;
-    insertLabel(position, "Compact");
-
-    UIActionField *a1 = new UIActionField("Sequencer", ACTION_PURGE, position);
-    a1->AddObserver(*this);
-    Insert(a1);
-
-    position._x += 10;
-    a1 = new UIActionField("Instruments", ACTION_PURGE_INSTRUMENT, position);
-    a1->AddObserver(*this);
-    Insert(a1);
-    position._x -= 10;
-
-    position._y += 2;
-    insertLabel(position, "Song");
-
-    a1 = new UIActionField("Load", ACTION_LOAD, position);
-    a1->AddObserver(*this);
-    Insert(a1);
-
-    position._x += 5;
-    a1 = new UIActionField("Save", ACTION_SAVE, position);
-    a1->AddObserver(*this);
-    Insert(a1);
-
-    position._x += 5;
-    a1 = new UIActionField("Save As", ACTION_SAVE_AS, position);
-    a1->AddObserver(*this);
-    Insert(a1);
-    position._x -= 10;
-
     v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
     position._y += 2;
@@ -204,21 +131,18 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
-    v = project_->FindVariable(VAR_RENDER);
-    NAssert(v);
-    insertLabel(position, "Render");
-    Insert(new UIIntVarField(position, *v, "%s", 0, project_->MAX_RENDER_MODE - 1, 1, 2));
+    insertLabel(position, "Config");
 
-    position._y += 2;
-    a1 = new UIActionField("Exit", ACTION_QUIT, position);
+    position._x = POS_X_VALUE;
+    UIActionField *a1 = new UIActionField("Save", ACTION_SAVE, position);
     a1->AddObserver(*this);
     Insert(a1);
 }
 
-ProjectView::~ProjectView() {
+ConfigView::~ConfigView() {
 }
 
-void ProjectView::ProcessButtonMask(unsigned short mask,bool pressed) {
+void ConfigView::ProcessButtonMask(unsigned short mask,bool pressed) {
 
     if (!pressed)
         return;
@@ -227,35 +151,15 @@ void ProjectView::ProcessButtonMask(unsigned short mask,bool pressed) {
 
     if (mask & EPBM_R) {
         if (mask & EPBM_DOWN) {
-            ViewType vt = VT_SONG;
+			ViewType vt = VT_PROJECT;
 			ViewEvent ve(VET_SWITCH_VIEW, &vt);
 			SetChanged();
             NotifyObservers(&ve);
-        } else if (mask & EPBM_UP) {
-            ViewType vt = VT_CONFIG;
-			ViewEvent ve(VET_SWITCH_VIEW, &vt);
-			SetChanged();
-            NotifyObservers(&ve);
-        }
-    } else {
-        if (mask & EPBM_START) {
-            Player *player = Player::GetInstance();
-
-            int renderMode = viewData_->renderMode_;
-			if (renderMode > 0 && !player->IsRunning()) {
-				viewData_->isRendering_ = true;
-				View::SetNotification("Rendering started!");
-			} else if (viewData_->isRendering_ && player->IsRunning()) {
-				viewData_->isRendering_ = false;
-				View::SetNotification("Rendering done!");
-			}
-
-			player->OnStartButton(PM_SONG,viewData_->songX_,false,viewData_->songX_) ;
         }
     };
 } ;
 
-void ProjectView::DrawView() {
+void ConfigView::DrawView() {
 
     Clear() ;
 
@@ -264,7 +168,7 @@ void ProjectView::DrawView() {
 
     // Draw title
     SetColor(CD_NORMAL);
-    DrawString(pos._x, pos._y, "Project", props);
+    DrawString(pos._x, pos._y, "Config", props);
 
     // Draw version
     SetColor(CD_SONGVIEW00);
@@ -289,7 +193,7 @@ void ProjectView::DrawView() {
     View::EnableNotification();
 } ;
 
-void ProjectView::Update(Observable &,I_ObservableData *data) {
+void ConfigView::Update(Observable &,I_ObservableData *data) {
 
 	if (!hasFocus_) {
 		return ;
@@ -329,7 +233,7 @@ void ProjectView::Update(Observable &,I_ObservableData *data) {
         }
         case ACTION_SAVE_AS: {
             PersistencyService *service = PersistencyService::GetInstance();
-            service->Save("project:lgptsav_tmp.dat");
+            service->Save("Config:lgptsav_tmp.dat");
             NewProjectDialog *mb = new NewProjectDialog(*this, "root:");
             DoModal(mb, SaveAsProjectCallback);
             break;
@@ -356,23 +260,23 @@ void ProjectView::Update(Observable &,I_ObservableData *data) {
 	isDirty_=true ;
 } ;
 
-void ProjectView::OnPurgeInstruments(bool removeFromDisk) {
+void ConfigView::OnPurgeInstruments(bool removeFromDisk) {
 	project_->PurgeInstruments(removeFromDisk) ;
 } ;
 
-void ProjectView::OnLoadProject() {
+void ConfigView::OnLoadProject() {
 	ViewEvent ve(VET_QUIT_PROJECT) ;
 	SetChanged();
 	NotifyObservers(&ve) ;
 } ;
 
-void ProjectView::OnSaveAsProject(char * data) {
+void ConfigView::OnSaveAsProject(char * data) {
         ViewEvent ve(VET_SAVEAS_PROJECT,data) ;
 	SetChanged();
 	NotifyObservers(&ve) ;
 } ;
 
-void ProjectView::OnQuit() {
+void ConfigView::OnQuit() {
 	ViewEvent ve(VET_QUIT_APP) ;
 	SetChanged();
 	NotifyObservers(&ve) ;

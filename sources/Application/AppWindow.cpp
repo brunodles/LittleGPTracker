@@ -378,6 +378,9 @@ void AppWindow::LoadProject(const Path &p) {
     _projectView = new ProjectView((*this), _viewData);
     _projectView->AddObserver((*this));
 
+    _configView = new ConfigView((*this), _viewData);
+    _configView->AddObserver((*this));
+
     _instrumentView = new InstrumentView((*this), _viewData);
     _instrumentView->AddObserver((*this));
 
@@ -566,9 +569,11 @@ void AppWindow::Update(Observable &o, I_ObservableData *d) {
         case VT_GROOVE:
             _currentView = _grooveView;
             break;
-            /*			case VT_MIXER:
-                        _currentView=_mixerView ;
-            */
+        case VT_CONFIG:
+            _currentView = _configView;
+            break;
+        case VT_MIXER:
+            _currentView=_mixerView;
             break;
         }
         _currentView->SetFocus(*vt);
