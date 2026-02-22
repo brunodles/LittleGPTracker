@@ -118,6 +118,7 @@ ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     lastTick_ = 0;
 
     project_ = data->project_;
+    Config *config = Config::GetInstance();
 
     GUIPoint position = GetAnchor();
     position._x = POS_X_VALUE;
@@ -126,13 +127,19 @@ ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 
     v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
-    position._y += 2;
     insertLabel(position, "MIDI");
     Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
-    insertLabel(position, "Config");
+    v = config->FindVariable("AUTO_LOAD_LAST");
+    Trace::Log("CONVI", "Confg View");
+    Trace::Log("CONVI", "AUTO_LOAD_LAST.id=%s", v->GetID());
+    Trace::Log("CONVI", "AUTO_LOAD_LAST=%s", v ? v->GetString() : "undefined");
+    insertLabel(position, "Auto Load");
+    Insert(new UIIntVarField(position, *v, "%s", 0, 1, 1, 1));
 
+    position._y += 2;
+    insertLabel(position, "Config.xml");
     position._x = POS_X_VALUE;
     UIActionField *a1 = new UIActionField("Save", ACTION_SAVE, position);
     a1->AddObserver(*this);
@@ -160,11 +167,10 @@ void ConfigView::ProcessButtonMask(unsigned short mask,bool pressed) {
 } ;
 
 void ConfigView::DrawView() {
+    Clear();
 
-    Clear() ;
-
-	GUITextProperties props ;
-	GUIPoint pos=GetTitlePosition() ;
+    GUITextProperties props;
+    GUIPoint pos=GetTitlePosition() ;
 
     // Draw title
     SetColor(CD_NORMAL);

@@ -3,8 +3,8 @@
 
 #include "BaseClasses/FieldView.h"
 #include "Foundation/Observable.h"
+#include "System/Console/Trace.h"
 #include "ViewData.h"
-
 
 class ConfigView: public FieldView,public I_Observer {
 public:

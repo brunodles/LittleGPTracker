@@ -35,10 +35,11 @@ void UIIntVarField::Draw(GUIWindow &w,int offset) {
 	position._y+=offset ;
 
 	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
+        ((AppWindow &)w).SetColor(CD_HILITE2);
+        props.invert_=true;
 	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
+        ((AppWindow &)w).SetColor(CD_NORMAL);
+        props.invert_=false;
 	}
 	Variable::Type type=src_.GetType() ;
 	char buffer[80] ;
