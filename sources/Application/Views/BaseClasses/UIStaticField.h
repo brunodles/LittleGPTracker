@@ -15,7 +15,9 @@ public:
 
 	virtual bool IsStatic() ;
 
-    ColorDefinition color = CD_NORMAL;
+    /** Type 'int', but expected to be 'ColorDefinition'.
+     * The build was failing for w32. */
+    int color = CD_NORMAL;
 
   protected:
     const char *string_;
