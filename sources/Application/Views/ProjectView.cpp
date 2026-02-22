@@ -250,7 +250,8 @@ void ProjectView::DrawView() {
 
     // Draw version
     SetColor(CD_SONGVIEW00);
-    DrawString(40 - strlen(VERSION_STRING), 29, VERSION_STRING, props) ;
+    DrawString(SCREEN_WIDTH - strlen(VERSION_STRING), POS_Y_LAST_LINE,
+               VERSION_STRING, props);
 
     FieldView::Redraw();
     drawMap();

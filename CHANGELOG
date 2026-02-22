@@ -1,3 +1,6 @@
+1.6.1-pork2
+    Use constants to replace hardcoded screen size and some UI location
+
 1.6.0-pork2
     Contributions:
         mrtnvgr:

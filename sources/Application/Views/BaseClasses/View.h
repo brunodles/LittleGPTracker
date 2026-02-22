@@ -16,6 +16,11 @@
 #include <SDL/SDL.h>
 #endif
 
+#define SCREEN_WIDTH 40
+#define SCREEN_HEIGHT 30
+#define POS_Y_LAST_LINE 29
+#define POS_Y_BEFORE_LAST_LINE 28
+
 enum GUIEventPadButtonMasks {
     EPBM_LEFT = 1,
     EPBM_DOWN = 2,

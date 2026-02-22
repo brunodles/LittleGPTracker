@@ -7,8 +7,8 @@
 /** Used for incremental changes and improvements of the major version */
 #define VERSION_MINOR "6"
 
-/** Used for patch level changes, of the minor version */
-#define VERSION_PATCH "0"
+/** Used for patch level changes of the minor version */
+#define VERSION_PATCH "1"
 
 /** Used for namming */
 #define VERSION_NAME "Pork1"

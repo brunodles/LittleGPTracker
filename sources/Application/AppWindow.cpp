@@ -154,19 +154,18 @@ AppWindow::~AppWindow() { MidiService::GetInstance()->Close(); }
 void AppWindow::DrawString(const char *string, GUIPoint &pos,
                            GUITextProperties &props, bool force) {
 
-    // we know we don't have mode than 40 chars
-
+    // we know we don't have mode than 40 chars (SCREEN_WIDTH)
     char buffer[41];
     int len = strlen(string);
     int offset = (pos._x < 0) ? -pos._x / 8 : 0;
     len -= offset;
-    int available = 40 - ((pos._x < 0) ? 0 : pos._x);
+    int available = SCREEN_WIDTH - ((pos._x < 0) ? 0 : pos._x);
     len = MIN(len, available);
     memcpy(buffer, string + offset, len);
     buffer[len] = 0;
 
-    NAssert((pos._x < 40) && (pos._y < 30));
-    int index = pos._x + 40 * pos._y;
+    NAssert((pos._x < SCREEN_WIDTH) && (pos._y < SCREEN_HEIGHT));
+    int index = pos._x + SCREEN_WIDTH * pos._y;
     memcpy(_charScreen + index, buffer, len);
     unsigned char prop = colorIndex_ + (props.invert_ ? PROP_INVERT : 0);
     memset(_charScreenProp + index, prop, len);
@@ -188,15 +187,15 @@ void AppWindow::ClearRect(GUIRect &r) {
     int w = r.Width();
     int h = r.Height();
 
-    unsigned char *st = _charScreen + x + (40 * y);
-    unsigned char *pr = _charScreenProp + x + (40 * y);
+    unsigned char *st = _charScreen + x + (SCREEN_WIDTH * y);
+    unsigned char *pr = _charScreenProp + x + (SCREEN_WIDTH * y);
     for (int i = 0; i < h; i++) {
         for (int j = 0; j < w; j++) {
             *st++ = ' ';
             *pr++ = 0;
         }
-        st += (40 - w);
-        pr += (40 - w);
+        st += (SCREEN_WIDTH - w);
+        pr += (SCREEN_WIDTH - w);
     }
 };
 
@@ -238,8 +237,8 @@ void AppWindow::Flush() {
     unsigned char *previous = _preScreen;
     unsigned char *currentProp = _charScreenProp;
     unsigned char *previousProp = _preScreenProp;
-    for (int y = 0; y < 30; y++) {
-        for (int x = 0; x < 40; x++) {
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
 #ifndef _LGPT_NO_SCREEN_CACHE_
             if ((*current != *previous) || (*currentProp != *previousProp)) {
 #endif
@@ -635,7 +634,7 @@ void AppWindow::Print(char *line) {
     Clear();
     strcpy(_statusLine, line);
     // unwrapped for gcc
-    int position = 40;
+    int position = SCREEN_WIDTH;
     position -= strlen(_statusLine);
     position /= 2;
     GUIPoint pos(position, 12);
@@ -643,8 +642,8 @@ void AppWindow::Print(char *line) {
     GUITextProperties props;
     SetColor(CD_NORMAL);
     DrawString(_statusLine, pos, props);
-    pos._y = 28;
-    pos._x = (40 - strlen(VERSION_STRING)) / 2;
+    pos._y = POS_Y_BEFORE_LAST_LINE;
+    pos._x = (SCREEN_WIDTH - strlen(VERSION_STRING)) / 2;
     DrawString(VERSION_STRING, pos, props);
     Flush();
 };
