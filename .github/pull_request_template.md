@@ -7,6 +7,7 @@ For features, please include a detailed description of the new feature and how i
 All PR:s are run through line-by-line clang-format and builds for all supported platforms.
 clang-format can be applied locally on commit by installing pre-commit from repo root:
     cp tools/pre-commit .git/hooks/
+    cp tools/pre-push .git/hooks/
 
 In section below, delete any option that isn't relevant.
 ## Type of change
