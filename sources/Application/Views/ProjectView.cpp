@@ -24,9 +24,9 @@
 #define ACTION_TEMPO_CHANGED    MAKE_FOURCC('T','E','M','P')
 
 /** Horizontal position of the label */
-#define POSX_LABEL 8
+#define POS_X_LABEL 8
 /** Horizontal position of the values */
-#define POSX_VALUE 10
+#define POS_X_VALUE 18
 
 static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 
@@ -107,11 +107,10 @@ static void PurgeCallback(View &v,ModalView &dialog) {
 } ;
 
 void ProjectView::insertLabel(GUIPoint position, char *name) {
-    position._x -= POSX_VALUE;
+    position._x = POS_X_LABEL;
     UIStaticField *f =new UIStaticField(position, name);
     f->color = CD_SONGVIEW00;
-	Insert(f);
-    position._x += POSX_VALUE;
+    Insert(f);
 }
 
 ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
@@ -122,7 +121,7 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     project_ = data->project_;
 
     GUIPoint position = GetAnchor();
-    position._x += POSX_LABEL;
+    position._x = POS_X_VALUE;
 
     Variable *v = project_->FindVariable(VAR_TEMPO);
 
