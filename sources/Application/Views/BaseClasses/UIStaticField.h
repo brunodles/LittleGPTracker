@@ -7,7 +7,8 @@ class UIStaticField: public UIField {
 
 public:
   UIStaticField(GUIPoint &position, const char *string);
-  UIStaticField(GUIPoint &position, const char *string, ColorDefinition color);
+  UIStaticField(GUIPoint &position, const char *string,
+                const ColorDefinition color);
 
   virtual ~UIStaticField(){};
   virtual void Draw(GUIWindow &w, int offset = 0);
@@ -16,14 +17,9 @@ public:
 
   virtual bool IsStatic();
 
-// This is not supported by w32.
-#ifndef PLATFORM_W32
-    ColorDefinition color = CD_NORMAL;
-#endif
-
-  protected:
-    const char *string_;
-    int colorDefinitionIndex_;
+protected:
+  const char *string_;
+  int colorDefinitionIndex_;
 };
 
 #endif
