@@ -109,7 +109,9 @@ static void PurgeCallback(View &v,ModalView &dialog) {
 void ProjectView::insertLabel(GUIPoint position, char *name) {
     position._x = POS_X_LABEL;
     UIStaticField *f =new UIStaticField(position, name);
+#ifndef PLATFORM_W32
     f->color = CD_SONGVIEW00;
+#endif
     Insert(f);
 }
 

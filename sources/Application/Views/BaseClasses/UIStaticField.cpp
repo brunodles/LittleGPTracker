@@ -11,7 +11,12 @@ void UIStaticField::Draw(GUIWindow &w,int offset) {
 	GUIPoint position=GetPosition() ;
 	position._y+=offset ;
 
-    ((AppWindow &)w).SetColor(color);
+// w32 will have the color normal
+#ifdef PLATFORM_W32
+    ((AppWindow &)w).SetColor(CD_NORMAL);
+#else
+	((AppWindow &)w).SetColor(color);
+	#endif
     w.DrawString(string_,position,props) ;	
 } ;
 

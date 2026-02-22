@@ -15,9 +15,10 @@ public:
 
 	virtual bool IsStatic() ;
 
-    /** Type 'int', but expected to be 'ColorDefinition'.
-     * The build was failing for w32. */
-    int color = CD_NORMAL;
+// This is not supported by w32.
+#ifndef PLATFORM_W32
+    ColorDefinition color = CD_NORMAL;
+#endif
 
   protected:
     const char *string_;
