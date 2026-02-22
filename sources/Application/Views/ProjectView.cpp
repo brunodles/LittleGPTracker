@@ -23,6 +23,11 @@
 #define ACTION_PURGE_INSTRUMENT MAKE_FOURCC('P','R','G','I')
 #define ACTION_TEMPO_CHANGED    MAKE_FOURCC('T','E','M','P')
 
+/** Horizontal position of the label */
+#define POS_X_LABEL 8
+/** Horizontal position of the values */
+#define POS_X_VALUE 18
+
 static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 
     FileSystemService FSS;
@@ -101,48 +106,56 @@ static void PurgeCallback(View &v,ModalView &dialog) {
 	((ProjectView &)v).OnPurgeInstruments(dialog.GetReturnCode()==MBL_YES) ;
 } ;
 
+void ProjectView::insertLabel(GUIPoint position, char *name) {
+    position._x = POS_X_LABEL;
+    UIStaticField *f = new UIStaticField(position, name, CD_SONGVIEW00);
+    Insert(f);
+}
+
 ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 
     lastClock_ = 0;
     lastTick_ = 0;
 
-	project_=data->project_ ;
+    project_ = data->project_;
 
-	GUIPoint position=GetAnchor() ;
-	
-	Variable *v=project_->FindVariable(VAR_TEMPO) ;
+    GUIPoint position = GetAnchor();
+    position._x = POS_X_VALUE;
+
+    Variable *v = project_->FindVariable(VAR_TEMPO);
+
+    // DrawString()
+    insertLabel(position, "Tempo");
     UITempoField *f = new UITempoField(ACTION_TEMPO_CHANGED, position, *v,
-                                       "Tempo: %d [%2.2x]  ", 60, 400, 1, 10);
-    T_SimpleList<UIField>::Insert(f) ;
-	f->AddObserver(*this) ;
-	tempoField_=f ;
+                                       "%d [%2.2x]  ", 60, 400, 1, 10);
+    Insert(f);
+	f->AddObserver(*this);
+	tempoField_=f;
 
     v = project_->FindVariable(VAR_MASTERVOL);
     position._y += 1;
-    UIIntVarField *field =
-        new UIIntVarField(position, *v, "Master: %d", 10, 100, 1, 10);
-    T_SimpleList<UIField>::Insert(field);
+    insertLabel(position, "Master");
+    Insert(new UIIntVarField(position, *v, "%d", 10, 100, 1, 10));
 
     v = project_->FindVariable(VAR_PREGAIN);
     position._y += 2;
-    field = new UIIntVarField(position, *v, "Drive: %d", 10, 200, 1, 10);
-    T_SimpleList<UIField>::Insert(field);
+    insertLabel(position, "Drive");
+    Insert(new UIIntVarField(position, *v, "%d", 10, 200, 1, 10));
 
     position._y += 1;
     v = project_->FindVariable(VAR_SOFTCLIP);
-    field = new UIIntVarField(position, *v, "Type: %s", 0, 4, 1, 4);
-    T_SimpleList<UIField>::Insert(field);
+    insertLabel(position, "Type");
+    Insert(new UIIntVarField(position, *v, "%s", 0, 4, 1, 4));
 
     v = project_->FindVariable(VAR_SOFTCLIP_GAIN);
-    position._x += 13;
-    field = new UIIntVarField(position, *v, "%s", 0, 1, 1, 1);
-    T_SimpleList<UIField>::Insert(field);
-    position._x -= 13;
+    position._x += 7;
+    Insert(new UIIntVarField(position, *v, "%s", 0, 1, 1, 1));
+    position._x -= 7;
 
     v = project_->FindVariable(VAR_TRANSPOSE);
     position._y += 2;
-    UIIntVarField *f2=new UIIntVarField(position,*v,"Transpose: %3.2d",-48,48,0x1,0xC) ;
-	T_SimpleList<UIField>::Insert(f2) ;
+    insertLabel(position, "Transpose");
+    Insert(new UIIntVarField(position,*v,"%2.2d",-48,48,0x1,0xC) );
 
     v = project_->FindVariable(VAR_SCALE);
 	// if scale name is not found, set the default chromatic scale
@@ -150,56 +163,56 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 		v->SetInt(0);
     }
     position._y += 1;
-    field =
-        new UIIntVarField(position, *v, "Scale: %s", 0, scaleCount - 1, 1, 10);
-    T_SimpleList<UIField>::Insert(field);
+    insertLabel(position, "Scale");
+    Insert(new UIIntVarField(position, *v, "%s", 0, scaleCount - 1, 1, 10));
 
     position._y += 2;
-    UIActionField *a1 =
-        new UIActionField("Compact Sequencer", ACTION_PURGE, position);
-    a1->AddObserver(*this);
-    T_SimpleList<UIField>::Insert(a1);
+    insertLabel(position, "Compact");
 
-    position._y += 1;
-    a1 = new UIActionField("Compact Instruments", ACTION_PURGE_INSTRUMENT,
-                           position);
+    UIActionField *a1 = new UIActionField("Sequencer", ACTION_PURGE, position);
     a1->AddObserver(*this);
-    T_SimpleList<UIField>::Insert(a1);
+    Insert(a1);
+
+    position._x += 10;
+    a1 = new UIActionField("Instruments", ACTION_PURGE_INSTRUMENT, position);
+    a1->AddObserver(*this);
+    Insert(a1);
+    position._x -= 10;
 
     position._y += 2;
-    a1 = new UIActionField("Load Song", ACTION_LOAD, position);
-    a1->AddObserver(*this);
-    T_SimpleList<UIField>::Insert(a1);
+    insertLabel(position, "Song");
 
-    position._y += 1;
-    a1 = new UIActionField("Save Song", ACTION_SAVE, position);
+    a1 = new UIActionField("Load", ACTION_LOAD, position);
     a1->AddObserver(*this);
-    T_SimpleList<UIField>::Insert(a1);
+    Insert(a1);
 
-    position._y += 1;
-    a1 = new UIActionField("Save Song As", ACTION_SAVE_AS, position);
+    position._x += 5;
+    a1 = new UIActionField("Save", ACTION_SAVE, position);
     a1->AddObserver(*this);
-    T_SimpleList<UIField>::Insert(a1);
+    Insert(a1);
+
+    position._x += 5;
+    a1 = new UIActionField("Save As", ACTION_SAVE_AS, position);
+    a1->AddObserver(*this);
+    Insert(a1);
+    position._x -= 10;
 
     v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
     position._y += 2;
-    field = new UIIntVarField(position, *v, "MIDI: %s", 0,
-                              MidiService::GetInstance()->Size(), 1, 1);
-    T_SimpleList<UIField>::Insert(field);
+    insertLabel(position, "MIDI");
+    Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
     v = project_->FindVariable(VAR_RENDER);
     NAssert(v);
-    field = new UIIntVarField(position, *v, "Render: %s", 0,
-                              project_->MAX_RENDER_MODE - 1, 1, 2);
-    T_SimpleList<UIField>::Insert(field);
+    insertLabel(position, "Render");
+    Insert(new UIIntVarField(position, *v, "%s", 0, project_->MAX_RENDER_MODE - 1, 1, 2));
 
     position._y += 2;
     a1 = new UIActionField("Exit", ACTION_QUIT, position);
     a1->AddObserver(*this);
-    T_SimpleList<UIField>::Insert(a1);
-
+    Insert(a1);
 }
 
 ProjectView::~ProjectView() {

@@ -6,20 +6,20 @@
 class UIStaticField: public UIField {
 
 public:
+  UIStaticField(GUIPoint &position, const char *string);
+  UIStaticField(GUIPoint &position, const char *string,
+                const ColorDefinition color);
 
-	UIStaticField(GUIPoint &position,const char *string) ;
-	virtual ~UIStaticField() {} ;
-	virtual void Draw(GUIWindow &w, int offset=0) ;
-	virtual void ProcessArrow(unsigned short mask) ;
-	virtual void OnClick() {} ;
+  virtual ~UIStaticField(){};
+  virtual void Draw(GUIWindow &w, int offset = 0);
+  virtual void ProcessArrow(unsigned short mask);
+  virtual void OnClick() {};
 
-	virtual bool IsStatic() ;
+  virtual bool IsStatic();
 
 protected:
-
-protected:
-	const char *string_ ;
-
-} ;
+  const char *string_;
+  int colorDefinitionIndex_;
+};
 
 #endif
