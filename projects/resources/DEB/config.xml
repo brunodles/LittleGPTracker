@@ -30,6 +30,8 @@
     <ROWCOLOR1       value = "BA28F9" /> <!-- Row count color 1 -->
     <ROWCOLOR2       value = "FF00FF" /> <!-- Row count color 2 -->
     <ALTROWNUMBER    value = "4" />      <!-- How many rows of each ROWCOLOR -->
+    <MAJORBEATNUMBER value = "4"      /> <!-- Multiplier of the row that will receive the MAJORBEAT color -->
+    <MAJORBEAT       value = "A0A0A0" /> <!-- The MAJORBEAT color  -->
     <FONTTYPE        value = "0" />      <!-- "0": original, "1" :digital, "2": monster, "CUSTOM": load custom_font.xml -->
 
 </CONFIG>

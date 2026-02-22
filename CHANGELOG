@@ -1,10 +1,13 @@
+1.6.1-pork4
+    Create a customized value for majorbeat highlight on PhraseView.
+
 1.6.1-pork3
     Project view revamp
     * Present the items as a table
     * Split Labels and Values
     * Labels use the SONG00 color
     * Compact actions are now side-by-side
-    * Song file actions (load, save, save as) are now presented side-by-side    
+    * Song file actions (load, save, save as) are now presented side-by-side
 
 1.6.1-pork2
     Use constants to replace hardcoded screen size and some UI location

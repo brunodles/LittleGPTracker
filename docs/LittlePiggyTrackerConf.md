@@ -125,7 +125,8 @@ LittleGPTracker uses 6 colours to do all the drawing. If you want, you can redef
 - `SONGVIEW_00`: Color of the chain "00" in song screen
 - `ROWCOLOR1`: Row count color 1
 - `ROWCOLOR2`: Row count color 2
-- `MAJORBEAT`: Color of "--" at row 00,04,08,0c in phrase screen
+- `MAJORBEAT`: Color the rows where the denominator
+- `MAJORBEATNUMBER`: Denominator for ppresenting `MAJORBEAT` color
 - `ALTROWNUMBER`: How many rows for each `ROWCOLOR`
 
 All colors are defined by a set of hexadecimal triplet for RGB. Here's an example:
@@ -145,6 +146,8 @@ All colors are defined by a set of hexadecimal triplet for RGB. Here's an exampl
     <ROWCOLOR1    value = "BA28F9" /> <!-- Row count color 1 -->
     <ROWCOLOR2    value = "FF00FF" /> <!-- Row count color 2 -->
     <ALTROWNUMBER value = "4" />      <!-- How many rows of each ROWCOLOR -->
+    <MAJORBEATNUMBER value = "4"      /> <!-- Multiplier of the row that will receive the MAJORBEAT color -->
+    <MAJORBEAT       value = "A0A0A0" /> <!-- The MAJORBEAT color  -->
 </CONFIG>
 ```
 
