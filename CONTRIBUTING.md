@@ -9,14 +9,11 @@ sudo apt install clang-format
 ```
 
 ### Code format
-Install the pre-commig hook:
+Install the git hooks:
 ```
 cp tools/pre-commit .git/hooks/
-```
+cp tools/pre-push .git/hooks/
 
-Alternatively run the post-commit-format
-```
-./tools/post-commit-format
 ```
 
 ### Warnings

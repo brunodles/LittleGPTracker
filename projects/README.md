@@ -1,5 +1,9 @@
-Recommendation: Install pre-commit
-From repo root: cp tools/pre-commit ./git/hooks
+Recommendation: Install git hooks for formating the code
+From repo root: 
+```
+cp tools/pre-commit ./git/hooks
+cp tools/pre-push ./git/hooks
+```
 
 ##### Windows: Use Visual 2008 express edition + will need the DirectX SDK (I'm using March 2008)
 

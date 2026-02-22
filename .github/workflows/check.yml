@@ -44,8 +44,12 @@ jobs:
             if [ $NEEDS_FORMATTING -eq 1 ]; then
                 git diff
                 echo "Some files need formatting. Please review the diff."
-                echo "Tip: install pre-commit from repo root:"
+                echo "Tip: install git hooks, from repo root run:"
                 echo "cp tools/pre-commit .git/hooks/"
+                echo "cp tools/pre-push .git/hooks/"
+                echo ""
+                echo "Run the pre-push hook locally to check formatting and submit again:"
+                echo "./tools/pre-push"
                 exit 1
             else
                 echo "All files are properly formatted."
