@@ -86,22 +86,18 @@ void PSPSystem::Boot(int argc,char **argv) {
 
 	// PSP SDL Basic config
 
-	bool invert=false ;
-	Config *config=Config::GetInstance() ;
-	const char *s=config->GetValue("INVERT") ;
+    bool invert = false;
+    Config *config = Config::GetInstance();
+	invert = config->inputKeyInvertTriggers;
 
-	if ((s)&&(!strcmp(s,"YES"))) {
-		invert=true ;
-	}
-
-	if (!invert) {
-		eventManager_->MapAppButton("but:0:0",APP_BUTTON_B) ;
-		eventManager_->MapAppButton("but:0:3",APP_BUTTON_A) ;
-	}else {
-		eventManager_->MapAppButton("but:0:0",APP_BUTTON_A) ;
-		eventManager_->MapAppButton("but:0:3",APP_BUTTON_B) ;
-	}
-	eventManager_->MapAppButton("but:0:7",APP_BUTTON_LEFT) ;
+    if (invert) {
+        eventManager_->MapAppButton("but:0:0",APP_BUTTON_A);
+		eventManager_->MapAppButton("but:0:3",APP_BUTTON_B);
+    } else {
+        eventManager_->MapAppButton("but:0:0", APP_BUTTON_B);
+        eventManager_->MapAppButton("but:0:3",APP_BUTTON_A);
+    }
+    eventManager_->MapAppButton("but:0:7",APP_BUTTON_LEFT) ;
 	eventManager_->MapAppButton("but:0:9",APP_BUTTON_RIGHT) ;
 	eventManager_->MapAppButton("but:0:8",APP_BUTTON_UP) ;
 	eventManager_->MapAppButton("but:0:6",APP_BUTTON_DOWN) ;

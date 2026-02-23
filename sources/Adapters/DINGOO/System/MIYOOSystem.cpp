@@ -89,18 +89,15 @@ void GPSDLSystem::Boot(int argc,char **argv) {
 
     bool invert = false;
     Config *config=Config::GetInstance();
-    const char *s=config -> GetValue("INVERT");
+    invert = config->inputKeyInvertTriggers;
 
-    if ((s) && (!strcmp(s, "YES"))) {
-        invert=true;
-    }
     // Disable for now while we work on double mappings
-    // if (!invert) {
-    //     eventManager_->MapAppButton("left ctrl", APP_BUTTON_A);
-    //     eventManager_->MapAppButton("left alt", APP_BUTTON_B);
-    // } else {
+    // if (invert) {
     //     eventManager_->MapAppButton("left alt", APP_BUTTON_A);
     //     eventManager_->MapAppButton("left ctrl", APP_BUTTON_B);
+    // } else {
+    //     eventManager_->MapAppButton("left ctrl", APP_BUTTON_A);
+    //     eventManager_->MapAppButton("left alt", APP_BUTTON_B);
     // }
     // eventManager_->MapAppButton("return", APP_BUTTON_START);
     // eventManager_->MapAppButton("tab", APP_BUTTON_L);

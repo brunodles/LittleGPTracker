@@ -1,3 +1,6 @@
+1.6.1-pork5
+    New method of mapping variables internally. Also adds another methods to configure booleans values in Config.xml.
+
 1.6.1-pork4
     Create a customized value for majorbeat highlight on PhraseView.
 

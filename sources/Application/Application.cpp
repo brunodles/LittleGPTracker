@@ -17,35 +17,32 @@ Application::Application() {
 
 void Application::initMidiInput()
 {
-  const char *preferedDevice=Config::GetInstance()->GetValue("MIDICTRLDEVICE");
+    const char *preferedDevice = Config::GetInstance()->midiControlDevice;
 
-  IteratorPtr<MidiInDevice>it(MidiService::GetInstance()->GetInIterator()) ;
-  for(it->Begin();!it->IsDone();it->Next())
-  {
-    MidiInDevice &in=it->CurrentItem() ;
-    if ((preferedDevice) && (!strncmp(in.GetName(), preferedDevice, strlen(preferedDevice))))
-    {
-      if (in.Init())
-      {
-        if (in.Start())
-        {
-          Trace::Log("MIDI","Controlling activated for MIDI interface %s",in.GetName()) ;
+    IteratorPtr<MidiInDevice> it(MidiService::GetInstance()->GetInIterator());
+    for (it->Begin(); !it->IsDone(); it->Next()) {
+        MidiInDevice &in = it->CurrentItem();
+        if ((preferedDevice) &&
+            (!strncmp(in.GetName(), preferedDevice, strlen(preferedDevice)))) {
+            if (in.Init()) {
+                if (in.Start()) {
+                    Trace::Log("MIDI",
+                               "Controlling activated for MIDI interface %s",
+                               in.GetName());
+                } else {
+                    in.Close();
+                }
+            }
         }
-        else
-        {
-          in.Close() ;
-        }
-      }
-    }
   }
 }
 
 bool Application::Init(GUICreateWindowParams &params) {
-	const char* root=Config::GetInstance()->GetValue("ROOTFOLDER") ;
-	if (root) {
+    const char *root = Config::GetInstance()->rootPath;
+    if (root) {
 		Path::SetAlias("root",root) ;
-	} ;
-	window_=AppWindow::Create(params) ;
+    };
+    window_=AppWindow::Create(params) ;
 	PersistencyService::GetInstance() ;
   Audio *audio=Audio::GetInstance() ;
   audio->Init() ;

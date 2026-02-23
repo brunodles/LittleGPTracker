@@ -92,15 +92,9 @@ SDLGUIWindowImp::SDLGUIWindowImp(GUICreateWindowParams &p)
   SDL_VideoDriverName(driverName,64);
   
   Trace::Log("DISPLAY","Using driver %s. Screen (%d,%d) Bpp:%d",driverName,screenWidth,screenHeight,bitDepth_);
-  
-  bool fullscreen=false ;
-  
-  const char *fullscreenValue=Config::GetInstance()->GetValue("FULLSCREEN") ;
-  if ((fullscreenValue)&&(!strcmp(fullscreenValue,"YES")))
-  {
-  	fullscreen=true ;
-  }
-  
+
+  bool fullscreen = Config::GetInstance()->fullscreen;
+
   SDL_WM_SetCaption("LittleGPTracker","lgpt");
 	
   if (!strcmp(driverName, "fbcon"))
@@ -113,20 +107,12 @@ SDLGUIWindowImp::SDLGUIWindowImp(GUICreateWindowParams &p)
   	mult_ = 1;
   #else
 	int multFromSize=MIN(screenHeight/appHeight,screenWidth/appWidth);
-	const char *mult=Config::GetInstance()->GetValue("SCREENMULT") ;
-	if (mult)
-	{
-		mult_=atoi(mult);
-	}
-	else
-	{
-		if (framebuffer_)
-		{
-		mult_ = multFromSize;
-		}
-		else
-		{
-		mult_ = 1;
+    mult_ = Config::GetInstance()->screenMultiply;
+    if (mult_ <= 0) {
+		if (framebuffer_) {
+			mult_ = multFromSize;
+		} else {
+			mult_ = 1;
 		}
 	}
   #endif

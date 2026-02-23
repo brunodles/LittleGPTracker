@@ -22,8 +22,7 @@
 DINGOOAudioDriver::DINGOOAudioDriver(AudioSettings &settings):SDLAudioDriver(settings)
 {
   Config *config=Config::GetInstance();
-  const char *volume=config->GetValue("VOLUME");
-  volume_ = (volume) ? volume_=atoi(volume) : 65;
+  volume_ = intConfOrFallback(config->volume, 65);
 }
 
 DINGOOAudioDriver::~DINGOOAudioDriver()

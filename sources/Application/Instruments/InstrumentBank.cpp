@@ -91,10 +91,9 @@ void InstrumentBank::RestoreContent(TiXmlElement *element) {
 	PersistencyDocument *doc=(PersistencyDocument *)element->GetDocument() ;
   if (doc->version_ < 130)
   {
-    if (Config::GetInstance()->GetValue("LEGACYDOWNSAMPLING") != NULL)
-    {
-      SampleInstrument::EnableDownsamplingLegacy();
-    }
+      if (Config::GetInstance()->waveLegacyDownSampling) {
+          SampleInstrument::EnableDownsamplingLegacy();
+      }
   }
 	while (current) {
 

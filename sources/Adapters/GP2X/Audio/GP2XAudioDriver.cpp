@@ -146,13 +146,8 @@ bool GP2XAudioDriver::InitDriver() {
    unalignedMain_=(char *)SYS_MALLOC(fragSize_+SOUND_BUFFER_MAX) ;
    mainBuffer_=(char *)((((int)unalignedMain_)+1)&(0xFFFFFFFC)) ;
 
-   volume_=65;
-   Config *config=Config::GetInstance() ;
-   const char *volume=config->GetValue("VOLUME") ;
-
-   if (volume) {
-      volume_=atoi(volume) ;
-   }  
+   Config *config = Config::GetInstance();
+   volume_ = intConfOrFallback(config->volume, 65);
 
    int realVol=(volume_<<8)+volume_ ;
    ioctl(gp2x_dev[DEV_MIXER], MIXER_WRITE(SOUND_MIXER_PCM) , &realVol);

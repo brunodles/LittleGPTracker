@@ -35,20 +35,15 @@ bool SDLEventManager::Init()
 	joyCount=(joyCount>MAX_JOY_COUNT)?MAX_JOY_COUNT:joyCount ;
 
 	keyboardCS_=new KeyboardControllerSource("keyboard") ;
-	const char *dumpIt=Config::GetInstance()->GetValue("DUMPEVENT") ;
-	if ((dumpIt)&&(!strcmp(dumpIt,"YES")))
-  {
-		dumpEvent_=true ;
-	}
+    dumpEvent_ = Config::GetInstance()->dumpEvent;
 
-	for (int i=0;i<MAX_JOY_COUNT;i++) 
-  {
-		joystick_[i]=0 ;
+    for (int i = 0; i < MAX_JOY_COUNT; i++) {
+        joystick_[i]=0 ;
 		buttonCS_[i]=0 ;
 		joystickCS_[i]=0 ;
-	}
-    
-	for (int i=0;i<joyCount;i++) 
+    }
+
+    for (int i=0;i<joyCount;i++) 
   {
 		char sourceName[128] ;
 		joystick_[i]=SDL_JoystickOpen(i) ;

@@ -38,11 +38,9 @@ int Swap32 (int from)
 
 WavFile::WavFile(I_File *file) {
 	if (initChunkSize_) {
-		const char *size=Config::GetInstance()->GetValue("SAMPLELOADCHUNKSIZE") ;
-		if (size) {
-			bufferChunkSize_=atoi(size) ;
-		}
-		initChunkSize_=false;
+        bufferChunkSize_ = intConfOrFallback(
+            Config::GetInstance()->sampleChunkSize, bufferChunkSize_);
+        initChunkSize_ = false;
 	}
 	samples_=0 ;
 	size_=0 ;
