@@ -29,8 +29,8 @@ SamplePool::~SamplePool() {
 
 const char *SamplePool::GetSampleLib() {
 	Config *config=Config::GetInstance() ;
-	const char *lib=config->GetValue("SAMPLELIB") ;
-	return lib?lib:SAMPLE_LIB ;
+    const char *lib = config->sampleLibPath;
+    return lib?lib:SAMPLE_LIB ;
 } 
 
 void SamplePool::Reset() {

@@ -7,15 +7,13 @@ Audio::Audio(AudioSettings &hints):T_SimpleList<AudioOut>(true),settings_() {
 	// default settings for the platform. All of the can
 	// be overriden through the config file
 
-	Config *config=Config::GetInstance() ;
-	const char *v=config->GetValue("AUDIOAPI") ;
-	settings_.audioAPI_=v?v:hints.audioAPI_ ;
-	v=config->GetValue("AUDIODEVICE")  ;
-	settings_.audioDevice_=v?v:hints.audioDevice_ ;
-	v=config->GetValue("AUDIOBUFFERSIZE") ;
-	settings_.bufferSize_=v?atoi(v):hints.bufferSize_ ;
-	v=config->GetValue("AUDIOPREBUFFERCOUNT") ;
-	settings_.preBufferCount_=v?atoi(v):hints.preBufferCount_ ;
+    Config *config = Config::GetInstance();
+    const char *v=config->audioApi;
+	settings_.audioAPI_=v?v:hints.audioAPI_;
+	v=config->audioDevice;
+	settings_.audioDevice_=v?v:hints.audioDevice_;
+	settings_.bufferSize_=config->audioBufferSize?config->audioBufferSize:hints.bufferSize_;
+	settings_.preBufferCount_=config->audioPreBufferCount?config->audioPreBufferCount:hints.preBufferCount_;
 
 
 	Trace::Log("AUDIO","Audio object initialised with") ;

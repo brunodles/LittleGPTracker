@@ -110,24 +110,20 @@ void GPSDLSystem::Boot(int argc,char **argv) {
 	atexit(SDL_Quit);
 
 	eventManager_=I_GUIWindowFactory::GetInstance()->GetEventManager() ;
-	eventManager_->Init() ;
+    eventManager_->Init();
 
-	bool invert=false ;
-	Config *config=Config::GetInstance() ;
-	const char *s=config->GetValue("INVERT") ;
+    bool invert = false;
+    Config *config = Config::GetInstance();
+	invert = config->inputKeyInvertTriggers;
 
-	if ((s)&&(!strcmp(s,"YES"))) {
-		invert=true ;
-	}
-
-	if (!invert) {
-		eventManager_->MapAppButton("but:0:0",APP_BUTTON_A) ;
-		eventManager_->MapAppButton("but:0:3",APP_BUTTON_B) ;
-	} else {
-		eventManager_->MapAppButton("but:0:3",APP_BUTTON_A) ;
-		eventManager_->MapAppButton("but:0:0",APP_BUTTON_B) ;
-	}
-	eventManager_->MapAppButton("but:0:6",APP_BUTTON_START) ;
+    if (invert) {
+        eventManager_->MapAppButton("but:0:3",APP_BUTTON_A);
+		eventManager_->MapAppButton("but:0:0",APP_BUTTON_B);
+    } else {
+        eventManager_->MapAppButton("but:0:0", APP_BUTTON_A);
+        eventManager_->MapAppButton("but:0:3",APP_BUTTON_B);
+    }
+    eventManager_->MapAppButton("but:0:6",APP_BUTTON_START) ;
 	eventManager_->MapAppButton("but:0:4",APP_BUTTON_L) ;
 	eventManager_->MapAppButton("but:0:5",APP_BUTTON_R) ;
 	eventManager_->MapAppButton("joy:0:0+",APP_BUTTON_RIGHT) ;

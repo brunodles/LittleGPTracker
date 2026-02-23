@@ -9,11 +9,10 @@ bool MidiInDevice::dumpEvents_ = false;
 
 MidiInDevice::MidiInDevice(const char *name):ControllerSource("midi",name),T_Stack<MidiMessage>(true) {
 
-  const char *dumpIt=Config::GetInstance()->GetValue("DUMPEVENT") ;
-  dumpEvents_ = (dumpIt!=0);
+    dumpEvents_ = Config::GetInstance()->dumpEvent;
 
-	for (int channel = 0; channel < 16; channel++) {
-		for (int i=0;i<128;i++) {
+    for (int channel = 0; channel < 16; channel++) {
+        for (int i=0;i<128;i++) {
 			noteChannel_[channel][i] = NULL;
 			ccChannel_[channel][i] = NULL;
 			atChannel_[channel][i] = NULL;
@@ -21,9 +20,9 @@ MidiInDevice::MidiInDevice(const char *name):ControllerSource("midi",name),T_Sta
 		pbChannel_[channel] = NULL;
 		catChannel_[channel] = NULL;
     pcChannel_[channel] = NULL;
-	}
+    }
 
-	isRunning_=false ;
+    isRunning_ = false;
 } ;
 
 MidiInDevice::~MidiInDevice() {

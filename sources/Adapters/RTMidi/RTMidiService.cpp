@@ -12,15 +12,10 @@
 //};
 
 RTMidiService::RTMidiService() {
-	const char *delay = Config::GetInstance()->GetValue("MIDIDELAY");
-	if (delay) {
-		midiDelay_=atoi(delay);
-	} else {
-		midiDelay_=0;
-	}
+    midiDelay_ = intConfOrFallback(Config::GetInstance()->midiDelay, 0);
 
-	// RtMidiIn constructor
-	try {
+    // RtMidiIn constructor
+    try {
 		rtMidiIn_ = new RtMidiIn();
 	} catch ( RtError &error ) {
 		Trace::Log("RtMidiService", "Couldn't get RtMidiIn object");

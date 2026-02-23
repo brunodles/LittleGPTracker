@@ -77,13 +77,13 @@ void WSDLSystem::Boot(int argc,char **argv) {
 
 	TimerService::GetInstance()->Install(new W32TimerService()) ;
 
-//	(new RTAudioStub(config->GetValue("AUDIODRIVER")))->Init() ;
+    //	(new RTAudioStub(config->audioDriver))->Init() ;
 
-	// Allow to use either Direct Sound of MMSYSTEM
+    // Allow to use either Direct Sound of MMSYSTEM
 
-	AudioSettings hints ;
-	const char *api=config->GetValue("AUDIOAPI") ;
-	Audio *audio=0 ;
+    AudioSettings hints;
+    const char *api = config->audioApi;
+    Audio *audio=0 ;
 
 	if (api&&(!_stricmp(api,"MMSYSTEM"))) {
 		hints.audioAPI_="MMSYSTEM" ;

@@ -21,14 +21,14 @@ EventDispatcher::EventDispatcher() {
 	// Read config file key repeat
 
 	Config *config=Config::GetInstance() ;
-	const char *s=config->GetValue("KEYDELAY") ;
-	if (s) {
-		keyDelay_=atoi(s) ;
+    int t = config->inputKeyDelay;
+    if (t > 0) {
+		keyDelay_=t ;
 	}
 
-	s=config->GetValue("KEYREPEAT") ;
-	if (s) {
-		keyRepeat_=atoi(s) ;
+    t = config->inputKeyRepeat;
+    if (t > 0) {
+		keyRepeat_=t ;
 	}
 
 	repeatMask_=0 ;

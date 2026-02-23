@@ -98,22 +98,18 @@ void GPSDLSystem::Boot(int argc,char **argv) {
 	eventManager_=I_GUIWindowFactory::GetInstance()->GetEventManager() ;
 	eventManager_->Init() ;
 
-	bool invert=false ;
-	Config *config=Config::GetInstance() ;
-	const char *s=config->GetValue("INVERT") ;
+    bool invert = false;
+    Config *config = Config::GetInstance();
+	invert = config->inputKeyInvertTriggers;
 
-	if ((s)&&(!strcmp(s,"YES"))) {
-		invert=true ;
-	}
-
-	if (!invert) {
-		eventManager_->MapAppButton("left ctrl",APP_BUTTON_A) ;
-		eventManager_->MapAppButton("left alt",APP_BUTTON_B) ;
-	} else {
-		eventManager_->MapAppButton("left alt",APP_BUTTON_A) ;
-		eventManager_->MapAppButton("left ctrl",APP_BUTTON_B) ;
-	}
-	eventManager_->MapAppButton("return",APP_BUTTON_START) ;
+    if (invert) {
+        eventManager_->MapAppButton("left alt",APP_BUTTON_A);
+		eventManager_->MapAppButton("left ctrl",APP_BUTTON_B);
+    } else {
+        eventManager_->MapAppButton("left ctrl", APP_BUTTON_A);
+        eventManager_->MapAppButton("left alt",APP_BUTTON_B);
+    }
+    eventManager_->MapAppButton("return",APP_BUTTON_START) ;
 //	em->MapElement("esc",APP_BUTTON_SELECT) ;
 	eventManager_->MapAppButton("tab",APP_BUTTON_L) ;
 	eventManager_->MapAppButton("backspace",APP_BUTTON_R) ;

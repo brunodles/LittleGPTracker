@@ -63,15 +63,9 @@ SDLGUIWindowImp::SDLGUIWindowImp(GUICreateWindowParams &p)
   const char * driverName = SDL_GetVideoDriver(0);
   
   Trace::Log("DISPLAY","Using driver %s. Screen (%d,%d) Bpp:%d",driverName,screenWidth,screenHeight,bitDepth_);
-  
-  bool fullscreen=false ;
-  
-  const char *fullscreenValue=Config::GetInstance()->GetValue("FULLSCREEN") ;
-  if ((fullscreenValue)&&(!strcmp(fullscreenValue,"YES")))
-  {
-  	fullscreen=true ;
-  }
-  	
+
+  bool fullscreen = Config::GetInstance()->fullscreen;
+
   if (!strcmp(driverName, "fbcon"))
   {
     framebuffer_ = true;
@@ -81,21 +75,13 @@ SDLGUIWindowImp::SDLGUIWindowImp(GUICreateWindowParams &p)
   #ifdef PLATFORM_PSP
   	mult_ = 1;
   #else
-	int multFromSize=MIN(screenHeight/appHeight,screenWidth/appWidth);
-	const char *mult=Config::GetInstance()->GetValue("SCREENMULT") ;
-	if (mult)
-	{
-		mult_=atoi(mult);
-	}
-	else
-	{
-		if (framebuffer_)
-		{
-		mult_ = multFromSize;
-		}
-		else
-		{
-		mult_ = 1;
+  int multFromSize = MIN(screenHeight / appHeight, screenWidth / appWidth);
+  mult_ = Config::GetInstance()->screenMultiply;
+  if (mult_ <= 0) {
+      if (framebuffer_) {
+		  mult_ = multFromSize;
+		} else {
+		  mult_ = 1;
 		}
 	}
   #endif

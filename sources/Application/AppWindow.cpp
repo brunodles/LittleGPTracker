@@ -124,10 +124,7 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
     _nullView->SetDirty(true);
 
     Config *config = Config::GetInstance(); // Possible to disable autoloading
-    const char *autoLoadEnabled = config->GetValue("AUTO_LOAD_LAST");
-    bool shouldAutoLoad =
-        (!autoLoadEnabled || // Default to yes if not in config
-         strcmp(autoLoadEnabled, "YES") == 0);
+    bool shouldAutoLoad = config->projectAutoLoadEnabled;
 
     SelectProjectDialog *spd = new SelectProjectDialog(*_currentView);
     Path lastProjectPath = GetLastProjectPath();

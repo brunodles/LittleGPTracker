@@ -1,5 +1,46 @@
 #include "Config.h"
+#include <ctype.h>
+#include <strings.h>
 
+/**
+ * Compares two strings for equality.
+ * @param key The first string to compare.
+ * @param value The second string to compare.
+ * @param caseSensitive Whether the comparison should be case-sensitive (default: false for case-insensitive).
+ * @return true if both strings are equal, false otherwise. Returns false if either string is null.
+ */
+inline bool isKeyEqualTo(const char* key, const char* value, bool caseSensitive = false) {
+	if (!key || !value) return false;
+	if (caseSensitive) {
+		return strcmp(key, value) == 0;
+	}
+	return strcasecmp(key, value) == 0;
+}
+
+/**
+ * Converts a string to a boolean value.
+ * @param value The string to convert. Can be null or empty.
+ * @return true if value starts with 'Y', 'y', 'T', or 't', or equals "YES" or
+ * "TRUE" (case-insensitive). false otherwise.
+ */
+inline bool strToBool(const char* value) {
+    if (!value) return false;
+	char firstChar = tolower(value[0]);
+	if (firstChar == '1' || firstChar == 'y' || firstChar == 't') return true;
+    if (strcasecmp(value, "yes") == 0) return true;
+    if (strcasecmp(value, "true") == 0) return true;
+    return false;
+}
+
+/**
+ * Converts a string to an integer value.
+ * @param value The string to convert. Can be null or empty.
+ * @return The integer value parsed from the string using atoi().
+ *         Returns 0 if the string is null, empty, or not a valid integer.
+ */
+inline int strToInt(const char* value) {
+	return atoi(value);
+}
 
 Config::Config() 
 {
@@ -39,11 +80,58 @@ Config::Config()
 						value=element->Attribute("VALUE") ;
 					}
                     if (key && value) {
-                        if (key == std::string("SHOW_COLUMN_TITLES")) {
-							isColumnTitleEnabled = strcmp(value, "YES") == 0;
-						}
-						Variable *v=new Variable(key,0,value) ;
-						Insert(v) ;
+                        if (isKeyEqualTo(key, "VOLUME")) {
+                            volume = strToInt(value);
+                        } else if (isKeyEqualTo(key, "ROOTFOLDER")) {
+                            rootPath = (char*)value;
+                        } else if (isKeyEqualTo(key, "AUTO_LOAD_LAST")) {
+                            projectAutoLoadEnabled = strToBool(value);
+                        } else if (isKeyEqualTo(key, "SAMPLELIB")) {
+                            sampleLibPath = (char*)value;
+                        } else if (isKeyEqualTo(key, "SAMPLELOADCHUNKSIZE")) {
+                            sampleChunkSize = strToInt(value);
+                        } else if (isKeyEqualTo(key, "PRELISTENATTENUATION")) {
+                            wavePreListenAttenuation = strToBool(value);
+                        } else if (isKeyEqualTo(key, "LEGACYDOWNSAMPLING")) {
+                            waveLegacyDownSampling = strToBool(value);
+                        } else if (isKeyEqualTo(key, "MIDICTRLDEVICE")) {
+                            midiControlDevice = (char*)value;
+                        } else if (isKeyEqualTo(key, "MIDIDELAY")) {
+                            midiDelay = strToInt(value);
+                        } else if (isKeyEqualTo(key, "MIDISENDSYNC")) {
+                            midiSendSync = strToBool(value);
+                        } else if (isKeyEqualTo(key, "AUDIOAPI")) {
+                            audioApi = (char*)value;
+                        } else if (isKeyEqualTo(key, "AUDIODEVICE")) {
+                            audioDevice = (char*)value;
+                        } else if (isKeyEqualTo(key, "AUDIOBUFFERSIZE")) {
+                            audioBufferSize = strToInt(value);
+                        } else if (isKeyEqualTo(key, "AUDIOPREBUFFERCOUNT")) {
+                            audioPreBufferCount = strToInt(value);
+                        } else if (isKeyEqualTo(key, "KEYDELAY")) {
+                            inputKeyDelay = strToInt(value);
+                        } else if (isKeyEqualTo(key, "KEYREPEAT")) {
+                            inputKeyRepeat = strToInt(value);
+                        } else if (isKeyEqualTo(key, "INVERT")) {
+                            inputKeyInvertTriggers = strToBool(value);
+                        } else if (isKeyEqualTo(key, "ALTROWNUMBER")) {
+                            altRowNumber = strToInt(value);
+                        } else if (isKeyEqualTo(key, "MAJORBEATNUMBER")) {
+                            majorBeatNumber = strToInt(value);
+                        } else if (isKeyEqualTo(key, "FONTTYPE")) {
+                            fontType = (char*)value;
+                        } else if (isKeyEqualTo(key, "SHOW_COLUMN_TITLES")) {
+                            isColumnTitleEnabled = strToBool(value);
+                        } else if (isKeyEqualTo(key, "DUMPEVENT")) {
+                            dumpEvent = strToBool(value);
+                        } else if (isKeyEqualTo(key, "FULLSCREEN")) {
+                            fullscreen = strToBool(value);
+                        } else if (isKeyEqualTo(key, "SCREENMULT")) {
+                            screenMultiply = strToInt(value);
+                        } else {
+                            Variable *v=new Variable(key,0,value) ;
+							Insert(v) ;
+                        }
                     }
                     element = element->NextSiblingElement(); 
 				}
@@ -55,7 +143,6 @@ Config::Config()
 	}
  	delete(document) ;
 }
-
 
 //------------------------------------------------------------------------------
 

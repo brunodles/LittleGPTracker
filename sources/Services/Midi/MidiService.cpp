@@ -18,13 +18,8 @@ MidiService::MidiService()
 		queues_[i]=new T_SimpleList<MidiMessage>(true);
 	}
 #endif
-    const char *delay = Config::GetInstance()->GetValue("MIDIDELAY");
-    midiDelay_ = delay ? atoi(delay) : 1;
-
-    const char *sendSync = Config::GetInstance()->GetValue("MIDISENDSYNC");
-    if (sendSync) {
-		sendSync_ = (strcmp(sendSync,"YES")==0);
-	}
+    midiDelay_ = Config::GetInstance()->midiDelay;
+    sendSync_ = Config::GetInstance()->midiSendSync;
 };
 
 MidiService::~MidiService() {
