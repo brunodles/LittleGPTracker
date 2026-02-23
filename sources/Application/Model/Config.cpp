@@ -42,43 +42,63 @@ inline int strToInt(const char* value) {
 	return atoi(value);
 }
 
-Config::Config() 
-{
-	Path path("bin:config.xml") ;
+Config::Config() {
+    // initialize default values
+
+	// Screen
+	fullscreen = false;
+	screenMultiply = -1;
+	// Project
+	volume = -1;
+    projectAutoLoadEnabled = true;
+	// Sample Configs
+	sampleChunkSize = -1;
+	// Wave File
+	wavePreListenAttenuation = 1;
+	// Midi
+    midiDelay = -1;
+	// Wip Key/input Config
+	inputKeyDelay = -1;
+	inputKeyRepeat = -1;
+	inputKeyInvertTriggers = false;
+	// Theme
+	altRowNumber = 4;
+	majorBeatNumber = 4;
+    isColumnTitleEnabled = false;
+	// log
+	dumpEvent = false;
+
+	// load from config file
+
+    Path path("bin:config.xml") ;
 	Trace::Log("CONFIG","Got config path=%s",path.GetPath().c_str()) ;
 	TiXmlDocument *document=new TiXmlDocument(path.GetPath());
 	bool loadOkay = document->LoadFile();
 
-	if (loadOkay) 
-  { 
-		// Check first node is CONFIG/ GPCONFIG
+    if (loadOkay) {
+        // Check first node is CONFIG/ GPCONFIG
 
 		TiXmlNode* rootnode = 0;
 
 		rootnode = document->FirstChild( "CONFIG" );
-		if (!rootnode)
-    {
-		   rootnode = document->FirstChild( "GPCONFIG" );
-    }
-    
-		if (rootnode)
-    {
+        if (!rootnode) {
+            rootnode = document->FirstChild("GPCONFIG");
+        }
+
+        if (rootnode) {
 			TiXmlElement *rootelement = rootnode->ToElement();
 			TiXmlNode *node = rootelement->FirstChildElement() ;
 
 			// Loop on all children
-		
-			if (node)
-      {
+
+            if (node) {
 				TiXmlElement *element = node->ToElement();
-				while (element) 
-        {
-					const char *key=element->Value() ;
+                while (element) {
+                    const char *key=element->Value() ;
 					const char *value=element->Attribute("value") ;
-					if (!value)
-          {
-						value=element->Attribute("VALUE") ;
-					}
+                    if (!value) {
+                        value=element->Attribute("VALUE") ;
+                    }
                     if (key && value) {
                         if (isKeyEqualTo(key, "VOLUME")) {
                             volume = strToInt(value);
@@ -133,23 +153,20 @@ Config::Config()
 							Insert(v) ;
                         }
                     }
-                    element = element->NextSiblingElement(); 
-				}
-			}
+                    element = element->NextSiblingElement();
+                }
+            }
 
     }
     } else {
-		Trace::Log("CONFIG","No (bad?) config.xml") ;
-	}
- 	delete(document) ;
+        Trace::Log("CONFIG", "No (bad?) config.xml");
+    }
+    delete(document) ;
 }
 
 //------------------------------------------------------------------------------
 
-Config::~Config()
-{
-}
-
+Config::~Config() {}
 
 //------------------------------------------------------------------------------
 

@@ -29,36 +29,36 @@ class Config: public T_Singleton<Config>,public VariableContainer {
 
 	// Screen
 	// *key: FULLSCREEN
-	bool fullscreen = false;
-	// *key: SCREENMULT
-	int screenMultiply = -1;
+    bool fullscreen;
+    // *key: SCREENMULT
+    int screenMultiply;
 
-	// Project
-	// *key: VOLUME
-	int volume = -1;
-	// *key: ROOTFOLDER
+    // Project
+    // *key: VOLUME
+    int volume;
+    // *key: ROOTFOLDER
 	char* rootPath;
 	// *key: AUTO_LOAD_LAST
-    bool projectAutoLoadEnabled = true;
+    bool projectAutoLoadEnabled;
 
-	// Sample Configs
-	// *key: SAMPLELIB
-	char *sampleLibPath;
+    // Sample Configs
+    // *key: SAMPLELIB
+    char *sampleLibPath;
 	// *key: SAMPLELOADCHUNKSIZE
-	int sampleChunkSize = -1;
+    int sampleChunkSize;
 
-	// Wave File
-	// *key: PRELISTENATTENUATION
-	bool wavePreListenAttenuation = 1;
-	// *key: LEGACYDOWNSAMPLING
+    // Wave File
+    // *key: PRELISTENATTENUATION
+    bool wavePreListenAttenuation;
+    // *key: LEGACYDOWNSAMPLING
     bool waveLegacyDownSampling;
 
 	// Midi
 	// *key: MIDICTRLDEVICE
   	char *midiControlDevice;
 	// *key: MIDIDELAY
-    int midiDelay = -1;
-	// *key: MIDISENDSYNC
+    int midiDelay;
+    // *key: MIDISENDSYNC
 	bool midiSendSync;
 
 	// Audio Configs
@@ -73,29 +73,28 @@ class Config: public T_Singleton<Config>,public VariableContainer {
 				
 	// Wip Key/input Config
 	// *key: KEYDELAY
-	int inputKeyDelay = -1;
-	// *key: KEYREPEAT
-	int inputKeyRepeat = -1;
-	/** Invert trigger keys  in some consoles */
+    int inputKeyDelay;
+    // *key: KEYREPEAT
+    int inputKeyRepeat;
+    /** Invert trigger keys  in some consoles */
 	// *key: INVERT
-	bool inputKeyInvertTriggers = false;
+    bool inputKeyInvertTriggers;
 
-	// Theme
-	// *key: ALTROWNUMBER
-	int altRowNumber = 4;
-	// *key: MAJORBEATNUMBER
-	int majorBeatNumber = 4;
-	// *key: FONTTYPE
+    // Theme
+    // *key: ALTROWNUMBER
+    int altRowNumber;
+    // *key: MAJORBEATNUMBER
+    int majorBeatNumber;
+    // *key: FONTTYPE
 	char *fontType;
 
 	/** Whether to show column titles in song, chain and phrase views */
-	// *key: SHOW_COLUMN_TITLES, 
-    bool isColumnTitleEnabled = false;
+    // *key: SHOW_COLUMN_TITLES,
+    bool isColumnTitleEnabled;
 
-	// Logs
-	// *key: DUMPEVENT
-	bool dumpEvent = false;
-
+    // Logs
+    // *key: DUMPEVENT
+    bool dumpEvent;
 };
 
 #endif
