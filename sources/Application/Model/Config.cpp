@@ -1,6 +1,4 @@
 #include "Config.h"
-#include <ctype.h>
-#include <strings.h>
 
 /**
  * Compares two strings for equality.
