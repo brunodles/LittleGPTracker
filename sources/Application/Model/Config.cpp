@@ -4,8 +4,10 @@
  * Compares two strings for equality.
  * @param key The first string to compare.
  * @param value The second string to compare.
- * @param caseSensitive Whether the comparison should be case-sensitive (default: false for case-insensitive).
- * @return true if both strings are equal, false otherwise. Returns false if either string is null.
+ * @param caseSensitive Whether the comparison should be case-sensitive
+ * (default: false for case-insensitive).
+ * @return true if both strings are equal, false otherwise. Returns false if
+ * either string is null.
  */
 inline bool isKeyEqualTo(const char* key, const char* value, bool caseSensitive = false) {
 	if (!key || !value) return false;
@@ -71,14 +73,14 @@ Config::Config() {
     Path path("bin:config.xml") ;
 	Trace::Log("CONFIG","Got config path=%s",path.GetPath().c_str()) ;
 	TiXmlDocument *document=new TiXmlDocument(path.GetPath());
-	bool loadOkay = document->LoadFile();
+    bool loadOkay = document->LoadFile();
 
     if (loadOkay) {
         // Check first node is CONFIG/ GPCONFIG
 
 		TiXmlNode* rootnode = 0;
 
-		rootnode = document->FirstChild( "CONFIG" );
+        rootnode = document->FirstChild("CONFIG");
         if (!rootnode) {
             rootnode = document->FirstChild("GPCONFIG");
         }
@@ -87,13 +89,13 @@ Config::Config() {
 			TiXmlElement *rootelement = rootnode->ToElement();
 			TiXmlNode *node = rootelement->FirstChildElement() ;
 
-			// Loop on all children
+            // Loop on all children
 
             if (node) {
-				TiXmlElement *element = node->ToElement();
+                TiXmlElement *element = node->ToElement();
                 while (element) {
-                    const char *key=element->Value() ;
-					const char *value=element->Attribute("value") ;
+                    const char *key = element->Value();
+                    const char *value=element->Attribute("value") ;
                     if (!value) {
                         value=element->Attribute("VALUE") ;
                     }
@@ -154,7 +156,6 @@ Config::Config() {
                     element = element->NextSiblingElement();
                 }
             }
-
     }
     } else {
         Trace::Log("CONFIG", "No (bad?) config.xml");
