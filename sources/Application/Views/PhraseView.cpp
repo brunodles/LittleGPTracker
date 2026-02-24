@@ -1183,6 +1183,10 @@ void PhraseView::DrawView() {
     // Display row numbers
     char buffer[6];
     buffer[1] = 0;
+    buffer[2] = 0;
+    buffer[3] = 0;
+    buffer[4] = 0;
+    buffer[5] = 0;
     pos = anchor;
     pos._x -= 2;
     for (int j = 0; j < 16; j++) {

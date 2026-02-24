@@ -673,6 +673,8 @@ void ChainView::DrawView() {
     // Display row numbers
 
     char row[3];
+    row[1] = 0;
+    row[2] = 0;
     pos = anchor;
     pos._x -= 2;
     for (int j = 0; j < 16; j++) {
@@ -745,11 +747,6 @@ void ChainView::DrawView() {
         SetColor(CD_NORMAL);
 
         // next line
-        pos._y++;
-    }
-
-    for (int j = 0; j < 16; j++) {
-
         pos._y++;
     }
 
