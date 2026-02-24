@@ -8,10 +8,10 @@
 #define VERSION_MINOR "6"
 
 /** Used for patch level changes of the minor version */
-#define VERSION_PATCH "1"
+#define VERSION_PATCH "2"
 
 /** Used for namming */
-#define VERSION_NAME "Pork5"
+#define VERSION_NAME "Pork6"
 
 /** Used to quick version identification */
 #define VERSION_STRING VERSION_MAJOR "." VERSION_MINOR "." VERSION_PATCH "-" VERSION_NAME

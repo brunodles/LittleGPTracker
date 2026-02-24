@@ -1,3 +1,6 @@
+1.6.2-pork6
+    Reset buffer values, fixes presenting random characters on chain view.
+
 1.6.1-pork5
     New method of mapping variables internally. Also adds another methods to configure booleans values in Config.xml.
 
