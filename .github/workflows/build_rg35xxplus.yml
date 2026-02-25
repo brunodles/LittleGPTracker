@@ -1,10 +1,10 @@
-name: Build RG35XX Plus
+name: Manual Trigger - Build RG35XX Plus
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-rg35xxplus:
+  manual-build-rg35xxplus:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +25,6 @@ jobs:
       - name: Package build
         working-directory: projects
         run: |
-          TAG=$(curl "https://api.github.com/repos/djdiskmachine/lgpt-resources/tags" | jq -r '.[0].name')
-          curl -L -o lgpt-resources.zip https://github.com/djdiskmachine/lgpt-resources/archive/refs/tags/${TAG}.zip
-          unzip lgpt-resources.zip
           mv lgpt-resources-${TAG}/*/ ./resources/packaging
           rm -rf lgpt-resources*
           ./resources/packaging/lgpt_package.sh
