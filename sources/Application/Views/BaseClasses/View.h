@@ -21,6 +21,7 @@
 #define POS_Y_LAST_LINE 29
 #define POS_Y_BEFORE_LAST_LINE 28
 
+/** Event maks to be used with Bitwise operations */
 enum GUIEventPadButtonMasks {
     EPBM_LEFT = 1,
     EPBM_DOWN = 2,
@@ -37,14 +38,27 @@ enum GUIEventPadButtonMasks {
 };
 
 enum ViewType {
+    /** Main screen, select the order of the chains, play the song, make it live
+     */
     VT_SONG,
+    /** Select the Phrases of a Chain */
     VT_CHAIN,
+    /** Create phrases */
     VT_PHRASE,
+    /** Project configuration, changes per propject or affects the project */
     VT_PROJECT,
+    /** LGPT configuration, configurations that are global to the application */
+    VT_CONFIG,
+    /** Customize the instrument */
     VT_INSTRUMENT,
-    VT_TABLE,  // Table screen under phrase
-    VT_TABLE2, // Table screen under instrument
+    /** Table screen under phrase */
+    VT_TABLE,
+    /** Table screen under instrument */
+    VT_TABLE2,
+    /** Define the Groove */
     VT_GROOVE,
+    /** [WIP] Global Mixer, adjust the levels of each instrument and possible
+       effects */
     VT_MIXER
 };
 
