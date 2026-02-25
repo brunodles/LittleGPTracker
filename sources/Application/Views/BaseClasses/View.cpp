@@ -147,11 +147,11 @@ void View::drawMap() {
         case 3:
             DrawString(pos._x + 3, pos._y + 2, "T", props);
 			break;
-		default:
+        default:
             break;
         }
 
-        //draw current screen on map
+        // draw current screen on map
         SetColor(CD_HILITE2);
         props.invert_= true ;
 		pos._y = anchor._y;
