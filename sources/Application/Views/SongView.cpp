@@ -740,12 +740,12 @@ void SongView::processNormalButtonMask(unsigned int mask) {
                     NotifyObservers(&ve);
                 }
 
-                if (mask & EPBM_DOWN) {
-                    ViewType vt = VT_MIXER;
-                    ViewEvent ve(VET_SWITCH_VIEW, &vt);
-                    SetChanged();
-                    NotifyObservers(&ve);
-                }
+                // if (mask & EPBM_DOWN) {
+                //     ViewType vt = VT_MIXER;
+                //     ViewEvent ve(VET_SWITCH_VIEW, &vt);
+                //     SetChanged();
+                //     NotifyObservers(&ve);
+                // }
 
                 if (mask & EPBM_START) {
                     onStop();

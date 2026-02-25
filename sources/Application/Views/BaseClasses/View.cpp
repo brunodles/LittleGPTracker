@@ -115,14 +115,14 @@ void View::drawMap() {
 
 		// Change the color for the hilights
 		SetColor(CD_HILITE1);
-		// Draw C if is on project
-		if (viewType_ == VT_PROJECT) {
-        	DrawString(pos._x, pos._y - 1, "C   ", props);
-		}
+        // Draw C if is on project
+        //		if (viewType_ == VT_PROJECT) {
+        //        	DrawString(pos._x, pos._y - 1, "C   ", props);
+        //		}
 
-		// First line
-		// |P G |
-		switch (mapColumn) {
+        // First line
+        // |P G |
+        switch (mapColumn) {
 		case 0:
         	DrawString(pos._x, pos._y, "P", props);
 			break;
@@ -138,9 +138,9 @@ void View::drawMap() {
         // Last line
 		// |M TT|
 		switch (mapColumn) {
-		case 0:
-        	DrawString(pos._x, pos._y + 2, "M", props);
-			break;
+        // case 0:
+        //	DrawString(pos._x, pos._y + 2, "M", props);
+        //	break;
         case 2:
             DrawString(pos._x + 2, pos._y + 2, "T", props);
 			break;
@@ -178,13 +178,13 @@ void View::drawMap() {
             DrawString(pos._x + 2, pos._y, "G", props);
             break;
 
-		case VT_CONFIG:
-	        DrawString(pos._x, pos._y -1, "C", props) ;
-            break;
-
-        case VT_MIXER:
-            DrawString(pos._x,  pos._y + 2, "M", props) ;
-            break;
+            //		case VT_CONFIG:
+            //	        DrawString(pos._x, pos._y -1, "C", props) ;
+            //            break;
+            //
+            //        case VT_MIXER:
+            //            DrawString(pos._x,  pos._y + 2, "M", props) ;
+            //            break;
 
         default: // VT_SONG
             DrawString(pos._x, pos._y + 1, "S", props);
