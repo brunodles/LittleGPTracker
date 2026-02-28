@@ -250,6 +250,7 @@ COMMONFILES := \
 	MixerView.o NullView.o \
 	SongView.o ChainView.o PhraseView.o ViewData.o ConsoleView.o ProjectView.o ConfigView.o InstrumentView.o UIController.o \
 	View.o ModalView.o FieldView.o UIField.o UIIntField.o \
+	UIBoolField.o \
 	UIIntVarOffField.o UIIntVarField.o ViewEvent.o I_Action.o\
 	UITempoField.o UIActionField.o \
 	MessageBox.o \

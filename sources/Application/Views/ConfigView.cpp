@@ -8,6 +8,7 @@
 #include "Application/Views/ModalDialogs/NewProjectDialog.h"
 #include "Application/Views/ModalDialogs/SelectProjectDialog.h"
 #include "BaseClasses/UIActionField.h"
+#include "BaseClasses/UIBoolField.h"
 #include "BaseClasses/UIField.h"
 #include "BaseClasses/UIIntVarField.h"
 #include "BaseClasses/UIStaticField.h"
@@ -123,17 +124,17 @@ ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     GUIPoint position = GetAnchor();
     position._x = POS_X_VALUE;
 
-    Variable *v = project_->FindVariable(VAR_TEMPO);
-
-    v = project_->FindVariable(VAR_MIDIDEVICE);
+    Variable *v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
     insertLabel(position, "MIDI");
     Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
-    // v = config->FindVariable("AUTO_LOAD_LAST");
     insertLabel(position, "Auto Load");
-    // Insert(new UIIntVarField(position, *v, "%s", 0, 1, 1, 1));
+    UIBoolField *autoLoadField_ =
+        new UIBoolField(position, config->projectAutoLoadEnabled);
+    autoLoadField_->AddObserver(*this);
+    Insert(autoLoadField_);
 
     position._y += 2;
     insertLabel(position, "Config.xml");
@@ -196,11 +197,20 @@ void ConfigView::DrawView() {
     View::EnableNotification();
 } ;
 
-void ConfigView::Update(Observable &,I_ObservableData *data) {
+void ConfigView::Update(Observable &o, I_ObservableData *data) {
 
-	if (!hasFocus_) {
-		return ;
-	}
+    if (!hasFocus_) {
+        return ;
+    }
+
+    // check for boolean field change first
+    // if (UIBoolField *bf = dynamic_cast<UIBoolField*>(&o)) {
+    //     if (bf == autoLoadField_) {
+    //         Config::GetInstance()->autoLoadEnabled = bf->GetValue();
+    //     }
+    //     // other bool fields could be handled here
+    //     return;
+    // }
 
 # ifdef _64BIT
 	int fourcc=*((int*)data);
@@ -213,27 +223,16 @@ void ConfigView::Update(Observable &,I_ObservableData *data) {
 		focus->ClearFocus() ;
 		focus->Draw(w_) ;
 		w_.Flush() ;
-		focus->SetFocus() ;
-	} else {
-		focus=tempoField_ ;
+        focus->SetFocus();
+        //} else {
+        //	focus=tempoField_ ;
 	}
     Player *player = Player::GetInstance();
     switch (fourcc) {
-		case ACTION_PURGE:
-			project_->Purge() ;
-			break ;
-		case ACTION_PURGE_INSTRUMENT:
-		{
-			MessageBox *mb=new MessageBox(*this,"Purge unused samples from disk ?",MBBF_YES|MBBF_NO) ;
-			DoModal(mb,PurgeCallback) ;
-			break ;
-		}
-        case ACTION_SAVE: {
-            MixerService::GetInstance()->SetRenderMode(0);
-            PersistencyService *service = PersistencyService::GetInstance();
-            service->Save();
-            break;
-        }
+    case ACTION_SAVE: {
+        Config::GetInstance()->Save();
+        break;
+    }
         case ACTION_SAVE_AS: {
             PersistencyService *service = PersistencyService::GetInstance();
             service->Save("Config:lgptsav_tmp.dat");
@@ -261,7 +260,7 @@ void ConfigView::Update(Observable &,I_ObservableData *data) {
 	} ;
     focus->Draw(w_) ;
 	isDirty_=true ;
-} ;
+};
 
 void ConfigView::OnPurgeInstruments(bool removeFromDisk) {
 	project_->PurgeInstruments(removeFromDisk) ;
