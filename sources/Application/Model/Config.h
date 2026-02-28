@@ -95,6 +95,25 @@ class Config: public T_Singleton<Config>,public VariableContainer {
     // Logs
     // *key: DUMPEVENT
     bool dumpEvent;
+
+#ifdef PLATFORM_CAANOO
+    // CAANOO specific
+    // *key: CAANOO_DSP
+    char *caanooDsp;
+    // *key: CAANOO_MIXER
+    char *caanooMixer;
+    // *key: CAANOO_MIDIDEVICE
+    char *caanooMidiDevice;
+#endif
+
+#ifdef PLATFORM_GP2X
+    // GP2X specific
+    // *key: GP2X_DSP
+    char *gp2xDsp;
+    // *key: GP2X_MIXER
+    char *gp2xMixer;
+#endif
+
 };
 
 #endif

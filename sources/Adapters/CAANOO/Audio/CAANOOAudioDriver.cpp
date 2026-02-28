@@ -96,9 +96,9 @@ static void *CAANOO_engine_loop(void *blah) {
 CAANOOAudioDriver::CAANOOAudioDriver(AudioSettings &settings):AudioDriver(settings) {
 
   Config *config=Config::GetInstance() ;
-    
-  const char *dspDevice=config->GetValue("CAANOO_DSP") ;
-  const char *mixDevice=config->GetValue("CAANOO_MIXER") ;
+
+  const char *dspDevice = config->caanooDsp;
+  const char *mixDevice=config->caanooMixer;
 
   if (dspDevice==0) dspDevice="/dev/dsp" ;
   if (mixDevice==0) mixDevice="/dev/mixer" ;

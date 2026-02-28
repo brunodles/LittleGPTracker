@@ -148,6 +148,21 @@ Config::Config() {
                             fullscreen = strToBool(value);
                         } else if (isKeyEqualTo(key, "SCREENMULT")) {
                             screenMultiply = strToInt(value);
+
+#ifdef PLATFORM_CAANOO
+						} else if (isKeyEqualTo(key, "CAANOO_DSP")) {
+							caanooDsp = (char*)value;
+						} else if (isKeyEqualTo(key, "CAANOO_MIXER")) {
+							caanooMixer = (char*)value;
+						} else if (isKeyEqualTo(key, "CAANOO_MIDIDEVICE")) {
+							caanooMidiDevice = (char*)value;
+#endif
+#ifdef PLATFORM_GP2X
+						} else if (isKeyEqualTo(key, "GP2X_DSP")) {
+							gp2xDsp = (char*)value;
+						} else if (isKeyEqualTo(key, "GP2X_MIXER")) {
+							gp2xMixer = (char*)value;
+#endif								
                         } else {
                             Variable *v=new Variable(key,0,value) ;
 							Insert(v) ;

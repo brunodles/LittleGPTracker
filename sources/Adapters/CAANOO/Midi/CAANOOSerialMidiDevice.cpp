@@ -14,10 +14,9 @@
 CAANOOSerialMidiDevice::CAANOOSerialMidiDevice():MidiOutDevice("CAANOO Serial") {
 	fd_=0 ;
 
-	Config *config=Config::GetInstance() ;
-	port_=config->GetValue("CAANOO_MIDIDEVICE") ;
-	if (!port_)
-	{
+    Config *config = Config::GetInstance();
+    port_ = config->caanooMidiDevice;
+	if (!port_ || sizeof(port_)==0) {
 		port_ = "/dev/ttyS0";
 	}
 
