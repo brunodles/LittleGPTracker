@@ -342,37 +342,12 @@ void SDLGUIWindowImp::prepareFonts()
 
   Trace::Log("DISPLAY","Preparing font cache") ;
   Config *config=Config::GetInstance() ;
-  
-  unsigned char r,g,b ;
-  const char *value=config->GetValue("BACKGROUND") ;
-  if (value)
-  {
-    char2hex(value,&r) ;
-    char2hex(value+2,&g) ;
-    char2hex(value+4,&b) ;
-  } 
-  else
-  {
-    r=0xF1 ;
-    g=0xF1 ;
-    b=0x96 ;      
-  }
-  backgroundColor_=SDL_MapRGB(screen_->format, r,g,b) ;
-           
-  value=config->GetValue("FOREGROUND") ;
-  if (value)
-  {
-    char2hex(value,&r) ;
-    char2hex(value+2,&g) ;
-    char2hex(value+4,&b) ;
-  } 
-  else
-  {
-    r=0x77 ;
-    g=0x6B ;
-    b=0x56 ;      
-  }
-  foregroundColor_=SDL_MapRGB(screen_->format, r,g,b) ;
+
+  GUIColor color = *config->theme->bgColor;
+  backgroundColor_=SDL_MapRGB(screen_->format, color._r, color._g, color._b) ;
+
+  color = *config->theme->fgColor;
+  foregroundColor_=SDL_MapRGB(screen_->format, color._r, color._g, color._b) ;
         
   prepareFullFonts() ;
 }

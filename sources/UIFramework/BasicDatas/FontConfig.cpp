@@ -20,7 +20,7 @@ const unsigned char embeddedFontBank[FONT_TYPE_COUNT][8*8*128]= {
 };
 
 void FontConfig(){
-    const char *fontType = Config::GetInstance()->fontType;
+    const char *fontType = Config::GetInstance()->theme->fontType;
     if (fontType)
 	{
 		if(strcmp(fontType, "CUSTOM") == 0 || strcmp(fontType, "custom") == 0){
