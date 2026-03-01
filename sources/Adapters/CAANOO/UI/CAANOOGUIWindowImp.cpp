@@ -63,31 +63,14 @@ void CAANOOGUIWindowImp::prepareFonts() {
     Uint32 rmask, gmask, bmask, amask;
 
     Config *config=Config::GetInstance() ;
-    
-   unsigned char r,g,b ;
-   const char *value=config->GetValue("BACKGROUND") ;
-   if (value) {
-      char2hex(value,&r) ;
-      char2hex(value+2,&g) ;
-      char2hex(value+4,&b) ;
-   } else {
-      r=0xFF ;
-      g=0xFF ;
-      b=0xFF ;      
-   }
-   backgroundColor_=SDL_MapRGB(screen_->format, r,g,b) ;
-           
-   value=config->GetValue("FOREGROUND") ;
-   if (value) {
-      char2hex(value,&r) ;
-      char2hex(value+2,&g) ;
-      char2hex(value+4,&b) ;
-   } else {
-      r=0x00 ;
-      g=0x00 ;
-      b=0x00 ;      
-   }
-   foregroundColor_=SDL_MapRGB(screen_->format, r,g,b) ;
+
+    GUIColor color = *config->theme->bgColor;
+    backgroundColor_ =
+        SDL_MapRGB(screen_->format, color._r, color._g, color._b);
+
+    color = *config->theme->fgColor;
+    foregroundColor_ =
+        SDL_MapRGB(screen_->format, color._r, color._g, color._b);
               
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;

@@ -685,7 +685,7 @@ void ChainView::DrawView() {
     }
 
     // Display column titles
-    if (Config::GetInstance()->isColumnTitleEnabled) {
+    if (Config::GetInstance()->theme->showColumnTitles) {
         pos = anchor;
         pos._y -= 1;
         SetColor(CD_BLANKSPACE);

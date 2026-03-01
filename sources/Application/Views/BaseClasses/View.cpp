@@ -26,8 +26,8 @@ View::View(GUIWindow &w,ViewData *viewData):
 		View::margin_= 0;
 		songRowCount_ = miniLayout_ ? 16:22; // 22 is row display count among other things
 
-        altRowNumber_ = Config::GetInstance()->altRowNumber;
-        majorBeatNumber_ = Config::GetInstance()->majorBeatNumber;
+        altRowNumber_ = Config::GetInstance()->theme->altRowNumber;
+        majorBeatNumber_ = Config::GetInstance()->theme->majorBeatNumber;
 
         initPrivate_ = true;
     }

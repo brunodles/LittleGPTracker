@@ -952,7 +952,7 @@ void SongView::DrawView() {
     pos = anchor;
 
     // Display column titles
-    if (Config::GetInstance()->isColumnTitleEnabled) {
+    if (Config::GetInstance()->theme->showColumnTitles) {
         pos._y -= 1;
         row[1] = 0;
         row[2] = 0;

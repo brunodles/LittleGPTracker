@@ -101,21 +101,22 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
 
     // Init midi services
     MidiService::GetInstance()->Init();
-
-    defineColor("BACKGROUND", backgroundColor_);
-    defineColor("FOREGROUND", normalColor_);
-    defineColor("BORDER", borderColor_);
-    defineColor("SONGVIEW_FE", songviewfeColor_);
-    defineColor("SONGVIEW_00", songview00Color_);
-    defineColor("BLANKSPACE", blankspaceColor_);
-    defineColor("HICOLOR1", highlightColor_);
-    defineColor("HICOLOR2", highlight2Color_);
-    defineColor("CURSORCOLOR", cursorColor_);
-    defineColor("PLAYCOLOR", playColor_);
-    defineColor("MUTECOLOR", muteColor_);
-    defineColor("ROWCOLOR1", rownumberColor_);
-    defineColor("ROWCOLOR2", rownumber2Color_);
-    defineColor("MAJORBEAT", majorbeatColor_);
+    Config *config = Config::GetInstance();
+    Theme *theme = config->theme;
+    backgroundColor_ = *theme->bgColor;
+    normalColor_ = *theme->fgColor;
+    borderColor_ = *theme->borderColor;
+    songview00Color_ = *theme->songview00;
+    songviewfeColor_ = *theme->songviewFe;
+    blankspaceColor_ = *theme->blankSpaceColor;
+    highlightColor_ = *theme->hiColor1;
+    highlight2Color_ = *theme->hiColor2;
+    cursorColor_ = *theme->cursorColor;
+    playColor_ = *theme->playColor;
+    muteColor_ = *theme->muteColor;
+    rownumberColor_ = *theme->rowColor1;
+    rownumber2Color_ = *theme->rowColor2;
+    majorbeatColor_ = *theme->majorBeatColor;
 
     GUIWindow::Clear(backgroundColor_);
 
@@ -123,7 +124,6 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
     _currentView = _nullView;
     _nullView->SetDirty(true);
 
-    Config *config = Config::GetInstance(); // Possible to disable autoloading
     bool shouldAutoLoad = config->projectAutoLoadEnabled;
 
     SelectProjectDialog *spd = new SelectProjectDialog(*_currentView);
