@@ -97,9 +97,9 @@ static void *gp2x_engine_loop(void *blah) {
 GP2XAudioDriver::GP2XAudioDriver(AudioSettings &settings):AudioDriver(settings) {
 
   Config *config=Config::GetInstance() ;
-    
-  const char *dspDevice=config->GetValue("GP2X_DSP") ;
-  const char *mixDevice=config->GetValue("GP2X_MIXER") ;
+
+  const char *dspDevice = config->gp2xDsp;
+  const char *mixDevice=config->gp2xMixer;
 
   if (dspDevice==0) dspDevice="/dev/dsp" ;
   if (mixDevice==0) mixDevice="/dev/mixer" ;
