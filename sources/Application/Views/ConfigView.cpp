@@ -16,96 +16,97 @@
 #include "Services/Midi/MidiService.h"
 #include "System/System/System.h"
 
-#define ACTION_PURGE            MAKE_FOURCC('P','U','R','G')
-#define ACTION_SAVE             MAKE_FOURCC('S','A','V','E')
-#define ACTION_SAVE_AS          MAKE_FOURCC('S','V','A','S')
-#define ACTION_LOAD             MAKE_FOURCC('L','O','A','D')
-#define ACTION_QUIT             MAKE_FOURCC('Q','U','I','T')
-#define ACTION_PURGE_INSTRUMENT MAKE_FOURCC('P','R','G','I')
-#define ACTION_TEMPO_CHANGED    MAKE_FOURCC('T','E','M','P')
+#define ACTION_SAVE MAKE_FOURCC('S', 'A', 'V', 'E')
 
 /** Horizontal position of the label */
 #define POS_X_LABEL 8
 /** Horizontal position of the values */
 #define POS_X_VALUE 18
 
-static void SaveAsProjectCallback(View &v,ModalView &dialog) {
+static void SaveAsProjectCallback(View &v, ModalView &dialog) {
 
     FileSystemService FSS;
-    NewProjectDialog &npd=(NewProjectDialog &)dialog;
+    NewProjectDialog &npd = (NewProjectDialog &)dialog;
 
-    if (dialog.GetReturnCode()>0) {
-		std::string str_dstprjdir;
-		std::string str_dstsmpdir;
+    if (dialog.GetReturnCode() > 0) {
+        std::string str_dstprjdir;
+        std::string str_dstsmpdir;
 
-		Path root("root:");
-		str_dstprjdir = root.GetName() + "/" + npd.GetName();
-		str_dstsmpdir = str_dstprjdir + "/samples/";
+        Path root("root:");
+        str_dstprjdir = root.GetName() + "/" + npd.GetName();
+        str_dstsmpdir = str_dstprjdir + "/samples/";
 
-		Path path_srcprjdir("Config:");
-		Path path_srcsmpdir("Config:samples");
-		Path path_dstprjdir = Path(str_dstprjdir);
-		Path path_dstsmpdir = Path(str_dstsmpdir);
+        Path path_srcprjdir("Config:");
+        Path path_srcsmpdir("Config:samples");
+        Path path_dstprjdir = Path(str_dstprjdir);
+        Path path_dstsmpdir = Path(str_dstsmpdir);
 
         Path path_srclgptdatsav = path_srcprjdir.GetPath() + "lgptsav_tmp.dat";
         Path path_dstlgptdatsav = path_dstprjdir.GetPath() + "/lgptsav.dat";
 
-		if (path_dstprjdir.Exists()) {
-			Trace::Log("ConfigView", "Dst Dir '%s' Exist == true",
-			path_dstprjdir.GetPath().c_str());
-		} else {
-			if (FileSystem::GetInstance()->MakeDir(path_dstprjdir.GetPath().c_str()).Failed()) {
-				Trace::Log("ConfigView", "Failed to create dir '%s'", path_dstprjdir.GetPath().c_str());
-				return;
-			};
+        if (path_dstprjdir.Exists()) {
+            Trace::Log("ConfigView", "Dst Dir '%s' Exist == true",
+                       path_dstprjdir.GetPath().c_str());
+        } else {
+            if (FileSystem::GetInstance()
+                    ->MakeDir(path_dstprjdir.GetPath().c_str())
+                    .Failed()) {
+                Trace::Log("ConfigView", "Failed to create dir '%s'",
+                           path_dstprjdir.GetPath().c_str());
+                return;
+            };
 
-		if (FileSystem::GetInstance()->MakeDir(path_dstsmpdir.GetPath().c_str()).Failed()) {
-			Trace::Log("ConfigView", "Failed to create sample dir '%s'", path_dstprjdir.GetPath().c_str());
-			return;
-		};
+            if (FileSystem::GetInstance()
+                    ->MakeDir(path_dstsmpdir.GetPath().c_str())
+                    .Failed()) {
+                Trace::Log("ConfigView", "Failed to create sample dir '%s'",
+                           path_dstprjdir.GetPath().c_str());
+                return;
+            };
 
-        if (FSS.Copy(path_srclgptdatsav, path_dstlgptdatsav) > -1) {
-            FSS.Delete(path_srclgptdatsav);
+            if (FSS.Copy(path_srclgptdatsav, path_dstlgptdatsav) > -1) {
+                FSS.Delete(path_srclgptdatsav);
+            }
+
+            I_Dir *idir_srcsmpdir = FileSystem::GetInstance()->Open(
+                path_srcsmpdir.GetPath().c_str());
+            if (idir_srcsmpdir) {
+                idir_srcsmpdir->GetContent("*");
+                idir_srcsmpdir->Sort();
+                IteratorPtr<Path> it(idir_srcsmpdir->GetIterator());
+                for (it->Begin(); !it->IsDone(); it->Next()) {
+                    Path &current = it->CurrentItem();
+                    if (current.IsFile()) {
+                        Path dstfile =
+                            Path((str_dstsmpdir + current.GetName()).c_str());
+                        Path srcfile = Path(current.GetPath());
+                        FSS.Copy(srcfile.GetPath(), dstfile.GetPath());
+                    }
+                }
+            }
+
+            ((ConfigView &)v).OnSaveAsProject((char *)str_dstprjdir.c_str());
         }
-
-        I_Dir *idir_srcsmpdir =
-            FileSystem::GetInstance()->Open(path_srcsmpdir.GetPath().c_str());
-        if (idir_srcsmpdir) {
-				idir_srcsmpdir->GetContent("*");
-				idir_srcsmpdir->Sort();
-				IteratorPtr<Path>it(idir_srcsmpdir->GetIterator());
-				for (it->Begin();!it->IsDone();it->Next()) {
-					Path &current=it->CurrentItem();
-					if (current.IsFile()) {
-						Path dstfile = Path((str_dstsmpdir+current.GetName()).c_str());
-						Path srcfile = Path(current.GetPath());
-						FSS.Copy(srcfile.GetPath(),dstfile.GetPath());
-					}
-				}
-			}
-
-		((ConfigView &)v).OnSaveAsProject((char*)str_dstprjdir.c_str());
-		}
     }
 }
 
-static void LoadCallback(View &v,ModalView &dialog) {
+static void LoadCallback(View &v, ModalView &dialog) {
     MixerService::GetInstance()->SetRenderMode(0);
-    if (dialog.GetReturnCode()==MBL_YES) {
-		((ConfigView &)v).OnLoadProject() ;
-	}
-} ;
+    if (dialog.GetReturnCode() == MBL_YES) {
+        ((ConfigView &)v).OnLoadProject();
+    }
+};
 
-static void QuitCallback(View &v,ModalView &dialog) {
+static void QuitCallback(View &v, ModalView &dialog) {
     MixerService::GetInstance()->SetRenderMode(0);
-    if (dialog.GetReturnCode()==MBL_YES) {
-		((ConfigView &)v).OnQuit() ;
-	}
-} ;
+    if (dialog.GetReturnCode() == MBL_YES) {
+        ((ConfigView &)v).OnQuit();
+    }
+};
 
-static void PurgeCallback(View &v,ModalView &dialog) {
-	((ConfigView &)v).OnPurgeInstruments(dialog.GetReturnCode()==MBL_YES) ;
-} ;
+static void PurgeCallback(View &v, ModalView &dialog) {
+    ((ConfigView &)v).OnPurgeInstruments(dialog.GetReturnCode() == MBL_YES);
+};
 
 void ConfigView::insertLabel(GUIPoint position, char *name) {
     position._x = POS_X_LABEL;
@@ -113,7 +114,7 @@ void ConfigView::insertLabel(GUIPoint position, char *name) {
     Insert(f);
 }
 
-ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
+ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
 
     lastClock_ = 0;
     lastTick_ = 0;
@@ -127,7 +128,8 @@ ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     Variable *v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
     insertLabel(position, "MIDI");
-    Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
+    Insert(new UIIntVarField(position, *v, "%s", 0,
+                             MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
     insertLabel(position, "Auto Load");
@@ -144,10 +146,9 @@ ConfigView::ConfigView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     Insert(a1);
 }
 
-ConfigView::~ConfigView() {
-}
+ConfigView::~ConfigView() {}
 
-void ConfigView::ProcessButtonMask(unsigned short mask,bool pressed) {
+void ConfigView::ProcessButtonMask(unsigned short mask, bool pressed) {
 
     if (!pressed)
         return;
@@ -156,19 +157,19 @@ void ConfigView::ProcessButtonMask(unsigned short mask,bool pressed) {
 
     if (mask & EPBM_R) {
         if (mask & EPBM_DOWN) {
-			ViewType vt = VT_PROJECT;
-			ViewEvent ve(VET_SWITCH_VIEW, &vt);
-			SetChanged();
+            ViewType vt = VT_PROJECT;
+            ViewEvent ve(VET_SWITCH_VIEW, &vt);
+            SetChanged();
             NotifyObservers(&ve);
         }
     };
-} ;
+};
 
 void ConfigView::DrawView() {
     Clear();
 
     GUITextProperties props;
-    GUIPoint pos=GetTitlePosition() ;
+    GUIPoint pos = GetTitlePosition();
 
     // Draw title
     SetColor(CD_NORMAL);
@@ -183,7 +184,8 @@ void ConfigView::DrawView() {
     drawMap();
 
     int currentMode = project_->GetRenderMode();
-    if ((viewData_->renderMode_ != currentMode) && !MixerService::GetInstance()->IsRendering()) {
+    if ((viewData_->renderMode_ != currentMode) &&
+        !MixerService::GetInstance()->IsRendering()) {
         // Mode changed
         if (currentMode > 0 && viewData_->renderMode_ == 0) {
             View::SetNotification("Rendering on, press start");
@@ -195,91 +197,52 @@ void ConfigView::DrawView() {
     }
 
     View::EnableNotification();
-} ;
+};
 
 void ConfigView::Update(Observable &o, I_ObservableData *data) {
-
     if (!hasFocus_) {
-        return ;
+        return;
     }
 
-    // check for boolean field change first
-    // if (UIBoolField *bf = dynamic_cast<UIBoolField*>(&o)) {
-    //     if (bf == autoLoadField_) {
-    //         Config::GetInstance()->autoLoadEnabled = bf->GetValue();
-    //     }
-    //     // other bool fields could be handled here
-    //     return;
-    // }
-
-# ifdef _64BIT
-	int fourcc=*((int*)data);
+#ifdef _64BIT
+    int fourcc = *((int *)data);
 #else
     int fourcc = (unsigned int)data;
 #endif
 
     UIField *focus = GetFocus();
-    if (fourcc!= ACTION_TEMPO_CHANGED) {
-		focus->ClearFocus() ;
-		focus->Draw(w_) ;
-		w_.Flush() ;
-        focus->SetFocus();
-        //} else {
-        //	focus=tempoField_ ;
-	}
     Player *player = Player::GetInstance();
     switch (fourcc) {
     case ACTION_SAVE: {
         Config::GetInstance()->Save();
         break;
     }
-        case ACTION_SAVE_AS: {
-            PersistencyService *service = PersistencyService::GetInstance();
-            service->Save("Config:lgptsav_tmp.dat");
-            NewProjectDialog *mb = new NewProjectDialog(*this, "root:");
-            DoModal(mb, SaveAsProjectCallback);
-            break;
-        }
-        case ACTION_LOAD: {
-            MessageBox *mb = new MessageBox(
-                *this, "Load song and lose changes ?", MBBF_YES | MBBF_NO);
-            DoModal(mb, LoadCallback);
-            break;
-        }
-        case ACTION_QUIT: {
-            MessageBox *mb = new MessageBox(*this, "Quit and lose faith ?",
-                                            MBBF_YES | MBBF_NO);
-            DoModal(mb, QuitCallback);
-            break;
-        }
-        case ACTION_TEMPO_CHANGED:
-			break ;
-		default:
-			NInvalid ;
-			break ;
-	} ;
-    focus->Draw(w_) ;
-	isDirty_=true ;
+    default:
+        NInvalid;
+        break;
+    };
+    focus->Draw(w_);
+    isDirty_ = true;
 };
 
 void ConfigView::OnPurgeInstruments(bool removeFromDisk) {
-	project_->PurgeInstruments(removeFromDisk) ;
-} ;
+    project_->PurgeInstruments(removeFromDisk);
+};
 
 void ConfigView::OnLoadProject() {
-	ViewEvent ve(VET_QUIT_PROJECT) ;
-	SetChanged();
-	NotifyObservers(&ve) ;
-} ;
+    ViewEvent ve(VET_QUIT_PROJECT);
+    SetChanged();
+    NotifyObservers(&ve);
+};
 
-void ConfigView::OnSaveAsProject(char * data) {
-        ViewEvent ve(VET_SAVEAS_PROJECT,data) ;
-	SetChanged();
-	NotifyObservers(&ve) ;
-} ;
+void ConfigView::OnSaveAsProject(char *data) {
+    ViewEvent ve(VET_SAVEAS_PROJECT, data);
+    SetChanged();
+    NotifyObservers(&ve);
+};
 
 void ConfigView::OnQuit() {
-	ViewEvent ve(VET_QUIT_APP) ;
-	SetChanged();
-	NotifyObservers(&ve) ;
-} ;
+    ViewEvent ve(VET_QUIT_APP);
+    SetChanged();
+    NotifyObservers(&ve);
+};
