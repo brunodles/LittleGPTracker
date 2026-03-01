@@ -38,7 +38,7 @@ void ImportSampleDialog::DrawView() {
 
     //	char title[SCREEN_WIDTH] ;
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     //	sprintf(title,"Sample Import from %s",currentPath_.GetName()) ;
     //	w_.DrawString(title,pos,props) ;
@@ -64,10 +64,10 @@ void ImportSampleDialog::DrawView() {
 			const std::string p=current.GetName() ;
 
             if (count == currentSample_) {
-                SetColor(CD_HILITE2);
-				props.invert_=true;
+                SetColor(CD_CURSOR);
+                props.invert_=true;
             } else {
-                SetColor(CD_NORMAL);
+                SetColor(CD_TEXT_VALUE);
                 props.invert_=false;
             }
             if (!current.IsDirectory()) {
@@ -87,7 +87,7 @@ void ImportSampleDialog::DrawView() {
     y = LIST_SIZE + 2;
     int offset = LIST_WIDTH/4;
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     for (int i = 0; i < 3; i++) {
         const char *text = buttonText[i];

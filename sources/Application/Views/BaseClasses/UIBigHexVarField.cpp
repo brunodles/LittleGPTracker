@@ -17,11 +17,11 @@ void UIBigHexVarField::Draw(GUIWindow &w,int offset) {
 	position._y+=offset ;
 
 	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
+        ((AppWindow &)w).SetColor(CD_CURSOR);
+        props.invert_=true ;
 	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
+        ((AppWindow &)w).SetColor(CD_TEXT_VALUE);
+    }
 	
 	char buffer[80] ;
 	int value=src_.GetInt() ;
@@ -39,8 +39,8 @@ void UIBigHexVarField::Draw(GUIWindow &w,int offset) {
 		int offset=(precision_-position_)+percentPos ;
 		buffer[offset+1]=0 ;
 		position._x+=offset ;
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-		w.DrawString(buffer+offset,position,props) ;
+        ((AppWindow &)w).SetColor(CD_TEXT_VALUE);
+        w.DrawString(buffer+offset,position,props) ;
 	}
 } ;
 

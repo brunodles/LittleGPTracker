@@ -186,11 +186,11 @@ void MixerView::DrawView() {
 
 // Draw title
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_TEXT_VALUE);
 
-	Player *player=Player::GetInstance() ;
-	
-	std::ostringstream os;
+    Player *player = Player::GetInstance();
+
+    std::ostringstream os;
 
 	os << ((player->GetSequencerMode()==SM_SONG)?"Song":"Live") ;
 
@@ -214,8 +214,8 @@ void MixerView::DrawView() {
 		pos._x+=dx ;	
 		if (i==viewData_->mixerCol_) {
 			 props.invert_=false;
-			 SetColor(CD_NORMAL) ;
-		}
+             SetColor(CD_TEXT_VALUE);
+        }
 	}; 
 	
     drawMap() ;
@@ -236,7 +236,7 @@ void MixerView::OnPlayerUpdate(PlayerEventType ,unsigned int tick) {
 	GUIPoint pos=anchor ;
 
 	GUITextProperties props ;
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_TEXT_VALUE);
 
     if (View::miniLayout_) {
       pos._y=0 ;
@@ -272,8 +272,8 @@ void MixerView::OnPlayerUpdate(PlayerEventType ,unsigned int tick) {
     	sprintf(strbuffer,"%3.3d",batt) ; 
 	    DrawString(pos._x,pos._y,strbuffer,props) ;
     }
-	SetColor(CD_NORMAL) ;
-	props.invert_=false ;
+    SetColor(CD_TEXT_VALUE);
+    props.invert_=false ;
     int time=int(player->GetPlayTime()) ;
     int mi=time/60 ;
     int se=time-mi*60 ;

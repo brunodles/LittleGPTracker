@@ -134,7 +134,7 @@ void GrooveView::DrawView() {
 
     char title[SCREEN_WIDTH];
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     sprintf(title, "Groove: %2.2x", viewData_->currentGroove_);
     DrawString(pos._x,pos._y,title,props);
@@ -160,10 +160,11 @@ void GrooveView::DrawView() {
 
 	pos=anchor ;
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_TEXT_VALUE);
 
-	unsigned char *grooveData=Groove::GetInstance()->GetGrooveData(viewData_->currentGroove_) ;
-	for (int j=0;j<16;j++) {
+    unsigned char *grooveData =
+        Groove::GetInstance()->GetGrooveData(viewData_->currentGroove_);
+    for (int j=0;j<16;j++) {
 		if (grooveData[j]!=NO_GROOVE_DATA) {
 			hex2char(grooveData[j],buffer) ;
 			buffer[3]=0 ;
@@ -204,9 +205,9 @@ void GrooveView::OnPlayerUpdate(PlayerEventType ,unsigned int tick) {
 		pos._x=anchor._x-1 ;
 		pos._y=anchor._y+lastPosition_ ;
         SetColor(CD_PLAY);
-        DrawString(pos._x,pos._y,">",props);
-        SetColor(CD_NORMAL);
-	} ;
+        DrawString(pos._x, pos._y, ">", props);
+        SetColor(CD_TEXT_VALUE);
+    } ;
 
     drawNotes() ;
 } ;

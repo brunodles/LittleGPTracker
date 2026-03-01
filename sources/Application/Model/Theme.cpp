@@ -76,27 +76,29 @@ inline void defineColor(const char *value, GUIColor* color) {
 Theme::Theme() {
     // initialize default values
 
-    // GUIColor AppWindow::consoleColor_(0x00, 0xFF, 0x00);
-    bgColor = new GUIColor(0x1D, 0x0A, 0x1F);
-    fgColor = new GUIColor(0xF5, 0xEB, 0xFF);
+    backgroundColor = new GUIColor(0x1D, 0x0A, 0x1F);
     borderColor = new GUIColor(0xFF, 0x00, 0x8C);
+
     hiColor1 = new GUIColor(0xB7, 0x50, 0xD1);
     hiColor2 = new GUIColor(0xDB, 0x33, 0xDB);
     cursorColor = new GUIColor(0xFF, 0x00, 0x8C);
+
     playColor = new GUIColor(0xFF, 0x00, 0x8C);
     muteColor = new GUIColor(0xF5, 0xEB, 0xFF);
-    songviewFe = new GUIColor(0xA5, 0x5B, 0x8F);
-    songview00 = new GUIColor(0x85, 0x3B, 0x6F);
+
     rowColor1 = new GUIColor(0xBA, 0x28, 0xF9);
     rowColor2 = new GUIColor(0xFF, 0x00, 0xFF);
-    altRowNumber = 4;
-    majorBeatNumber = 4;
-    majorBeatColor = new GUIColor(0xBA, 0x28, 0xF9);
-    blankSpaceColor = new GUIColor(0xF5, 0xEB, 0xFF);
-    showColumnTitles = true;
-    fontType;
 
-    // Theme
+    majorBeatColor = new GUIColor(0xBA, 0x28, 0xF9);
+
+    consoleColor = new GUIColor(0x00, 0xFF, 0x00);
+
+    textColorValue = new GUIColor(0xF5, 0xEB, 0xFF);
+    textColorEmpty = new GUIColor(0xD5, 0xEB, 0xDF);
+    textColorFe = textColorEmpty;
+    textColor00 = textColorEmpty;
+    textColorInfo = rowColor2;
+
     altRowNumber = 4;
     majorBeatNumber = 4;
     showColumnTitles = false;
@@ -149,9 +151,11 @@ Theme::Theme() {
 
 bool Theme::proccessKeyValue(const char *key, const char *value) {
     if (isKeyEqualTo(key, "BACKGROUND")) {
-        defineColor(value, bgColor);
+        defineColor(value, backgroundColor);
     } else if (isKeyEqualTo(key, "FOREGROUND")) {
-        defineColor(value, fgColor);
+        defineColor(value, textColorValue);
+    } else if (isKeyEqualTo(key, "TEXT_COLOR_VALUE")) {
+        defineColor(value, textColorValue);
     } else if (isKeyEqualTo(key, "BORDER")) {
         defineColor(value, borderColor);
     } else if (isKeyEqualTo(key, "HICOLOR1")) {
@@ -164,10 +168,14 @@ bool Theme::proccessKeyValue(const char *key, const char *value) {
         defineColor(value, playColor);
     } else if (isKeyEqualTo(key, "MUTECOLOR")) {
         defineColor(value, muteColor);
+    } else if (isKeyEqualTo(key, "TEXT_COLOR_FE")) {
+        defineColor(value, textColorFe);
     } else if (isKeyEqualTo(key, "SONGVIEW_FE")) {
-        defineColor(value, songviewFe);
+        defineColor(value, textColorFe);
+    } else if (isKeyEqualTo(key, "TEXT_COLOR_00")) {
+        defineColor(value, textColor00);
     } else if (isKeyEqualTo(key, "SONGVIEW_00")) {
-        defineColor(value, songview00);
+        defineColor(value, textColor00);
     } else if (isKeyEqualTo(key, "ROWCOLOR1")) {
         defineColor(value, rowColor1);
     } else if (isKeyEqualTo(key, "ROWCOLOR2")) {
@@ -178,8 +186,12 @@ bool Theme::proccessKeyValue(const char *key, const char *value) {
         majorBeatNumber = strToInt(value);
     } else if (isKeyEqualTo(key, "MAJORBEAT")) {
         defineColor(value, majorBeatColor);
+    } else if (isKeyEqualTo(key, "TEXT_COLOR_EMPTY")) {
+        defineColor(value, textColorEmpty);
     } else if (isKeyEqualTo(key, "BLANKSPACE")) {
-        defineColor(value, blankSpaceColor);
+        defineColor(value, textColorEmpty);
+    } else if (isKeyEqualTo(key, "TEXT_COLOR_INFO")) {
+        defineColor(value, textColorInfo);
     } else if (isKeyEqualTo(key, "SHOW_COLUMN_TITLES")) {
         showColumnTitles = value;
     } else if (isKeyEqualTo(key, "FONTTYPE")) {

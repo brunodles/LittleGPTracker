@@ -16,9 +16,9 @@ class Theme{
 
 
         // *key: BACKGROUND
-        GUIColor* bgColor;
-        // *key: FOREGROUND
-        GUIColor* fgColor;
+        GUIColor *backgroundColor;
+        // *key: TEXT_COLOR_VALUE, FOREGROUND
+        GUIColor* textColorValue;
         // *key: BORDER
         GUIColor* borderColor;
         // *key: HICOLOR1
@@ -31,10 +31,10 @@ class Theme{
         GUIColor* playColor;
         // *key: MUTECOLOR
         GUIColor* muteColor;
-        // *key: SONGVIEW_FE
-        GUIColor* songviewFe;
-        // *key: SONGVIEW_00
-        GUIColor* songview00;
+        // *key: TEXT_COLOR_FE, SONGVIEW_FE
+        GUIColor* textColorFe;
+        // *key: TEXT_COLOR_00, SONGVIEW_00
+        GUIColor* textColor00;
         // *key: ROWCOLOR1
         GUIColor* rowColor1;
         // *key: ROWCOLOR2
@@ -45,8 +45,12 @@ class Theme{
         int majorBeatNumber;
         // *key: MAJORBEAT
         GUIColor* majorBeatColor;
-        // *key: BLANKSPACE
-        GUIColor* blankSpaceColor;
+        // *key: TEXT_COLOR_EMPTY, BLANKSPACE
+        GUIColor* textColorEmpty;
+        // *key: TEXT_COLOR_INFO
+        GUIColor* textColorInfo;
+        // *key: CONSOLE_COLOR
+        GUIColor* consoleColor;
         // *key: SHOW_COLUMN_TITLES
         bool showColumnTitles;
         // *key: FONTTYPE

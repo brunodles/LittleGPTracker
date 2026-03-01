@@ -19,22 +19,6 @@
 
 AppWindow *instance = 0;
 
-GUIColor AppWindow::backgroundColor_(0x1D, 0x0A, 0x1F);
-GUIColor AppWindow::normalColor_(0xF5, 0xEB, 0xFF);
-GUIColor AppWindow::borderColor_(0xFF, 0x00, 0x8C);
-GUIColor AppWindow::songviewfeColor_(0xA5, 0x5B, 0x8F);
-GUIColor AppWindow::songview00Color_(0x85, 0x3B, 0x6F);
-GUIColor AppWindow::blankspaceColor_(0xF5, 0xEB, 0xFF);
-GUIColor AppWindow::highlightColor_(0xB7, 0x50, 0xD1);
-GUIColor AppWindow::highlight2Color_(0xDB, 0x33, 0xDB);
-GUIColor AppWindow::consoleColor_(0x00, 0xFF, 0x00);
-GUIColor AppWindow::cursorColor_(0xFF, 0x00, 0x8C);
-GUIColor AppWindow::playColor_(0xFF, 0x00, 0x8C);
-GUIColor AppWindow::muteColor_(0xF5, 0xEB, 0xFF);
-GUIColor AppWindow::rownumberColor_(0xBA, 0x28, 0xF9);
-GUIColor AppWindow::rownumber2Color_(0xFF, 0x00, 0xFF);
-GUIColor AppWindow::majorbeatColor_(0xBA, 0x28, 0xF9);
-
 int AppWindow::charWidth_ = 8;
 int AppWindow::charHeight_ = 8;
 
@@ -96,7 +80,7 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
     _lastA = 0;
     _lastB = 0;
     _mask = 0;
-    colorIndex_ = CD_NORMAL;
+    colorIndex_ = CD_TEXT_VALUE;
 
     EventDispatcher *ed = EventDispatcher::GetInstance();
     ed->SetWindow(this);
@@ -105,24 +89,12 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
 
     // Init midi services
     MidiService::GetInstance()->Init();
+
+    // Theme from configuration
     Config *config = Config::GetInstance();
     Theme *theme = config->theme;
-    backgroundColor_ = *theme->bgColor;
-    normalColor_ = *theme->fgColor;
-    borderColor_ = *theme->borderColor;
-    songview00Color_ = *theme->songview00;
-    songviewfeColor_ = *theme->songviewFe;
-    blankspaceColor_ = *theme->blankSpaceColor;
-    highlightColor_ = *theme->hiColor1;
-    highlight2Color_ = *theme->hiColor2;
-    cursorColor_ = *theme->cursorColor;
-    playColor_ = *theme->playColor;
-    muteColor_ = *theme->muteColor;
-    rownumberColor_ = *theme->rowColor1;
-    rownumber2Color_ = *theme->rowColor2;
-    majorbeatColor_ = *theme->majorBeatColor;
 
-    GUIWindow::Clear(backgroundColor_);
+    GUIWindow::Clear(*theme->backgroundColor);
 
     _nullView = new NullView((*this), 0);
     _currentView = _nullView;
@@ -225,6 +197,9 @@ void AppWindow::Flush() {
     Lock();
     // long flushStart = System::GetInstance()->GetClock();
 
+    Config *config = Config::GetInstance();
+    Theme *theme = config->theme;
+
     GUITextProperties props;
     GUIPoint pos;
 
@@ -246,51 +221,54 @@ void AppWindow::Flush() {
                 props.invert_ = (*currentProp & PROP_INVERT) != 0;
                 if (((*currentProp) & 0x7F) != color) {
                     color = (ColorDefinition)((*currentProp) & 0x7F);
-                    GUIColor gcolor = normalColor_;
+                    GUIColor gcolor = *theme->textColorValue;
                     switch (color) {
                     case CD_BACKGROUND:
-                        gcolor = backgroundColor_;
+                        gcolor = *theme->backgroundColor;
                         break;
-                    case CD_NORMAL:
+                    case CD_TEXT_VALUE:
                         break;
                     case CD_BORDER:
-                        gcolor = borderColor_;
+                        gcolor = *theme->borderColor;
                         break;
                     case CD_HILITE1:
-                        gcolor = highlightColor_;
+                        gcolor = *theme->hiColor1;
                         break;
                     case CD_HILITE2:
-                        gcolor = highlight2Color_;
+                        gcolor = *theme->hiColor2;
                         break;
                     case CD_CONSOLE:
-                        gcolor = consoleColor_;
+                        gcolor = *theme->consoleColor;
                         break;
                     case CD_CURSOR:
-                        gcolor = cursorColor_;
+                        gcolor = *theme->cursorColor;
                         break;
                     case CD_PLAY:
-                        gcolor = playColor_;
+                        gcolor = *theme->playColor;
                         break;
                     case CD_MUTE:
-                        gcolor = muteColor_;
+                        gcolor = *theme->muteColor;
                         break;
-                    case CD_SONGVIEWFE:
-                        gcolor = songviewfeColor_;
+                    case CD_TEXT_FE:
+                        gcolor = *theme->textColorFe;
                         break;
-                    case CD_SONGVIEW00:
-                        gcolor = songview00Color_;
+                    case CD_TEXT_00:
+                        gcolor = *theme->textColor00;
                         break;
-                    case CD_BLANKSPACE:
-                        gcolor = blankspaceColor_;
+                    case CD_TEXT_EMPTY:
+                        gcolor = *theme->textColorEmpty;
+                        break;
+                    case CD_TEXT_INFO:
+                        gcolor = *theme->textColorInfo;
                         break;
                     case CD_ROW:
-                        gcolor = rownumberColor_;
+                        gcolor = *theme->rowColor1;
                         break;
                     case CD_ROW2:
-                        gcolor = rownumber2Color_;
+                        gcolor = *theme->rowColor2;
                         break;
                     case CD_MAJORBEAT:
-                        gcolor = majorbeatColor_;
+                        gcolor = *theme->majorBeatColor;
                         break;
                     default:
                         NAssert(0);
@@ -588,7 +566,8 @@ void AppWindow::Update(Observable &o, I_ObservableData *d) {
         }
         _currentView->SetFocus(*vt);
         _isDirty = true;
-        GUIWindow::Clear(backgroundColor_, true);
+        Theme *theme = Config::GetInstance()->theme;
+        GUIWindow::Clear(*theme->backgroundColor, true);
         Clear(true);
         Redraw();
         break;
@@ -652,7 +631,7 @@ void AppWindow::Print(char *line) {
     GUIPoint pos(position, 12);
     //
     GUITextProperties props;
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     DrawString(_statusLine, pos, props);
     pos._y = POS_Y_BEFORE_LAST_LINE;
     pos._x = (SCREEN_WIDTH - strlen(VERSION_STRING)) / 2;
