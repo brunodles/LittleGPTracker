@@ -14,10 +14,10 @@ void UIBoolField::Draw(GUIWindow &w, int offset) {
     pos._y += offset;
 
     if (focus_) {
-        ((AppWindow &)w).SetColor(CD_HILITE2);
+        ((AppWindow &)w).SetColor(CD_CURSOR);
         props.invert_ = true;
     } else {
-        ((AppWindow &)w).SetColor(CD_NORMAL);
+        ((AppWindow &)w).SetColor(CD_TEXT_VALUE);
         props.invert_ = false;
     }
 

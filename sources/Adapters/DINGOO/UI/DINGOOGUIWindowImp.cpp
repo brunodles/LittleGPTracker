@@ -65,7 +65,7 @@ void DINGOOGUIWindowImp::prepareFonts() {
     Config *config=Config::GetInstance() ;
     
    unsigned char r,g,b ;
-   const char *value = config->theme->bgColor;
+   const char *value = config->theme->backgroundColor;
    if (value) {
       char2hex(value,&r) ;
       char2hex(value+2,&g) ;
@@ -77,7 +77,7 @@ void DINGOOGUIWindowImp::prepareFonts() {
    }
    backgroundColor_=SDL_MapRGB(screen_->format, r,g,b) ;
 
-   value = config->theme->fgColor;
+   value = config->theme->textColorValue;
    if (value) {
       char2hex(value,&r) ;
       char2hex(value+2,&g) ;

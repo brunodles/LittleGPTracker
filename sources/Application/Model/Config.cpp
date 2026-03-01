@@ -285,22 +285,22 @@ void Config::Save() {
 	root->LinkEndChild(elem);
 
 	elem = new TiXmlElement("ALTROWNUMBER");
-	elem->SetAttribute("value", altRowNumber);
-	root->LinkEndChild(elem);
+    elem->SetAttribute("value", theme->altRowNumber);
+    root->LinkEndChild(elem);
 
 	elem = new TiXmlElement("MAJORBEATNUMBER");
-	elem->SetAttribute("value", majorBeatNumber);
-	root->LinkEndChild(elem);
+    elem->SetAttribute("value", theme->majorBeatNumber);
+    root->LinkEndChild(elem);
 
-    if (fontType && sizeof(fontType) > 0) {
+    if (theme->fontType && sizeof(theme->fontType) > 0) {
         elem = new TiXmlElement("FONTTYPE");
-		elem->SetAttribute("value", fontType);
-		root->LinkEndChild(elem);
+        elem->SetAttribute("value", theme->fontType);
+        root->LinkEndChild(elem);
     }
 
     elem = new TiXmlElement("SHOW_COLUMN_TITLES");
-	elem->SetAttribute("value", isColumnTitleEnabled ? "true" : "false");
-	root->LinkEndChild(elem);
+    elem->SetAttribute("value", theme->showColumnTitles ? "true" : "false");
+    root->LinkEndChild(elem);
 
 	elem = new TiXmlElement("DUMPEVENT");
 	elem->SetAttribute("value", dumpEvent ? "true" : "false");

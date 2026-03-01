@@ -139,8 +139,9 @@ void InstrumentView::fillSampleParameters() {
 	T_SimpleList<UIField>::Insert(f1) ;
 
     position._y += 2;
-    UIStaticField *sf=new UIStaticField(position,"flt cut/res:") ;
-	T_SimpleList<UIField>::Insert(sf) ;
+    UIStaticField *sf =
+        new UIStaticField(position, "flt cut/res:", CD_TEXT_VALUE);
+    T_SimpleList<UIField>::Insert(sf) ;
 
 	position._x+=13 ;
 	v=instrument->FindVariable(SIP_FILTCUTOFF) ;
@@ -168,8 +169,8 @@ void InstrumentView::fillSampleParameters() {
 	f1=new UIIntVarField(position,*v,"attenuate: %d [%2.2X]",1,0xFF,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
-	position._y+=1 ;
-	sf=new UIStaticField(position,"fb tune/mix: ") ;
+    position._y += 1;
+    sf=new UIStaticField(position,"fb tune/mix: ", CD_TEXT_VALUE);
 	T_SimpleList<UIField>::Insert(sf) ;
 
 	v=instrument->FindVariable(SIP_FBTUNE) ;
@@ -465,7 +466,7 @@ void InstrumentView::DrawView() {
     // Draw title
 
     char title[20];
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     sprintf(title, "Instrument %2.2X", viewData_->currentInstrument_);
     DrawString(pos._x, pos._y, title, props);
 

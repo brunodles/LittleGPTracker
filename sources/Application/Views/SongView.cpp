@@ -915,7 +915,7 @@ void SongView::DrawView() {
 
     // Draw title
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     Player *player = Player::GetInstance();
 
@@ -956,7 +956,7 @@ void SongView::DrawView() {
         pos._y -= 1;
         row[1] = 0;
         row[2] = 0;
-        SetColor(CD_BLANKSPACE);
+        SetColor(CD_TEXT_INFO);
         for (int i = 1; i <= 8; i++) {
             h2c(i, row);
             DrawString(pos._x, pos._y, row, props);
@@ -964,7 +964,7 @@ void SongView::DrawView() {
         }
     }
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     pos = anchor;
     unsigned char *data =
@@ -999,17 +999,17 @@ void SongView::DrawView() {
             unsigned char d = *data++;
 
             if (d == 0xFE) {
-                SetColor(CD_SONGVIEWFE);
+                SetColor(CD_TEXT_FE);
             } else if (d == 0x00) {
-                SetColor(CD_SONGVIEW00);
+                SetColor(CD_TEXT_00);
             } else if (d == 0xFF) {
-                SetColor(CD_BLANKSPACE);
+                SetColor(CD_TEXT_EMPTY);
             } else {
-                SetColor(CD_NORMAL);
+                SetColor(CD_TEXT_VALUE);
             }
 
             if (invert) {
-                SetColor(CD_HILITE2);
+                SetColor(CD_CURSOR);
                 props.invert_ = true;
             }
 
@@ -1023,7 +1023,7 @@ void SongView::DrawView() {
             // Put back drawing state
 
             if (invert) {
-                SetColor(CD_NORMAL);
+                SetColor(CD_TEXT_VALUE);
                 props.invert_ = false;
             }
 
@@ -1033,7 +1033,7 @@ void SongView::DrawView() {
         }
         pos._y += dy;
     }
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     drawMap();
     drawNotes();
@@ -1124,7 +1124,7 @@ void SongView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
         pos._x += 3;
     }
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     // Draw clipping indicator & CPU usage
 
@@ -1164,7 +1164,7 @@ void SongView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
     }
 
     if (eventType != PET_STOP) {
-        SetColor(CD_NORMAL);
+        SetColor(CD_TEXT_VALUE);
         props.invert_ = false;
         int time = int(player->GetPlayTime());
         int mi = time / 60;

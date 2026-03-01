@@ -211,10 +211,10 @@ void SDLGUIWindowImp::prepareFonts()
   Trace::Log("DISPLAY","Preparing font cache") ;
   Config *config=Config::GetInstance() ;
 
-  GUIColor color = *config->theme->bgColor;
+  GUIColor color = *config->theme->backgroundColor;
   backgroundColor_=SDL_MapRGB(surface_->format, color._r, color._g, color._b) ;
 
-  color = *config->theme->fgColor;
+  color = *config->theme->textColorValue;
   foregroundColor_=SDL_MapRGB(surface_->format, color._r, color._g, color._b) ;
         
   prepareFullFonts() ;

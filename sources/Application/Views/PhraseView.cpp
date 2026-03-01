@@ -1153,7 +1153,7 @@ void PhraseView::setTextProps(GUITextProperties &props, int row, int col) {
     }
 
     if (invert) {
-        SetColor(CD_HILITE2);
+        SetColor(CD_CURSOR);
         props.invert_ = true;
     } else {
         props.invert_ = false;
@@ -1172,7 +1172,7 @@ void PhraseView::DrawView() {
 
     char title[20];
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     sprintf(title, "Phrase %2.2x", viewData_->currentPhrase_);
     DrawString(pos._x, pos._y, title, props);
 
@@ -1200,14 +1200,14 @@ void PhraseView::DrawView() {
     if (Config::GetInstance()->theme->showColumnTitles) {
         pos = anchor;
         pos._y -= 1;
-        SetColor(CD_BLANKSPACE);
+        SetColor(CD_TEXT_INFO);
         DrawString(pos._x    , pos._y, "N", props);
         DrawString(pos._x +5 , pos._y, "I", props);
         DrawString(pos._x +8 , pos._y, "Cmd1", props);
         DrawString(pos._x +13, pos._y, "P1", props);
         DrawString(pos._x +18, pos._y, "Cmd2", props);
         DrawString(pos._x +23, pos._y, "P2", props);
-        SetColor(CD_NORMAL);
+        SetColor(CD_TEXT_VALUE);
     }
 
     pos = anchor;
@@ -1220,12 +1220,12 @@ void PhraseView::DrawView() {
     for (int j = 0; j < 16; j++) {
         unsigned char d = *data++;
         if (d == 0xFF) {
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, "----", props);
         } else {
             ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
-                                          : SetColor(CD_NORMAL);
+                                          : SetColor(CD_TEXT_VALUE);
             note2char(d, buffer);
             setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, buffer, props);
@@ -1245,18 +1245,18 @@ void PhraseView::DrawView() {
     for (int j = 0; j < 16; j++) {
         unsigned char d = *data++;
         if (d == 0xFF) {
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, "--", props);
         } else {
             ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
-                                          : SetColor(CD_NORMAL);
+                                          : SetColor(CD_TEXT_VALUE);
 
             hex2char(d, buffer);
             setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, buffer, props);
             if (j == row_ && (col_ == 0 || col_ == 1)) {
-                SetColor(CD_NORMAL);
+                SetColor(CD_TEXT_VALUE);
                 sprintf(buffer, "I%2.2x: ", d);
                 std::string instrLine = buffer;
                 GUIPoint location = GetTitlePosition();
@@ -1283,14 +1283,14 @@ void PhraseView::DrawView() {
 
         if (command == 0x2d2d2d2d) { // 0x2d2d2d2d = '----' in hex
             // Draw empty command with blank color
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 2);
             DrawString(pos._x, pos._y, "----", props);
 
             // Draw empty command param with blank color
             pos._x += 5;
             hexshort2char(p, buffer);
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 3);
             DrawString(pos._x, pos._y, buffer, props);
             pos._x -= 5;
@@ -1301,7 +1301,7 @@ void PhraseView::DrawView() {
 
         fourCC2char(command, buffer);
         ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
-                                      : SetColor(CD_NORMAL);
+                                      : SetColor(CD_TEXT_VALUE);
 
         setTextProps(props, j, 2);
         DrawString(pos._x, pos._y, buffer, props);
@@ -1333,14 +1333,14 @@ void PhraseView::DrawView() {
 
         if (command == 0x2d2d2d2d) { // 0x2d2d2d2d = '----' in hex
             // Draw empty command with blank color
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 4);
             DrawString(pos._x, pos._y, "----", props);
 
             // Draw empty command param with blank color
             pos._x += 5;
             hexshort2char(p, buffer);
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 5);
             DrawString(pos._x, pos._y, buffer, props);
             pos._x -= 5;
@@ -1351,7 +1351,7 @@ void PhraseView::DrawView() {
 
         fourCC2char(command, buffer);
         ((j % majorBeatNumber_) == 0) ? SetColor(CD_MAJORBEAT)
-                                      : SetColor(CD_NORMAL);
+                                      : SetColor(CD_TEXT_VALUE);
 
         setTextProps(props, j, 4);
         DrawString(pos._x, pos._y, buffer, props);
@@ -1394,7 +1394,7 @@ void PhraseView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
     pos._x -= 1;
 
     GUITextProperties props;
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     pos._y = anchor._y + lastPlayingPos_;
     DrawString(pos._x, pos._y, " ", props);
@@ -1419,7 +1419,7 @@ void PhraseView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
                         SetColor(CD_MUTE);
                         DrawString(pos._x, pos._y, "-", props);
                     }
-                    SetColor(CD_NORMAL);
+                    SetColor(CD_TEXT_VALUE);
                     lastPlayingPos_ = viewData_->phrasePlayPos_[i];
                     break;
                 }
@@ -1463,7 +1463,7 @@ void PhraseView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
 };
 
 void PhraseView::printHelpLegend(FourCC command, GUITextProperties props) {
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     std::string *cmdStr = getHelpLegend(command);
     DrawString(10, 0, cmdStr[0].c_str(), props);
     DrawString(10, 1, cmdStr[1].c_str(), props);

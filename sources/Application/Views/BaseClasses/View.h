@@ -74,8 +74,22 @@ enum ViewMode {
 enum ColorDefinition {
     /** background color */
     CD_BACKGROUND,
+
+    /** text color: when content is "00" */
+    CD_TEXT_00,
+    /** text color: when content is "FD" */
+    CD_TEXT_FD,
+    /** text color: when content is "FE" */
+    CD_TEXT_FE,
+    /** text color: when content is empty ("--", "----") */
+    CD_TEXT_EMPTY,
     /** text color: default */
-    CD_NORMAL,
+    CD_TEXT_VALUE,
+    /** text color: titles */
+    CD_TEXT_TITLE,
+    /** text color: information, like column titles */
+    CD_TEXT_INFO,
+
     /** color of the border in the start screen / dialogs */
     CD_BORDER,
     /** row count in song screen */
@@ -90,12 +104,6 @@ enum ColorDefinition {
     CD_PLAY,
     /** mute indicator color */
     CD_MUTE,
-    /** text color: when content is "FE" */
-    CD_SONGVIEWFE,
-    /** text color: when content is "00" */
-    CD_SONGVIEW00,
-    /** text color: when content is empty ("--", "----") */
-    CD_BLANKSPACE,
     /** text color: row type 1 */
     CD_ROW,
     /** text color: row type 2 (eg. when index is multiple of 4) */
