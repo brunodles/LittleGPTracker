@@ -2,6 +2,7 @@
 #define _CONFIG_VIEW_H_
 
 #include "BaseClasses/FieldView.h"
+#include "BaseClasses/UIBoolField.h"
 #include "Foundation/Observable.h"
 #include "System/Console/Trace.h"
 #include "ViewData.h"
@@ -31,6 +32,8 @@ private:
   // Debug
   unsigned long lastTick_;
   unsigned long lastClock_;
+
+  UIBoolField *autoLoadField;
 
   void insertLabel(GUIPoint position, char *name);
 

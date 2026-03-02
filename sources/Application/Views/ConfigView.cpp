@@ -8,7 +8,6 @@
 #include "Application/Views/ModalDialogs/NewProjectDialog.h"
 #include "Application/Views/ModalDialogs/SelectProjectDialog.h"
 #include "BaseClasses/UIActionField.h"
-#include "BaseClasses/UIBoolField.h"
 #include "BaseClasses/UIField.h"
 #include "BaseClasses/UIIntVarField.h"
 #include "BaseClasses/UIStaticField.h"
@@ -133,10 +132,9 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
 
     position._y += 2;
     insertLabel(position, "Auto Load");
-    UIBoolField *autoLoadField_ =
-        new UIBoolField(position, config->projectAutoLoadEnabled);
-    autoLoadField_->AddObserver(*this);
-    Insert(autoLoadField_);
+    autoLoadField = new UIBoolField(position, config->projectAutoLoadEnabled);
+    //autoLoadField->AddObserver(*this);
+    Insert(autoLoadField);
 
     position._y += 2;
     insertLabel(position, "Config.xml");
@@ -215,7 +213,9 @@ void ConfigView::Update(Observable &o, I_ObservableData *data) {
     switch (fourcc) {
     case ACTION_SAVE: {
         View::SetNotification("Saving...");
-        Config::GetInstance()->Save();
+        Config *config = Config::GetInstance();
+        config->projectAutoLoadEnabled = autoLoadField->GetValue();
+        config->Save();
         View::SetNotification("Saved!");
         break;
     }
