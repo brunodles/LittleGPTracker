@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "System/Console/Trace.h"
 
 /**
  * Compares two strings for equality.

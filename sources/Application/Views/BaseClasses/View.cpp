@@ -79,9 +79,8 @@ void View::drawMap() {
 		// |M TT|
 		// Detect which column of the map is selected
 		int mapColumn = 0;
-		switch (viewType_) {	
-		case VT_CONFIG:
-		case VT_PROJECT:
+        switch (viewType_) {
+        case VT_PROJECT:
 		case VT_SONG:
 		case VT_MIXER:
 			mapColumn = 0;
@@ -104,10 +103,10 @@ void View::drawMap() {
 
         default: //??
 			mapColumn = 0;
-		}
+        }
 
-		SetColor(CD_SONGVIEW00);
-		// Draw main map in empty color
+        SetColor(CD_SONGVIEW00);
+        // Draw main map in empty color
 		DrawString(pos._x, pos._y,     "P G ", props);
 //		DrawString(pos._x, pos._y + 1, "SCPI", props); // not neded as it will be draw as hilite1
 		DrawString(pos._x, pos._y + 2, "  TT", props);
@@ -178,10 +177,6 @@ void View::drawMap() {
             DrawString(pos._x + 2, pos._y, "G", props);
             break;
 
-        case VT_CONFIG:
-            DrawString(pos._x, pos._y -1, "C", props) ;
-			break;
-            
             //        case VT_MIXER:
             //            DrawString(pos._x,  pos._y + 2, "M", props) ;
             //            break;

@@ -81,6 +81,7 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
     _chainView = 0;
     _phraseView = 0;
     _projectView = 0;
+    _configView = 0;
     _instrumentView = 0;
     _tableView = 0;
     _nullView = 0;

@@ -47,8 +47,6 @@ enum ViewType {
     VT_PHRASE,
     /** Project configuration, changes per propject or affects the project */
     VT_PROJECT,
-    /** LGPT configuration, configurations that are global to the application */
-    VT_CONFIG,
     /** Customize the instrument */
     VT_INSTRUMENT,
     /** Table screen under phrase */
