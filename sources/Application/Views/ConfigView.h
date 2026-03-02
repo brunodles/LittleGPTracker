@@ -17,14 +17,8 @@ public:
 	virtual void OnPlayerUpdate(PlayerEventType,unsigned int) {} ;
 	virtual void OnFocus() {} ;
 
-	// Observer for action callback
-
-	void Update(Observable &,I_ObservableData *) ;
-
-	void OnLoadProject() ;
-	void OnSaveAsProject(char * data) ;
-	void OnPurgeInstruments(bool removeFromDisk) ;
-	void OnQuit() ;
+    // Observer for action callback
+    void Update(Observable &,I_ObservableData *) ;
 
 protected:
 private:
