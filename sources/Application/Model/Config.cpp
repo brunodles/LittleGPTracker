@@ -216,7 +216,7 @@ void Config::Save() {
 	elem->SetAttribute("value", projectAutoLoadEnabled ? "true" : "false");
 	root->LinkEndChild(elem);
 
-    if (sampleLibPath && sizeof(sampleLibPath) > 0) {
+    if (sampleLibPath != NULL && sizeof(sampleLibPath) > 0) {
         elem = new TiXmlElement("SAMPLELIB");
 		elem->SetAttribute("value", sampleLibPath);
 		root->LinkEndChild(elem);
@@ -236,7 +236,7 @@ void Config::Save() {
 	elem->SetAttribute("value", waveLegacyDownSampling ? "true" : "false");
 	root->LinkEndChild(elem);
 
-    if (midiControlDevice && sizeof(midiControlDevice) > 0) {
+    if (midiControlDevice != NULL && sizeof(midiControlDevice) > 0) {
         elem = new TiXmlElement("MIDICTRLDEVICE");
 		elem->SetAttribute("value", midiControlDevice);
 		root->LinkEndChild(elem);
@@ -252,17 +252,17 @@ void Config::Save() {
 	elem->SetAttribute("value", midiSendSync ? "true" : "false");
 	root->LinkEndChild(elem);
 
-    if (audioApi && sizeof(audioApi) > 0) {
+    if (audioApi != NULL && sizeof(audioApi) > 0) {
         elem = new TiXmlElement("AUDIOAPI");
 		elem->SetAttribute("value", audioApi);
 		root->LinkEndChild(elem);
     }
 
-    if (audioDevice && sizeof(audioDevice) > 0) {
-		elem = new TiXmlElement("AUDIODEVICE");
+    if (audioDevice != NULL && sizeof(audioDevice) > 0) {
+        elem = new TiXmlElement("AUDIODEVICE");
 		elem->SetAttribute("value", audioDevice);
 		root->LinkEndChild(elem);
-	}
+    }
 
     if (audioBufferSize >= 0) {
 		elem = new TiXmlElement("AUDIOBUFFERSIZE");
@@ -300,7 +300,7 @@ void Config::Save() {
 	elem->SetAttribute("value", majorBeatNumber);
 	root->LinkEndChild(elem);
 
-    if (fontType && sizeof(fontType) > 0) {
+    if (fontType != NULL && sizeof(fontType) > 0) {
         elem = new TiXmlElement("FONTTYPE");
 		elem->SetAttribute("value", fontType);
 		root->LinkEndChild(elem);
