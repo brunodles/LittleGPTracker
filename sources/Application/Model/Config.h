@@ -117,6 +117,9 @@ class Config: public T_Singleton<Config>,public VariableContainer {
     char *gp2xMixer;
 #endif
 
+  private:
+    void loadPath(Path path);
+
 };
 
 #endif

@@ -214,7 +214,9 @@ void ConfigView::Update(Observable &o, I_ObservableData *data) {
     Player *player = Player::GetInstance();
     switch (fourcc) {
     case ACTION_SAVE: {
+        View::SetNotification("Saving...");
         Config::GetInstance()->Save();
+        View::SetNotification("Saved!");
         break;
     }
     default:

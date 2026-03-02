@@ -71,12 +71,8 @@ Config::Config() {
     Load();
 }
 
-void Config::Load() {
-
-	// load from config file
-
-    Path path("bin:config.xml") ;
-	Trace::Log("CONFIG","Got config path=%s",path.GetPath().c_str()) ;
+void Config::loadPath(Path path) {
+    Trace::Log("CONFIG","Got config path=%s",path.GetPath().c_str()) ;
 	TiXmlDocument *document=new TiXmlDocument(path.GetPath());
     bool loadOkay = document->LoadFile();
 
@@ -183,11 +179,23 @@ void Config::Load() {
     delete(document) ;
 }
 
+void Config::Load() {
+    Path path2("config2.xml");
+	if (path2.Exists()) {
+		// load saved config file
+		loadPath(path2);
+	} else {
+		// load default config file
+		Path path("bin:config.xml") ;
+		loadPath(path);
+	}
+}
+
 void Config::Save() {
     // save to config file
 
-	Path path("bin:config.xml") ;
-	TiXmlDocument document;
+    Path path("config2.xml");
+    TiXmlDocument document(path.GetPath());
 	TiXmlElement *root = new TiXmlElement("CONFIG");
 	document.LinkEndChild(root);
 
@@ -197,26 +205,30 @@ void Config::Save() {
 		elem->SetAttribute("value", volume);
 		root->LinkEndChild(elem);
 	}
-	if (sizeof(rootPath) > 0) {
+
+    if (rootPath && sizeof(rootPath) > 0) {
 		TiXmlElement *elem = new TiXmlElement("ROOTFOLDER");
 		elem->SetAttribute("value", rootPath);
 		root->LinkEndChild(elem);
 	}
-	TiXmlElement *elem = new TiXmlElement("AUTO_LOAD_LAST");
+
+    TiXmlElement *elem = new TiXmlElement("AUTO_LOAD_LAST");
 	elem->SetAttribute("value", projectAutoLoadEnabled ? "true" : "false");
 	root->LinkEndChild(elem);
 
-	if (sizeof(sampleLibPath) > 0) {
-		elem = new TiXmlElement("SAMPLELIB");
+    if (sampleLibPath && sizeof(sampleLibPath) > 0) {
+        elem = new TiXmlElement("SAMPLELIB");
 		elem->SetAttribute("value", sampleLibPath);
 		root->LinkEndChild(elem);
-	}
-	if (sampleChunkSize >= 0) {
+    }
+
+    if (sampleChunkSize >= 0) {
 		elem = new TiXmlElement("SAMPLELOADCHUNKSIZE");
 		elem->SetAttribute("value", sampleChunkSize);
 		root->LinkEndChild(elem);
 	}
-	elem = new TiXmlElement("PRELISTENATTENUATION");
+
+    elem = new TiXmlElement("PRELISTENATTENUATION");
 	elem->SetAttribute("value", wavePreListenAttenuation ? "true" : "false");
 	root->LinkEndChild(elem);
 
@@ -224,36 +236,41 @@ void Config::Save() {
 	elem->SetAttribute("value", waveLegacyDownSampling ? "true" : "false");
 	root->LinkEndChild(elem);
 
-	if (sizeof(midiControlDevice) > 0) {
-		elem = new TiXmlElement("MIDICTRLDEVICE");
+    if (midiControlDevice && sizeof(midiControlDevice) > 0) {
+        elem = new TiXmlElement("MIDICTRLDEVICE");
 		elem->SetAttribute("value", midiControlDevice);
 		root->LinkEndChild(elem);
-	}
-	if (midiDelay >= 0) {
+    }
+
+    if (midiDelay >= 0) {
 		elem = new TiXmlElement("MIDIDELAY");
 		elem->SetAttribute("value", midiDelay);
 		root->LinkEndChild(elem);
 	}
-	elem = new TiXmlElement("MIDISENDSYNC");
+
+    elem = new TiXmlElement("MIDISENDSYNC");
 	elem->SetAttribute("value", midiSendSync ? "true" : "false");
 	root->LinkEndChild(elem);
 
-	if (sizeof(audioApi) > 0) {
-		elem = new TiXmlElement("AUDIOAPI");
+    if (audioApi && sizeof(audioApi) > 0) {
+        elem = new TiXmlElement("AUDIOAPI");
 		elem->SetAttribute("value", audioApi);
 		root->LinkEndChild(elem);
-	}
-	if (sizeof(audioDevice) > 0) {
+    }
+
+    if (audioDevice && sizeof(audioDevice) > 0) {
 		elem = new TiXmlElement("AUDIODEVICE");
 		elem->SetAttribute("value", audioDevice);
 		root->LinkEndChild(elem);
 	}
-	if (audioBufferSize >= 0) {
+
+    if (audioBufferSize >= 0) {
 		elem = new TiXmlElement("AUDIOBUFFERSIZE");
 		elem->SetAttribute("value", audioBufferSize);
 		root->LinkEndChild(elem);
 	}
-	if (audioPreBufferCount >= 0) {
+
+    if (audioPreBufferCount >= 0) {
 		elem = new TiXmlElement("AUDIOPREBUFFERCOUNT");
 		elem->SetAttribute("value", audioPreBufferCount);
 		root->LinkEndChild(elem);
@@ -264,12 +281,14 @@ void Config::Save() {
 		elem->SetAttribute("value", inputKeyDelay);
 		root->LinkEndChild(elem);
 	}
-	if (inputKeyRepeat >= 0) {
+
+    if (inputKeyRepeat >= 0) {
 		elem = new TiXmlElement("KEYREPEAT");
 		elem->SetAttribute("value", inputKeyRepeat);
 		root->LinkEndChild(elem);
 	}
-	elem = new TiXmlElement("INVERT");
+
+    elem = new TiXmlElement("INVERT");
 	elem->SetAttribute("value", inputKeyInvertTriggers ? "true" : "false");
 	root->LinkEndChild(elem);
 
@@ -281,12 +300,13 @@ void Config::Save() {
 	elem->SetAttribute("value", majorBeatNumber);
 	root->LinkEndChild(elem);
 
-	if (sizeof(fontType) > 0) {
-		elem = new TiXmlElement("FONTTYPE");
+    if (fontType && sizeof(fontType) > 0) {
+        elem = new TiXmlElement("FONTTYPE");
 		elem->SetAttribute("value", fontType);
 		root->LinkEndChild(elem);
-	}
-	elem = new TiXmlElement("SHOW_COLUMN_TITLES");
+    }
+
+    elem = new TiXmlElement("SHOW_COLUMN_TITLES");
 	elem->SetAttribute("value", isColumnTitleEnabled ? "true" : "false");
 	root->LinkEndChild(elem);
 
@@ -313,7 +333,7 @@ void Config::Save() {
 		root->LinkEndChild(elem);
 	}
 
-	document.SaveFile(path.GetPath().c_str());
+    document.SaveFile();
 }
 
 //------------------------------------------------------------------------------
