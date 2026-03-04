@@ -80,6 +80,10 @@ AppWindow::AppWindow(I_GUIWindowImp &imp) : GUIWindow(imp) {
     _chainView = 0;
     _phraseView = 0;
     _projectView = 0;
+
+#ifdef CONFIG_VIEW_ENABLED
+    _configView = 0;
+#endif
     _instrumentView = 0;
     _tableView = 0;
     _nullView = 0;
@@ -377,6 +381,11 @@ void AppWindow::LoadProject(const Path &p) {
     _projectView = new ProjectView((*this), _viewData);
     _projectView->AddObserver((*this));
 
+#ifdef CONFIG_VIEW_ENABLED
+    _configView = new ConfigView((*this), _viewData);
+    _configView->AddObserver((*this));
+#endif
+
     _instrumentView = new InstrumentView((*this), _viewData);
     _instrumentView->AddObserver((*this));
 
@@ -435,6 +444,9 @@ void AppWindow::CloseProject() {
     SAFE_DELETE(_chainView);
     SAFE_DELETE(_phraseView);
     SAFE_DELETE(_projectView);
+#ifdef CONFIG_VIEW_ENABLED
+    SAFE_DELETE(_configView);
+#endif
     SAFE_DELETE(_instrumentView);
     SAFE_DELETE(_tableView);
 
@@ -586,6 +598,11 @@ void AppWindow::Update(Observable &o, I_ObservableData *d) {
         case VT_GROOVE:
             _currentView = _grooveView;
             break;
+#ifdef CONFIG_VIEW_ENABLED
+        case VT_CONFIG:
+            _currentView = _configView;
+            break;
+#endif
         case VT_MIXER:
             _currentView = _mixerView;
             break;

@@ -44,6 +44,9 @@ enum ViewType {
     VT_TABLE,  // Table screen under phrase
     VT_TABLE2, // Table screen under instrument
     VT_GROOVE,
+#ifdef CONFIG_VIEW_ENABLED
+    VT_CONFIG,
+#endif
     VT_MIXER
 };
 
