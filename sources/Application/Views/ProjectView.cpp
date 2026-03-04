@@ -226,14 +226,23 @@ void ProjectView::ProcessButtonMask(unsigned short mask,bool pressed) {
     FieldView::ProcessButtonMask(mask);
 
     if (mask & EPBM_R) {
-        if (mask&EPBM_DOWN) {
-			ViewType vt=VT_SONG;
-			ViewEvent ve(VET_SWITCH_VIEW,&vt) ;
+        if (mask & EPBM_DOWN) {
+            ViewType vt = VT_SONG;
+			ViewEvent ve(VET_SWITCH_VIEW, &vt);
 			SetChanged();
             NotifyObservers(&ve);
+
+#ifdef CONFIG_VIEW_ENABLED
+        } else if (mask & EPBM_UP) {
+            ViewType vt = VT_CONFIG;
+			ViewEvent ve(VET_SWITCH_VIEW, &vt);
+			SetChanged();
+            NotifyObservers(&ve);
+#endif
         }
+
     } else {
-        if (mask&EPBM_START) {
+        if (mask & EPBM_START) {
             Player *player = Player::GetInstance();
 
             int renderMode = viewData_->renderMode_;
@@ -246,7 +255,7 @@ void ProjectView::ProcessButtonMask(unsigned short mask,bool pressed) {
 			}
 
 			player->OnStartButton(PM_SONG,viewData_->songX_,false,viewData_->songX_) ;
-		}
+        }
     };
 } ;
 

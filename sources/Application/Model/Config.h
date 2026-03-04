@@ -27,6 +27,9 @@ class Config: public T_Singleton<Config>,public VariableContainer {
 	const char *GetValue(const char *key);
 	void ProcessArguments(int argc, char **argv);
 
+    void Load();
+    void Save();
+
 	// Screen
 	// *key: FULLSCREEN
     bool fullscreen;
@@ -113,6 +116,9 @@ class Config: public T_Singleton<Config>,public VariableContainer {
     // *key: GP2X_MIXER
     char *gp2xMixer;
 #endif
+
+  private:
+    void loadPath(Path path);
 
 };
 
