@@ -744,10 +744,10 @@ void TableView::setTextProps(GUITextProperties &props, int row, int col,
 
     if (invert) {
         if (restore) {
-            SetColor(CD_NORMAL);
+            SetColor(CD_TEXT_VALUE);
             props.invert_ = false;
         } else {
-            SetColor(CD_HILITE2);
+            SetColor(CD_CURSOR);
             props.invert_ = true;
         }
     }
@@ -766,7 +766,7 @@ void TableView::DrawView() {
     // Draw title
 
     char title[20];
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     sprintf(title, "Table %2.2x", viewData_->currentTable_);
     DrawString(pos._x, pos._y, title, props);
 
@@ -786,7 +786,7 @@ void TableView::DrawView() {
         pos._y++;
     }
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     // Draw command 1
 

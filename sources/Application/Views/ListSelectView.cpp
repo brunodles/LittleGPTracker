@@ -50,8 +50,8 @@ void ListSelectView::DrawView() {
 
 // Draw title
 
-	SetColor(CD_NORMAL) ;
-	DrawString(pos._x,pos._y,"Press A to select project",props) ;
+    SetColor(CD_TEXT_VALUE);
+    DrawString(pos._x,pos._y,"Press A to select project",props) ;
 
 
  // Set focus if not existing

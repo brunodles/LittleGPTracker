@@ -44,9 +44,10 @@ inline int strToInt(const char* value) {
 
 Config::Config() {
     // initialize default values
+    theme = new Theme();
 
-	// Screen
-	fullscreen = false;
+    // Screen
+    fullscreen = false;
 	screenMultiply = -1;
 	// Project
 	volume = -1;
@@ -60,12 +61,8 @@ Config::Config() {
 	// Wip Key/input Config
 	inputKeyDelay = -1;
 	inputKeyRepeat = -1;
-	inputKeyInvertTriggers = false;
-	// Theme
-	altRowNumber = 4;
-	majorBeatNumber = 4;
-    isColumnTitleEnabled = false;
-	// log
+    inputKeyInvertTriggers = false;
+    // log
 	dumpEvent = false;
 
     Load();
@@ -135,20 +132,15 @@ void Config::loadPath(Path path) {
                             inputKeyRepeat = strToInt(value);
                         } else if (isKeyEqualTo(key, "INVERT")) {
                             inputKeyInvertTriggers = strToBool(value);
-                        } else if (isKeyEqualTo(key, "ALTROWNUMBER")) {
-                            altRowNumber = strToInt(value);
-                        } else if (isKeyEqualTo(key, "MAJORBEATNUMBER")) {
-                            majorBeatNumber = strToInt(value);
-                        } else if (isKeyEqualTo(key, "FONTTYPE")) {
-                            fontType = (char*)value;
-                        } else if (isKeyEqualTo(key, "SHOW_COLUMN_TITLES")) {
-                            isColumnTitleEnabled = strToBool(value);
                         } else if (isKeyEqualTo(key, "DUMPEVENT")) {
                             dumpEvent = strToBool(value);
                         } else if (isKeyEqualTo(key, "FULLSCREEN")) {
                             fullscreen = strToBool(value);
                         } else if (isKeyEqualTo(key, "SCREENMULT")) {
                             screenMultiply = strToInt(value);
+                        } else if (theme->proccessKeyValue(key, value)) {
+                            // do nothing
+							// just skipt this key-value as it was injected on theme.
 
 #ifdef PLATFORM_CAANOO
 						} else if (isKeyEqualTo(key, "CAANOO_DSP")) {
@@ -172,7 +164,7 @@ void Config::loadPath(Path path) {
                     element = element->NextSiblingElement();
                 }
             }
-    }
+        }
     } else {
         Trace::Log("CONFIG", "No (bad?) config.xml");
     }
@@ -293,22 +285,22 @@ void Config::Save() {
 	root->LinkEndChild(elem);
 
 	elem = new TiXmlElement("ALTROWNUMBER");
-	elem->SetAttribute("value", altRowNumber);
-	root->LinkEndChild(elem);
+    elem->SetAttribute("value", theme->altRowNumber);
+    root->LinkEndChild(elem);
 
 	elem = new TiXmlElement("MAJORBEATNUMBER");
-	elem->SetAttribute("value", majorBeatNumber);
-	root->LinkEndChild(elem);
+    elem->SetAttribute("value", theme->majorBeatNumber);
+    root->LinkEndChild(elem);
 
-    if (fontType != NULL && sizeof(fontType) > 0) {
+    if (theme->fontType != NULL && sizeof(theme->fontType) > 0) {
         elem = new TiXmlElement("FONTTYPE");
-		elem->SetAttribute("value", fontType);
-		root->LinkEndChild(elem);
+        elem->SetAttribute("value", theme->fontType);
+        root->LinkEndChild(elem);
     }
 
     elem = new TiXmlElement("SHOW_COLUMN_TITLES");
-	elem->SetAttribute("value", isColumnTitleEnabled ? "true" : "false");
-	root->LinkEndChild(elem);
+    elem->SetAttribute("value", theme->showColumnTitles ? "true" : "false");
+    root->LinkEndChild(elem);
 
 	elem = new TiXmlElement("DUMPEVENT");
 	elem->SetAttribute("value", dumpEvent ? "true" : "false");

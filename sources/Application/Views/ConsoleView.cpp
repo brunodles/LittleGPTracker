@@ -17,8 +17,8 @@ void ConsoleView::DrawView() {
 
 	GUITextProperties props ;
 
-	SetColor(CD_NORMAL) ;
-	GUIPoint pos(0,0) ;	
+    SetColor(CD_TEXT_VALUE);
+    GUIPoint pos(0,0) ;	
 	for (int i=0;i<CONSOLE_HEIGHT;i++) {
 		w_.DrawString(lines_[(currentLine_+i)%CONSOLE_HEIGHT],pos,props) ;
 		pos._y+=8 ;

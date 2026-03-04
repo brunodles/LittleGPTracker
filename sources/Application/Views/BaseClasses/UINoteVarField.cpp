@@ -15,11 +15,11 @@ void UINoteVarField::Draw(GUIWindow &w,int offset) {
 	position._y+=offset ;
 
 	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
+        ((AppWindow &)w).SetColor(CD_CURSOR);
+        props.invert_=true ;
 	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
+        ((AppWindow &)w).SetColor(CD_TEXT_VALUE);
+    }
 
 	char buffer[80] ;
 	char note[5] ;

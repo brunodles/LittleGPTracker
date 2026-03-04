@@ -108,7 +108,7 @@ static void PurgeCallback(View &v,ModalView &dialog) {
 
 void ProjectView::insertLabel(GUIPoint position, char *name) {
     position._x = POS_X_LABEL;
-    UIStaticField *f = new UIStaticField(position, name, CD_SONGVIEW00);
+    UIStaticField *f = new UIStaticField(position, name, CD_TEXT_INFO);
     Insert(f);
 }
 
@@ -267,11 +267,11 @@ void ProjectView::DrawView() {
 	GUIPoint pos=GetTitlePosition() ;
 
     // Draw title
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     DrawString(pos._x, pos._y, "Project", props);
 
     // Draw version
-    SetColor(CD_SONGVIEW00);
+    SetColor(CD_TEXT_00);
     DrawString(SCREEN_WIDTH - strlen(VERSION_STRING), POS_Y_LAST_LINE,
                VERSION_STRING, props);
 

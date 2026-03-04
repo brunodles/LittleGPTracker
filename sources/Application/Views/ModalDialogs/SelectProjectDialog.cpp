@@ -39,7 +39,7 @@ void SelectProjectDialog::DrawView() {
 
 	GUITextProperties props ;
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_TEXT_VALUE);
     View::EnableNotification();
 
     // Draw projects
@@ -85,11 +85,11 @@ void SelectProjectDialog::DrawView() {
       };
 
 			if (count==currentProject_) {
-				SetColor(CD_HILITE2) ;
-				props.invert_=true ;
+                SetColor(CD_CURSOR);
+                props.invert_=true ;
 			} else {
-				SetColor(CD_NORMAL) ;
-				props.invert_=false ;
+                SetColor(CD_TEXT_VALUE);
+                props.invert_=false ;
 			}
 			strcpy(buffer,p.c_str()) ;
 			buffer[LIST_WIDTH-1]=0 ;
@@ -102,10 +102,10 @@ void SelectProjectDialog::DrawView() {
 	y=LIST_SIZE+2 ;
 	int offset=LIST_WIDTH/4 ;
 
-	SetColor(CD_NORMAL) ;
+    SetColor(CD_TEXT_VALUE);
 
-	for (int i=0;i<3;i++) {
-		const char *text=buttonText[i] ;
+    for (int i = 0; i < 3; i++) {
+        const char *text=buttonText[i] ;
 		x=offset*(i+1)-strlen(text)/2 ;
 		props.invert_=(i==selected_)?true:false ;
 		DrawString(x,y,text,props) ;

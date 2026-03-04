@@ -20,11 +20,11 @@ void UIActionField::Draw(GUIWindow &w, int offset) {
 	GUIPoint position(x_,y_+offset) ;
 
 	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
+        ((AppWindow &)w).SetColor(CD_CURSOR);
+        props.invert_=true ;
 	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
+        ((AppWindow &)w).SetColor(CD_TEXT_VALUE);
+    }
 
 	w.DrawString(name_.c_str(),position,props) ;
 } ;

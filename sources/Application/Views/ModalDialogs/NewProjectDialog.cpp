@@ -29,7 +29,7 @@ void NewProjectDialog::DrawView() {
 
     GUITextProperties props;
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     // Draw string
 
@@ -45,7 +45,7 @@ void NewProjectDialog::DrawView() {
 
     // Draw keyboard if in keyboard mode
     if (keyboardMode_) {
-        SetColor(CD_NORMAL);
+        SetColor(CD_TEXT_VALUE);
         for (int row = 0; row < KEYBOARD_ROWS; row++) {
             const char* rowStr = keyboardLayout[row];
             int len = strlen(rowStr);
@@ -85,7 +85,7 @@ void NewProjectDialog::DrawView() {
 
     // Draw buttons
 
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     props.invert_=false ;
 
     int offset = DIALOG_WIDTH / (BUTTONS_LENGTH + 1);
