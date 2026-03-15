@@ -28,5 +28,7 @@ private:
 	Project *project_ ;
 	FourCC lastFocusID_ ;
 	I_Instrument *current_ ;
+
+    void insertLabel(int x, int y, char *name);
 } ;
 #endif
