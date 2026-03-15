@@ -13,7 +13,6 @@
 #include "BaseClasses/UIStaticField.h"
 #include "BaseClasses/UITempoField.h"
 #include "Services/Midi/MidiService.h"
-#include "Services/Themes/ThemeService.h"
 #include "System/System/System.h"
 
 #define ACTION_PURGE            MAKE_FOURCC('P','U','R','G')
@@ -23,7 +22,6 @@
 #define ACTION_QUIT             MAKE_FOURCC('Q','U','I','T')
 #define ACTION_PURGE_INSTRUMENT MAKE_FOURCC('P','R','G','I')
 #define ACTION_TEMPO_CHANGED    MAKE_FOURCC('T','E','M','P')
-#define ACTION_THEME_CHANGED MAKE_FOURCC('T', 'H', 'E', 'M')
 
 /** Horizontal position of the label */
 #define POS_X_LABEL 8
@@ -167,15 +165,6 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     position._y += 1;
     insertLabel(position, "Scale");
     Insert(new UIIntVarField(position, *v, "%s", 0, scaleCount - 1, 1, 10));
-
-    v = project_->FindVariable(VAR_THEME);
-    ThemeService::GetInstance()->LoadThemes(v);
-    position._y += 2;
-    int maxThemeIndex = (v->GetListSize() > 0) ? (v->GetListSize() - 1) : 0;
-    insertLabel(position, "Theme");
-    themeField_ = new UIIntVarField(position, *v, "%s", 0, maxThemeIndex, 1, 10);
-    Insert(themeField_);
-//	themeField->AddObserver(*this) ;
 
     position._y += 2;
     insertLabel(position, "Compact");
