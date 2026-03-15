@@ -231,14 +231,11 @@ void ProjectView::ProcessButtonMask(unsigned short mask,bool pressed) {
 			ViewEvent ve(VET_SWITCH_VIEW, &vt);
 			SetChanged();
             NotifyObservers(&ve);
-
-#ifdef CONFIG_VIEW_ENABLED
         } else if (mask & EPBM_UP) {
             ViewType vt = VT_CONFIG;
 			ViewEvent ve(VET_SWITCH_VIEW, &vt);
 			SetChanged();
             NotifyObservers(&ve);
-#endif
         }
 
     } else {

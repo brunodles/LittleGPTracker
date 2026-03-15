@@ -3,11 +3,7 @@
 #define _APP_WINDOW_H_
 
 #include "Application/Views/ChainView.h"
-
-#ifdef CONFIG_VIEW_ENABLED
 #include "Application/Views/ConfigView.h"
-#endif
-
 #include "Application/Views/ConsoleView.h"
 #include "Application/Views/GrooveView.h"
 #include "Application/Views/InstrumentView.h"
@@ -77,11 +73,7 @@ class AppWindow : public GUIWindow, I_Observer, Status {
     GrooveView *_grooveView;
     NullView *_nullView;
     MixerView *_mixerView;
-
-#ifdef CONFIG_VIEW_ENABLED
     ConfigView *_configView;
-#endif
-
     Path _root;
 
     bool _isDirty;

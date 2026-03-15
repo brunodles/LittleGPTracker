@@ -116,12 +116,10 @@ void View::drawMap() {
 		// Change the color for the hilights
 		SetColor(CD_HILITE1);
 
-#ifdef CONFIG_VIEW_ENABLED
         // Draw C if is on project
         if (viewType_ == VT_PROJECT) {
             DrawString(pos._x, pos._y - 1, "C   ", props);
         }
-#endif
 
         // First line
         // |P G |
@@ -180,13 +178,9 @@ void View::drawMap() {
 		case VT_GROOVE:
             DrawString(pos._x + 2, pos._y, "G", props);
             break;
-
-#ifdef CONFIG_VIEW_ENABLED
         case VT_CONFIG:
             DrawString(pos._x, pos._y -1, "C", props) ;
 			break;
-#endif
-
             //        case VT_MIXER:
             //            DrawString(pos._x,  pos._y + 2, "M", props) ;
             //            break;
