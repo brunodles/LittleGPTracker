@@ -114,7 +114,7 @@ void View::drawMap() {
 		
 
 		// Change the color for the hilights
-		SetColor(CD_HILITE1);
+        SetColor(CD_HILITE1);
 
         // Draw C if is on project
         if (viewType_ == VT_PROJECT) {

@@ -18,7 +18,12 @@ public:
 	virtual void OnFocus() {} ;
 
     // Observer for action callback
-    void Update(Observable &,I_ObservableData *) ;
+    void Update(Observable &, I_ObservableData *);
+
+    void OnLoadProject();
+    void OnSaveAsProject(char * data) ;
+	void OnPurgeInstruments(bool removeFromDisk) ;
+	void OnQuit() ;
 
 protected:
 private:
@@ -33,5 +38,4 @@ private:
   void insertLabel(GUIPoint position, char *name);
 
 } ;
-
 #endif

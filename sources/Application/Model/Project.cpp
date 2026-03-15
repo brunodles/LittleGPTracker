@@ -46,9 +46,9 @@ tempoNudge_(0)
         new Variable("renderMode", VAR_RENDER, renderModes, MAX_RENDER_MODE, 0);
     this->Insert(renderMode);
 
-//    Variable *themeSelected =
-//        new Variable("theme", VAR_THEME, themesTest, MAX_THEME_MODE, 0);
-//    this->Insert(themeSelected);
+    Variable *themeSelected =
+        new Variable("theme", VAR_THEME, themesTest, MAX_THEME_MODE, 0);
+    this->Insert(themeSelected);
 
     // Reload the midi device list
 

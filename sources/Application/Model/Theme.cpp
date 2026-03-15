@@ -80,36 +80,36 @@ inline void defineColor(const char *value, GUIColor *&color) {
 Theme::Theme() {
     // initialize default values
 
-    backgroundColor = new GUIColor(0x00, 0x00, 0x00);
-    borderColor = new GUIColor(0xFF, 0x47, 0x77);
+    backgroundColor = new GUIColor(0x1D, 0x0A, 0x1F);
+    borderColor = new GUIColor(0xFF, 0x00, 0x8C);
 
-    hiColor1 = new GUIColor(0xFF, 0x47, 0x77);
-    hiColor2 = new GUIColor(0xE5, 0xD4, 0xC8);
-    cursorColor = new GUIColor(0xFF, 0x47, 0x77);
+    hiColor1 = new GUIColor(0xB7, 0x50, 0xD1);
+    hiColor2 = new GUIColor(0xDB, 0x33, 0xDB);
+    cursorColor = new GUIColor(0xFF, 0x00, 0x8C);
 
     playColor = new GUIColor(0xFF, 0x00, 0x8C);
     muteColor = new GUIColor(0xF5, 0xEB, 0xFF);
 
-    rowColor1 = new GUIColor(0xE5, 0xD4, 0xC8);
-    rowColor2 = new GUIColor(0xFF, 0x47, 0x77);
+    rowColor1 = new GUIColor(0xBA, 0x28, 0xF9);
+    rowColor2 = new GUIColor(0xFF, 0x00, 0xFF);
 
-    majorBeatColor = new GUIColor(0xFF, 0x47, 0x77);
+    majorBeatColor = new GUIColor(0xBA, 0x28, 0xF9);
 
-    consoleColor = new GUIColor(0xFF, 0x47, 0x77);
+    consoleColor = new GUIColor(0x00, 0xFF, 0x00);
 
-    textColorValue = new GUIColor(0xE5, 0xD4, 0xC8);
-    textColorEmpty = new GUIColor(0x36, 0x43, 0x4A);
-    textColorFe = new GUIColor(0x36, 0x43, 0x4A);
-    textColor00 = new GUIColor(0x36, 0x43, 0x4A);
-    textColorInfo = new GUIColor(0x36, 0x43, 0x4A);
+    textColorValue = new GUIColor(0xF5, 0xEB, 0xFF);
+    textColorEmpty = new GUIColor(0xD5, 0xEB, 0xDF);
+    textColorFe = textColorEmpty;
+    textColor00 = textColorEmpty;
+    textColorInfo = rowColor2;
 
     altRowNumber = 4;
     majorBeatNumber = 4;
     showColumnTitles = false;
 
     // load from Theme file
-
     Path path("bin:theme.xml");
+
     Trace::Log("Theme", "Got Theme path=%s", path.GetPath().c_str());
     TiXmlDocument *document = new TiXmlDocument(path.GetPath());
     bool loadOkay = document->LoadFile();

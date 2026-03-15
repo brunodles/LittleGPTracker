@@ -74,6 +74,7 @@ class AppWindow : public GUIWindow, I_Observer, Status {
     NullView *_nullView;
     MixerView *_mixerView;
     ConfigView *_configView;
+
     Path _root;
 
     bool _isDirty;
