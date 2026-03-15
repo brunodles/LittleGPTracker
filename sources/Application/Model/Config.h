@@ -1,10 +1,11 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#include "Externals/TinyXML/tinyxml.h"
 #include "Foundation/T_Singleton.h"
 #include "Foundation/Variables/VariableContainer.h"
 #include "System/Console/Trace.h"
-#include "Externals/TinyXML/tinyxml.h"
+#include "Theme.h"
 
 /**
  * Return the first value if it is bigger than or equal to minValue(inclusive),
@@ -20,6 +21,13 @@ inline int intConfOrFallback(int firstValue, int fallbackValue, int minValue = 0
 	return firstValue >= minValue ? firstValue : fallbackValue;
 }
 
+/**
+ * Config class is responsible for loading and storing configuration values from
+ * an XML file.
+ *
+ * It is a Singleton used by whole system.
+ * It also processes the command line arguments.
+ */
 class Config: public T_Singleton<Config>,public VariableContainer {
   public:
     Config();
@@ -30,7 +38,10 @@ class Config: public T_Singleton<Config>,public VariableContainer {
     void Load();
     void Save();
 
-	// Screen
+    // Screen
+    Theme *theme;
+
+    // Screen
 	// *key: FULLSCREEN
     bool fullscreen;
     // *key: SCREENMULT
@@ -82,18 +93,6 @@ class Config: public T_Singleton<Config>,public VariableContainer {
     /** Invert trigger keys  in some consoles */
 	// *key: INVERT
     bool inputKeyInvertTriggers;
-
-    // Theme
-    // *key: ALTROWNUMBER
-    int altRowNumber;
-    // *key: MAJORBEATNUMBER
-    int majorBeatNumber;
-    // *key: FONTTYPE
-	char *fontType;
-
-	/** Whether to show column titles in song, chain and phrase views */
-    // *key: SHOW_COLUMN_TITLES,
-    bool isColumnTitleEnabled;
 
     // Logs
     // *key: DUMPEVENT

@@ -46,12 +46,17 @@ tempoNudge_(0)
         new Variable("renderMode", VAR_RENDER, renderModes, MAX_RENDER_MODE, 0);
     this->Insert(renderMode);
 
-// Reload the midi device list
+//    Variable *themeSelected =
+//        new Variable("theme", VAR_THEME, themesTest, MAX_THEME_MODE, 0);
+//    this->Insert(themeSelected);
 
-	buildMidiDeviceList() ;
+    // Reload the midi device list
 
-	WatchedVariable *midi=new WatchedVariable("midi",VAR_MIDIDEVICE,midiDeviceList_,midiDeviceListSize_) ;
-	this->Insert(midi) ;
+    buildMidiDeviceList();
+
+    WatchedVariable *midi = new WatchedVariable(
+        "midi", VAR_MIDIDEVICE, midiDeviceList_, midiDeviceListSize_);
+    this->Insert(midi) ;
 	midi->AddObserver(*this) ;
 
 

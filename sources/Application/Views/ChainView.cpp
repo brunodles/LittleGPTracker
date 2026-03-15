@@ -644,7 +644,7 @@ void ChainView::setTextProps(GUITextProperties &props, int row, int col) {
     }
 
     if (invert) {
-        SetColor(CD_HILITE2);
+        SetColor(CD_CURSOR);
         props.invert_ = true;
     } else {
         props.invert_ = false;
@@ -662,7 +662,7 @@ void ChainView::DrawView() {
     // Draw title
 
     char title[20];
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
     sprintf(title, "Chain %2.2x", viewData_->currentChain_);
     DrawString(pos._x, pos._y, title, props);
 
@@ -685,13 +685,13 @@ void ChainView::DrawView() {
     }
 
     // Display column titles
-    if (Config::GetInstance()->isColumnTitleEnabled) {
+    if (Config::GetInstance()->theme->showColumnTitles) {
         pos = anchor;
         pos._y -= 1;
-        SetColor(CD_BLANKSPACE);
+        SetColor(CD_TEXT_INFO);
         DrawString(pos._x    , pos._y, "Ph", props);
         DrawString(pos._x +3 , pos._y, "Tsp", props);
-        SetColor(CD_NORMAL);
+        SetColor(CD_TEXT_VALUE);
     }
 
     pos = anchor;
@@ -707,7 +707,7 @@ void ChainView::DrawView() {
         d = *data++;
         if (d == 0xFF) {
             // draw empty phrases with blank space color
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 0);
             DrawString(pos._x, pos._y, "--", props);
 
@@ -715,21 +715,21 @@ void ChainView::DrawView() {
             pos._x += 3;
             t = *transposeData++;
             hex2char(t, row);
-            SetColor(CD_BLANKSPACE);
+            SetColor(CD_TEXT_EMPTY);
             setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, row, props);
             pos._x -= 3;
 
-            SetColor(CD_NORMAL);
+            SetColor(CD_TEXT_VALUE);
         } else {
             // draw non empty phrases with special color if they are "00" or
             // "FE"
             if (d == 0x00) {
-                SetColor(CD_SONGVIEW00);
+                SetColor(CD_TEXT_00);
             } else if (d == 0xFE) {
-                SetColor(CD_SONGVIEWFE);
+                SetColor(CD_TEXT_FE);
             } else {
-                SetColor(CD_NORMAL);
+                SetColor(CD_TEXT_VALUE);
             }
             hex2char(d, row);
             setTextProps(props, j, 0);
@@ -739,12 +739,12 @@ void ChainView::DrawView() {
             pos._x += 3;
             t = *transposeData++;
             hex2char(t, row);
-            SetColor(CD_NORMAL);
+            SetColor(CD_TEXT_VALUE);
             setTextProps(props, j, 1);
             DrawString(pos._x, pos._y, row, props);
             pos._x -= 3;
         }
-        SetColor(CD_NORMAL);
+        SetColor(CD_TEXT_VALUE);
 
         // next line
         pos._y++;
@@ -771,7 +771,7 @@ void ChainView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
     pos._x -= 1;
 
     GUITextProperties props;
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_VALUE);
 
     // Clear last played & queued
 
@@ -794,11 +794,11 @@ void ChainView::OnPlayerUpdate(PlayerEventType eventType, unsigned int tick) {
                     if (!player->IsChannelMuted(i)) {
                         SetColor(CD_PLAY);
                         DrawString(pos._x, pos._y, ">", props);
-                        SetColor(CD_NORMAL);
+                        SetColor(CD_TEXT_VALUE);
                     } else {
                         SetColor(CD_MUTE);
                         DrawString(pos._x, pos._y, "-", props);
-                        SetColor(CD_NORMAL);
+                        SetColor(CD_TEXT_VALUE);
                     }
                     lastPlayingPos_ = viewData_->chainPlayPos_[i];
                     break;

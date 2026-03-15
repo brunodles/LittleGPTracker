@@ -51,11 +51,11 @@ void UIIntVarOffField::Draw(GUIWindow &w,int offset) {
 	GUIPoint position=GetPosition() ;
 
 	if (focus_) {
-		((AppWindow&)w).SetColor(CD_HILITE2) ;
-		props.invert_=true ;
+        ((AppWindow &)w).SetColor(CD_CURSOR);
+        props.invert_=true ;
 	} else {
-		((AppWindow&)w).SetColor(CD_NORMAL) ;
-	}
+        ((AppWindow &)w).SetColor(CD_TEXT_VALUE);
+    }
 	Variable::Type type=src_.GetType() ;
 	char buffer[80] ;
 	switch (type) {

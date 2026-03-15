@@ -13,6 +13,7 @@
 #include "BaseClasses/UIStaticField.h"
 #include "BaseClasses/UITempoField.h"
 #include "Services/Midi/MidiService.h"
+//#include "Services/Themes/ThemeService.h"
 #include "System/System/System.h"
 
 #define ACTION_SAVE MAKE_FOURCC('S', 'A', 'V', 'E')
@@ -24,7 +25,7 @@
 
 void ConfigView::insertLabel(GUIPoint position, char *name) {
     position._x = POS_X_LABEL;
-    UIStaticField *f = new UIStaticField(position, name, CD_SONGVIEW00);
+    UIStaticField *f = new UIStaticField(position, name, CD_TEXT_INFO);
     Insert(f);
 }
 
@@ -50,6 +51,15 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
     autoLoadField = new UIBoolField(position, config->projectAutoLoadEnabled);
     //autoLoadField->AddObserver(*this);
     Insert(autoLoadField);
+
+//    v = project_->FindVariable(VAR_THEME);
+//    ThemeService::GetInstance()->LoadThemes(v);
+//    position._y += 2;
+//    int maxThemeIndex = (v->GetListSize() > 0) ? (v->GetListSize() - 1) : 0;
+//    insertLabel(position, "Theme");
+//    themeField_ = new UIIntVarField(position, *v, "%s", 0, maxThemeIndex, 1, 10);
+//    Insert(themeField_);
+//	themeField->AddObserver(*this) ;
 
     position._y += 2;
     insertLabel(position, "Config.xml");
@@ -85,11 +95,11 @@ void ConfigView::DrawView() {
     GUIPoint pos = GetTitlePosition();
 
     // Draw title
-    SetColor(CD_NORMAL);
+    SetColor(CD_TEXT_TITLE);
     DrawString(pos._x, pos._y, "Config", props);
 
     // Draw version
-    SetColor(CD_SONGVIEW00);
+    SetColor(CD_TEXT_INFO);
     DrawString(SCREEN_WIDTH - strlen(VERSION_STRING), POS_Y_LAST_LINE,
                VERSION_STRING, props);
 

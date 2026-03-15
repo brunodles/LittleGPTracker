@@ -3,11 +3,7 @@
 #define _APP_WINDOW_H_
 
 #include "Application/Views/ChainView.h"
-
-#ifdef CONFIG_VIEW_ENABLED
 #include "Application/Views/ConfigView.h"
-#endif
-
 #include "Application/Views/ConsoleView.h"
 #include "Application/Views/GrooveView.h"
 #include "Application/Views/InstrumentView.h"
@@ -77,11 +73,7 @@ class AppWindow : public GUIWindow, I_Observer, Status {
     GrooveView *_grooveView;
     NullView *_nullView;
     MixerView *_mixerView;
-
-#ifdef CONFIG_VIEW_ENABLED
     ConfigView *_configView;
-#endif
-
     Path _root;
 
     bool _isDirty;
@@ -99,21 +91,6 @@ class AppWindow : public GUIWindow, I_Observer, Status {
     unsigned char _preScreen[1200];
     unsigned char _preScreenProp[1200];
 
-    static GUIColor backgroundColor_;
-    static GUIColor normalColor_;
-    static GUIColor borderColor_;
-    static GUIColor songviewfeColor_;
-    static GUIColor songview00Color_;
-    static GUIColor blankspaceColor_;
-    static GUIColor highlight2Color_;
-    static GUIColor highlightColor_;
-    static GUIColor consoleColor_;
-    static GUIColor cursorColor_;
-    static GUIColor playColor_;
-    static GUIColor muteColor_;
-    static GUIColor rownumberColor_;
-    static GUIColor rownumber2Color_;
-    static GUIColor majorbeatColor_;
 #define LAST_PROJECT_NAME "bin:last_project"
 
     ColorDefinition colorIndex_;

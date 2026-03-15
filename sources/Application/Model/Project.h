@@ -16,8 +16,9 @@
 #define VAR_SOFTCLIP 		MAKE_FOURCC('S', 'F', 'T', 'C')
 #define VAR_SOFTCLIP_GAIN 	MAKE_FOURCC('S', 'F', 'G', 'N')
 #define VAR_PREGAIN   		MAKE_FOURCC('P', 'R', 'G', 'N')
-#define VAR_SCALE 			MAKE_FOURCC('S', 'C', 'A', 'L')
-#define VAR_RENDER MAKE_FOURCC('R', 'N', 'D', 'R')
+#define VAR_SCALE MAKE_FOURCC('S', 'C', 'A', 'L')
+#define VAR_RENDER              MAKE_FOURCC('R', 'N', 'D', 'R')
+#define VAR_THEME               MAKE_FOURCC('T', 'H', 'M', 'E')
 
 #define MAX_TAP 3
 

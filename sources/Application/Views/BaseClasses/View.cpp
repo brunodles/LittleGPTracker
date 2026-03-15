@@ -26,8 +26,8 @@ View::View(GUIWindow &w,ViewData *viewData):
 		View::margin_= 0;
 		songRowCount_ = miniLayout_ ? 16:22; // 22 is row display count among other things
 
-        altRowNumber_ = Config::GetInstance()->altRowNumber;
-        majorBeatNumber_ = Config::GetInstance()->majorBeatNumber;
+        altRowNumber_ = Config::GetInstance()->theme->altRowNumber;
+        majorBeatNumber_ = Config::GetInstance()->theme->majorBeatNumber;
 
         initPrivate_ = true;
     }
@@ -106,8 +106,8 @@ void View::drawMap() {
 			mapColumn = 0;
 		}
 
-		SetColor(CD_SONGVIEW00);
-		// Draw main map in empty color
+        SetColor(CD_TEXT_00);
+        // Draw main map in empty color
 		DrawString(pos._x, pos._y,     "P G ", props);
 //		DrawString(pos._x, pos._y + 1, "SCPI", props); // not neded as it will be draw as hilite1
 		DrawString(pos._x, pos._y + 2, "  TT", props);
@@ -116,12 +116,10 @@ void View::drawMap() {
 		// Change the color for the hilights
 		SetColor(CD_HILITE1);
 
-#ifdef CONFIG_VIEW_ENABLED
         // Draw C if is on project
         if (viewType_ == VT_PROJECT) {
             DrawString(pos._x, pos._y - 1, "C   ", props);
         }
-#endif
 
         // First line
         // |P G |
@@ -155,7 +153,7 @@ void View::drawMap() {
         }
 
         // draw current screen on map
-        SetColor(CD_HILITE2);
+        SetColor(CD_CURSOR);
         props.invert_= true ;
 		pos._y = anchor._y;
         switch (viewType_) {
@@ -180,13 +178,9 @@ void View::drawMap() {
 		case VT_GROOVE:
             DrawString(pos._x + 2, pos._y, "G", props);
             break;
-
-#ifdef CONFIG_VIEW_ENABLED
         case VT_CONFIG:
             DrawString(pos._x, pos._y -1, "C", props) ;
 			break;
-#endif
-
             //        case VT_MIXER:
             //            DrawString(pos._x,  pos._y + 2, "M", props) ;
             //            break;
@@ -302,8 +296,8 @@ void View::DrawString(int x,int y,const char *txt,GUITextProperties &props) {
 */
 void View::EnableNotification() {
 	if ((SDL_GetTicks() - notificationTime_) <= NOTIFICATION_TIMEOUT) {
-		SetColor(CD_NORMAL);
-		GUITextProperties props;
+        SetColor(CD_TEXT_VALUE);
+        GUITextProperties props;
         int xOffset = 4;
         DrawString(xOffset, notiDistY_, displayNotification_.c_str(), props);
     } else {

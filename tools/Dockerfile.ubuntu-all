@@ -1,0 +1,72 @@
+FROM ubuntu:24.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git curl wget grep \
+        build-essential \
+        cmake \
+        clang-format \
+        ca-certificates \
+        fakeroot \
+        libarchive-tools \
+        libgpgme11 \
+        libjack-dev \
+        libsdl1.2-dev \
+        libsdl2-dev \
+        libasound2-plugins \
+        libusb-0.1-4 \
+        make \
+        pkgconf \
+        python-is-python3 \
+        python3 \
+        python3-pillow \
+        xz-utils \
+    && dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        gcc-multilib \
+        g++-multilib \
+        libsdl1.2-dev:i386 \
+        libsdl2-dev:i386 \
+        libasound2-plugins:i386 \
+        libjack-dev:i386 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and extract cross-compilation toolchains
+ARG RG35XXPLUS_SDK_URL="https://github.com/simotek/rg35xx-plus-aarch64-SDL2-SDK/releases/download/0.1.0/rg35xx-plus-aarch64-SDL2-SDK-0.1.0.tar.xz"
+ARG MIYOO_SDK_URL="https://github.com/djdiskmachine/miyoomini-toolchain-buildroot/releases/download/1.0.0/miyoomini-toolchain.tar.xz"
+ARG BITTBOY_SDK_URL="https://github.com/djdiskmachine/MiyooMini-toolchain/releases/download/toolchain/miyoo-toolchain-v2.0.0-arm-buildroot-linux-musleabi_sdk-buildroot.tar.gz"
+ARG GARLICPLUS_SDK_URL="https://github.com/simotek/union-rg35xxplus-toolchain/releases/download/20240830/rg35xxplus-toolchain.tar.xz"
+
+RUN mkdir -p /opt/rg35xx-plus-aarch64-SDL2-SDK-0.1.0 \
+    && wget -O /tmp/rg35xx-plus-sdk.tar.xz "${RG35XXPLUS_SDK_URL}" \
+    && tar -xvf /tmp/rg35xx-plus-sdk.tar.xz -C /opt/rg35xx-plus-aarch64-SDL2-SDK-0.1.0 --strip-components=1 \
+    && rm -f /tmp/rg35xx-plus-sdk.tar.xz
+
+RUN mkdir -p /opt/miyoomini-toolchain \
+    && wget -O /tmp/miyoomini-toolchain.tar.xz "${MIYOO_SDK_URL}" \
+    && tar -xvf /tmp/miyoomini-toolchain.tar.xz -C /opt/miyoomini-toolchain --strip-components=1 \
+    && rm -f /tmp/miyoomini-toolchain.tar.xz
+
+RUN mkdir -p /opt/arm-buildroot-linux-musleabi_sdk-buildroot \
+    && wget -O /tmp/bittboy-sdk.tar.gz "${BITTBOY_SDK_URL}" \
+    && tar -xvf /tmp/bittboy-sdk.tar.gz -C /opt/arm-buildroot-linux-musleabi_sdk-buildroot --strip-components=1 \
+    && rm -f /tmp/bittboy-sdk.tar.gz
+
+RUN mkdir -p /opt/rg35xxplus-toolchain \
+    && wget -O /tmp/garlicplus-toolchain.tar.xz "${GARLICPLUS_SDK_URL}" \
+    && tar -xvf /tmp/garlicplus-toolchain.tar.xz -C /opt/rg35xxplus-toolchain --strip-components=1 \
+    && rm -f /tmp/garlicplus-toolchain.tar.xz
+
+# Set up PSP dev kit (cloned at runtime or pre-built if needed)
+# For now, users can mount pspdev or it can be cloned during container run
+
+WORKDIR /workspace
+
+# Source code is expected to be mounted at runtime (for example: -v "$PWD:/workspace").
+# Default command opens a shell; users can invoke specific builds manually.
+CMD ["bash", "-l"]
+

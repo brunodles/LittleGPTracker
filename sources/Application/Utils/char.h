@@ -25,7 +25,12 @@ inline void hexshort2char(const ushort c,char *s) {
 	*dest__=0 ;
 }
 
-#define c2h__(c) (c<'A'?c-'0':c-'A'+10 )
+#define c2h__(c) \
+    (((c) >= '0' && (c) <= '9') \
+         ? ((c) - '0') \
+         : (((c) >= 'A' && (c) <= 'F') \
+                ? ((c) - 'A' + 10) \
+                : (((c) >= 'a' && (c) <= 'f') ? ((c) - 'a' + 10) : 0)))
 
 inline void char2hex(const char *s,unsigned char *c) {
 	const char *src__=s ;
