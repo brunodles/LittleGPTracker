@@ -13,7 +13,7 @@
 #include "BaseClasses/UIStaticField.h"
 #include "BaseClasses/UITempoField.h"
 #include "Services/Midi/MidiService.h"
-#include "Services/Themes/ThemeService.h"
+//#include "Services/Themes/ThemeService.h"
 #include "System/System/System.h"
 
 #define ACTION_SAVE MAKE_FOURCC('S', 'A', 'V', 'E')
@@ -52,13 +52,13 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
     //autoLoadField->AddObserver(*this);
     Insert(autoLoadField);
 
-    v = project_->FindVariable(VAR_THEME);
-    ThemeService::GetInstance()->LoadThemes(v);
-    position._y += 2;
-    int maxThemeIndex = (v->GetListSize() > 0) ? (v->GetListSize() - 1) : 0;
-    insertLabel(position, "Theme");
-    themeField_ = new UIIntVarField(position, *v, "%s", 0, maxThemeIndex, 1, 10);
-    Insert(themeField_);
+//    v = project_->FindVariable(VAR_THEME);
+//    ThemeService::GetInstance()->LoadThemes(v);
+//    position._y += 2;
+//    int maxThemeIndex = (v->GetListSize() > 0) ? (v->GetListSize() - 1) : 0;
+//    insertLabel(position, "Theme");
+//    themeField_ = new UIIntVarField(position, *v, "%s", 0, maxThemeIndex, 1, 10);
+//    Insert(themeField_);
 //	themeField->AddObserver(*this) ;
 
     position._y += 2;
