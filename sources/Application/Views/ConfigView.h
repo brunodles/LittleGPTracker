@@ -35,7 +35,5 @@ private:
   UIBoolField *autoLoadField;
   UIField *themeField_;
 
-  void insertLabel(GUIPoint position, char *name);
-
 } ;
 #endif

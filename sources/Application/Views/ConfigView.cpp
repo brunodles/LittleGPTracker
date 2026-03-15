@@ -18,10 +18,7 @@
 
 #define ACTION_SAVE MAKE_FOURCC('S', 'A', 'V', 'E')
 
-/** Horizontal position of the label */
-#define POS_X_LABEL 8
-/** Horizontal position of the values */
-#define POS_X_VALUE 18
+#define POS_X_C1 15
 
 static void SaveAsProjectCallback(View &v, ModalView &dialog) {
 
@@ -108,14 +105,7 @@ static void PurgeCallback(View &v, ModalView &dialog) {
     ((ConfigView &)v).OnPurgeInstruments(dialog.GetReturnCode() == MBL_YES);
 };
 
-void ConfigView::insertLabel(GUIPoint position, char *name) {
-    position._x = POS_X_LABEL;
-    UIStaticField *f = new UIStaticField(position, name, CD_TEXT_INFO);
-    Insert(f);
-}
-
 ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
-
     lastClock_ = 0;
     lastTick_ = 0;
 
@@ -123,16 +113,16 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
     Config *config = Config::GetInstance();
 
     GUIPoint position = GetAnchor();
-    position._x = POS_X_VALUE;
+    position._x = POS_X_C1;
 
     Variable *v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
-    insertLabel(position, "MIDI");
+    insertLabel(POS_X_C1 - 4, position._y, "MIDI");
     Insert(new UIIntVarField(position, *v, "%s", 0,
                              MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
-    insertLabel(position, "Auto Load");
+    insertLabel(POS_X_C1 - 9, position._y, "Auto Load");
     autoLoadField = new UIBoolField(position, config->projectAutoLoadEnabled);
     //autoLoadField->AddObserver(*this);
     Insert(autoLoadField);
@@ -141,14 +131,14 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
     ThemeService::GetInstance()->LoadThemes(v);
     position._y += 2;
     int maxThemeIndex = (v->GetListSize() > 0) ? (v->GetListSize() - 1) : 0;
-    insertLabel(position, "Theme");
+    insertLabel(POS_X_C1 - 5, position._y, "Theme");
     themeField_ = new UIIntVarField(position, *v, "%s", 0, maxThemeIndex, 1, 10);
     Insert(themeField_);
 //	themeField->AddObserver(*this) ;
 
     position._y += 2;
-    insertLabel(position, "Config.xml");
-    position._x = POS_X_VALUE;
+    insertLabel(POS_X_C1 - 10, position._y, "Config.xml");
+    position._x = POS_X_C1;
     UIActionField *a1 = new UIActionField("Save", ACTION_SAVE, position);
     a1->AddObserver(*this);
     Insert(a1);

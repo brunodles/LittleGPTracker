@@ -76,12 +76,6 @@ void InstrumentView::onInstrumentChange() {
 	}
 } ;
 
-void InstrumentView::insertLabel(int x, int y, char *name) {
-    GUIPoint pos = GUIPoint(x, y);
-    UIStaticField *f = new UIStaticField(pos, name, CD_TEXT_INFO);
-    Insert(f);
-}
-
 void InstrumentView::fillSampleParameters() {
 
 	int i=viewData_->currentInstrument_ ;

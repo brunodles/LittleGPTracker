@@ -1,5 +1,6 @@
 #include "FieldView.h"
 #include "System/Console/Trace.h"
+#include "UIStaticField.h"
 
 FieldView::FieldView(GUIWindow &w,ViewData *data):View(w,data),T_SimpleList<UIField>(true) {
 	focus_=0 ;	
@@ -288,4 +289,11 @@ int FieldView::GetFocusIndex() {
 		focusIndex++ ;
 	} ;
 	return focusIndex ;
+}
+
+
+void FieldView::insertLabel(int x, int y, char *name) {
+    GUIPoint position = GUIPoint(x, y);
+    UIStaticField *f = new UIStaticField(position, name, CD_TEXT_INFO);
+    Insert(f);
 }

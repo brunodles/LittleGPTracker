@@ -17,6 +17,8 @@ public:
 	void ClearFocus() ;
 	int GetFocusIndex() ;
 	void SetSize(int size) ;
+
+    void insertLabel(int x, int y, char *name);
 private:
 	T_SimpleList<UIField> fieldList_ ;
 	UIField *focus_ ;
