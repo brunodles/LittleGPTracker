@@ -34,7 +34,5 @@ private:
   UIField *tempoField_;
   UIField *themeField_;
 
-  void insertLabel(GUIPoint position, char *name);
-
 } ;
 #endif

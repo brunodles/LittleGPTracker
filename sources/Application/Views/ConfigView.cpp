@@ -117,12 +117,12 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
 
     Variable *v = project_->FindVariable(VAR_MIDIDEVICE);
     NAssert(v);
-    insertLabel(POS_X_C1 - 4, position._y, "MIDI");
+    insertLabel(POS_X_C1 - 5, position._y, "MIDI");
     Insert(new UIIntVarField(position, *v, "%s", 0,
                              MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
-    insertLabel(POS_X_C1 - 9, position._y, "Auto Load");
+    insertLabel(POS_X_C1 - 10, position._y, "Auto Load");
     autoLoadField = new UIBoolField(position, config->projectAutoLoadEnabled);
     //autoLoadField->AddObserver(*this);
     Insert(autoLoadField);
@@ -131,13 +131,13 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
     ThemeService::GetInstance()->LoadThemes(v);
     position._y += 2;
     int maxThemeIndex = (v->GetListSize() > 0) ? (v->GetListSize() - 1) : 0;
-    insertLabel(POS_X_C1 - 5, position._y, "Theme");
+    insertLabel(POS_X_C1 - 6, position._y, "Theme");
     themeField_ = new UIIntVarField(position, *v, "%s", 0, maxThemeIndex, 1, 10);
     Insert(themeField_);
 //	themeField->AddObserver(*this) ;
 
     position._y += 2;
-    insertLabel(POS_X_C1 - 10, position._y, "Config.xml");
+    insertLabel(POS_X_C1 - 11, position._y, "Config.xml");
     position._x = POS_X_C1;
     UIActionField *a1 = new UIActionField("Save", ACTION_SAVE, position);
     a1->AddObserver(*this);

@@ -23,10 +23,8 @@
 #define ACTION_PURGE_INSTRUMENT MAKE_FOURCC('P','R','G','I')
 #define ACTION_TEMPO_CHANGED    MAKE_FOURCC('T','E','M','P')
 
-/** Horizontal position of the label */
-#define POS_X_LABEL 8
-/** Horizontal position of the values */
-#define POS_X_VALUE 18
+/** Horizontal position of values */
+#define POS_X_C1 15
 
 static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 
@@ -106,12 +104,6 @@ static void PurgeCallback(View &v,ModalView &dialog) {
 	((ProjectView &)v).OnPurgeInstruments(dialog.GetReturnCode()==MBL_YES) ;
 } ;
 
-void ProjectView::insertLabel(GUIPoint position, char *name) {
-    position._x = POS_X_LABEL;
-    UIStaticField *f = new UIStaticField(position, name, CD_TEXT_INFO);
-    Insert(f);
-}
-
 ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 
     lastClock_ = 0;
@@ -120,12 +112,12 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     project_ = data->project_;
 
     GUIPoint position = GetAnchor();
-    position._x = POS_X_VALUE;
+    position._x = POS_X_C1;
 
     Variable *v = project_->FindVariable(VAR_TEMPO);
 
     // DrawString()
-    insertLabel(position, "Tempo");
+    insertLabel(POS_X_C1 - 6, position._y, "Tempo");
     UITempoField *f = new UITempoField(ACTION_TEMPO_CHANGED, position, *v,
                                        "%d [%2.2x]  ", 60, 400, 1, 10);
     Insert(f);
@@ -134,27 +126,27 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 
     v = project_->FindVariable(VAR_MASTERVOL);
     position._y += 1;
-    insertLabel(position, "Master");
+    insertLabel(POS_X_C1 - 7, position._y, "Master");
     Insert(new UIIntVarField(position, *v, "%d", 10, 100, 1, 10));
 
     v = project_->FindVariable(VAR_PREGAIN);
     position._y += 2;
-    insertLabel(position, "Drive");
+    insertLabel(POS_X_C1 - 6, position._y, "Drive");
     Insert(new UIIntVarField(position, *v, "%d", 10, 200, 1, 10));
 
     position._y += 1;
     v = project_->FindVariable(VAR_SOFTCLIP);
-    insertLabel(position, "Type");
+    insertLabel(POS_X_C1 - 5, position._y, "Type");
     Insert(new UIIntVarField(position, *v, "%s", 0, 4, 1, 4));
 
     v = project_->FindVariable(VAR_SOFTCLIP_GAIN);
     position._x += 7;
     Insert(new UIIntVarField(position, *v, "%s", 0, 1, 1, 1));
-    position._x -= 7;
 
     v = project_->FindVariable(VAR_TRANSPOSE);
     position._y += 2;
-    insertLabel(position, "Transpose");
+    position._x = POS_X_C1;
+    insertLabel(POS_X_C1 - 10, position._y, "Transpose");
     Insert(new UIIntVarField(position,*v,"%2.2d",-48,48,0x1,0xC) );
 
     v = project_->FindVariable(VAR_SCALE);
@@ -163,11 +155,17 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 		v->SetInt(0);
     }
     position._y += 1;
-    insertLabel(position, "Scale");
+    insertLabel(POS_X_C1 - 6, position._y, "Scale");
     Insert(new UIIntVarField(position, *v, "%s", 0, scaleCount - 1, 1, 10));
 
     position._y += 2;
-    insertLabel(position, "Compact");
+    v = project_->FindVariable(VAR_RENDER);
+    NAssert(v);
+    insertLabel(POS_X_C1 - 7, position._y, "Render");
+    Insert(new UIIntVarField(position, *v, "%s", 0, project_->MAX_RENDER_MODE - 1, 1, 2));
+
+    position._y += 2;
+    insertLabel(POS_X_C1 - 8, position._y, "Compact");
 
     UIActionField *a1 = new UIActionField("Sequencer", ACTION_PURGE, position);
     a1->AddObserver(*this);
@@ -180,14 +178,14 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     position._x -= 10;
 
     position._y += 2;
-    insertLabel(position, "Song");
+    insertLabel(POS_X_C1 - 8, position._y, "Project");
 
-    a1 = new UIActionField("Load", ACTION_LOAD, position);
+    a1 = new UIActionField("Save", ACTION_SAVE, position);
     a1->AddObserver(*this);
     Insert(a1);
 
     position._x += 5;
-    a1 = new UIActionField("Save", ACTION_SAVE, position);
+    a1 = new UIActionField("Load", ACTION_LOAD, position);
     a1->AddObserver(*this);
     Insert(a1);
 
@@ -197,17 +195,11 @@ ProjectView::ProjectView(GUIWindow &w,ViewData *data):FieldView(w,data) {
     Insert(a1);
     position._x -= 10;
 
-    v = project_->FindVariable(VAR_MIDIDEVICE);
-    NAssert(v);
-    position._y += 2;
-    insertLabel(position, "MIDI");
-    Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
-
-    position._y += 2;
-    v = project_->FindVariable(VAR_RENDER);
-    NAssert(v);
-    insertLabel(position, "Render");
-    Insert(new UIIntVarField(position, *v, "%s", 0, project_->MAX_RENDER_MODE - 1, 1, 2));
+//    v = project_->FindVariable(VAR_MIDIDEVICE);
+//    NAssert(v);
+//    position._y += 2;
+//    insertLabel(POS_X_C1 - 5, position._y, "MIDI");
+//    Insert(new UIIntVarField(position, *v, "%s", 0, MidiService::GetInstance()->Size(), 1, 1));
 
     position._y += 2;
     a1 = new UIActionField("Exit", ACTION_QUIT, position);

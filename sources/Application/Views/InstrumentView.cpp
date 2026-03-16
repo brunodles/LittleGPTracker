@@ -12,12 +12,10 @@
 #include "ModalDialogs/MessageBox.h"
 #include "System/System/System.h"
 
-/** Horizontal position of the label */
-#define POS_X_C1 13
-#define POS_X_C2 24
-#define POS_X_C3 33
 /** Horizontal position of the values */
-#define POS_X_VALUE 18
+#define POS_X_C1 15
+#define POS_X_C2 27
+#define POS_X_C3 35
 
 InstrumentView::InstrumentView(GUIWindow &w,ViewData *data):FieldView(w,data) {
 	project_=data->project_ ;
@@ -85,43 +83,42 @@ void InstrumentView::fillSampleParameters() {
 	GUIPoint position=GetAnchor() ;
 
 //	position._y+=View::fieldSpaceHeight_;
-    insertLabel(POS_X_C1-6, position._y-1, "Sample");
+    insertLabel(POS_X_C1 - 7, position._y-1, "Sample");
 	Variable *v = instrument->FindVariable(SIP_SAMPLE);
 	SamplePool *sp = SamplePool::GetInstance();
-    position._x = POS_X_C1 - 5;
+    position._x = POS_X_C1 - 8;
 	UIIntVarField *f1 = new UIIntVarField(position,*v,"%s",0,sp->GetNameListSize()-1,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 	f1->SetFocus();
-    position._x = POS_X_VALUE;
 
     position._y += 1;
 #ifdef FFMPEG_ENABLED
-    insertLabel(POS_X_C1 - 2, position._y, "Fx");
+    insertLabel(POS_X_C1 - 3, position._y, "Fx");
     v = instrument->FindVariable(SIP_PRINTFX);
     position._x = POS_X_C1;
     f1 = new UIIntVarField(position, *v, "%s", 0, 3, 1, 2);
     T_SimpleList<UIField>::Insert(f1) ;
 
-    insertLabel(POS_X_C2 - 3, position._y, "Wet");
+    insertLabel(POS_X_C2 - 4, position._y, "Wet");
     position._x = POS_X_C2;
     v = instrument->FindVariable(SIP_IR_WET);
     f1 = new UIIntVarField(position, *v, "%d%%", 0, 100, 1, 10);
     T_SimpleList<UIField>::Insert(f1);
 
     position._x = POS_X_C3;
-    insertLabel(POS_X_C3 - 3, position._y, "Pad");
+    insertLabel(POS_X_C3 - 4, position._y, "Pad");
     v = instrument->FindVariable(SIP_IR_PAD);
     f1 = new UIIntVarField(position, *v, "%dms", 0, 5000, 5, 100);
     T_SimpleList<UIField>::Insert(f1);
 #endif
     position._y += 2;
     position._x = POS_X_C1 ;
-    insertLabel(POS_X_C1 - 6, position._y, "volume");
+    insertLabel(POS_X_C1 - 7, position._y, "volume");
     v=instrument->FindVariable(SIP_VOLUME) ;
-	f1=new UIIntVarField(position, *v, "%d", 0, 255, 1, 10) ;
+	f1=new UIIntVarField(position, *v, "%2.2x", 0, 255, 1, 10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
-    insertLabel(POS_X_C2 - 3, position._y, "Pam");
+    insertLabel(POS_X_C2 - 4, position._y, "Pam");
     position._x = POS_X_C2;
 	v=instrument->FindVariable(SIP_PAN) ;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,0xFE,1,0x10) ;
@@ -129,53 +126,52 @@ void InstrumentView::fillSampleParameters() {
 
 	position._y += 1;
 	position._x = POS_X_C1;
-    insertLabel(POS_X_C1 - 4, position._y, "Root");
+    insertLabel(POS_X_C1 - 5, position._y, "Root");
 	v=instrument->FindVariable(SIP_ROOTNOTE) ;
 	f1=new UINoteVarField(position,*v,"%s",0,0x7F,1,0x0C) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
-    position._x+=5;
-    insertLabel(position._x, position._y, "detune");
+    position._x = POS_X_C2;
+    insertLabel(POS_X_C2 - 7, position._y, "detune");
 	v=instrument->FindVariable(SIP_FINETUNE) ;
-    position._x+=6;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,255,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
     position._y += 1;
     position._x = POS_X_C1;
-    insertLabel(POS_X_C1 - 5, position._y, "crush");
+    insertLabel(POS_X_C1 - 6, position._y, "crush");
     v=instrument->FindVariable(SIP_CRUSH);
 	f1=new UIIntVarField(position,*v,"%d",1,0x10,1,4) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
-    insertLabel(POS_X_C2 - 5, position._y, "drive");
+    insertLabel(POS_X_C2 - 6, position._y, "drive");
     position._x = POS_X_C2;
     v = instrument->FindVariable(SIP_CRUSHVOL);
     f1=new UIIntVarField(position, *v, "%2.2X",0,0xFF,1,0x10);
 	T_SimpleList<UIField>::Insert(f1);
 
     position._y += 1;
-    insertLabel(POS_X_C1 - 10, position._y, "downsample");
+    insertLabel(POS_X_C1 - 11, position._y, "downsample");
     position._x  = POS_X_C1;
 	v=instrument->FindVariable(SIP_DOWNSMPL) ;
 	f1=new UIIntVarField(position,*v,"%d",0,8,1,4) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
     position._y += 2;
-    insertLabel(POS_X_C1 - 7, position._y, "flt cut");
+    insertLabel(POS_X_C1 - 8, position._y, "flt cut");
     position._x = POS_X_C1;
 	v=instrument->FindVariable(SIP_FILTCUTOFF) ;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,0xFF,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
-    insertLabel(POS_X_C2 - 3, position._y, "res");
+    insertLabel(POS_X_C2 - 4, position._y, "res");
 	position._x = POS_X_C2;
 	v=instrument->FindVariable(SIP_FILTRESO) ;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,0xFF,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
 	position._y += 1;
-    insertLabel(POS_X_C1 - 4, position._y, "type");
+    insertLabel(POS_X_C1 - 5, position._y, "type");
 	position._x = POS_X_C1;
 	v=instrument->FindVariable(SIP_FILTMIX) ;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,0xFF,1,0x10) ;
@@ -183,26 +179,26 @@ void InstrumentView::fillSampleParameters() {
 
 	position._x = POS_X_C2;
 	v=instrument->FindVariable(SIP_FILTMODE) ;
-    insertLabel(POS_X_C2 - 4, position._y, "Mode");
+    insertLabel(POS_X_C2 - 5, position._y, "Mode");
 	f1=new UIIntVarField(position,*v,"%s",0,2,1,1) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
 	position._y += 1;
     position._x = POS_X_C1;
 	v=instrument->FindVariable(SIP_ATTENUATE) ;
-    insertLabel(POS_X_C1 - 9, position._y, "attenuate");
+    insertLabel(POS_X_C1 - 10, position._y, "attenuate");
 	f1=new UIIntVarField(position,*v,"%2.2X",1,0xFF,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
     position._y += 1;
-    insertLabel(POS_X_C1 - 7, position._y, "fb tune");
+    insertLabel(POS_X_C1 - 8, position._y, "fb tune");
 
 	v=instrument->FindVariable(SIP_FBTUNE) ;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,0xFF,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
 	position._x = POS_X_C2;
-    insertLabel(POS_X_C2 - 3, position._y, "mix");
+    insertLabel(POS_X_C2 - 4, position._y, "mix");
 	v=instrument->FindVariable(SIP_FBMIX) ;
 	f1=new UIIntVarField(position,*v,"%2.2X",0,0xFF,1,0X10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
@@ -210,19 +206,19 @@ void InstrumentView::fillSampleParameters() {
 	position._y += 2;
     position._x = POS_X_C1;
 	v=instrument->FindVariable(SIP_INTERPOLATION) ;
-    insertLabel(POS_X_C1 - 13, position._y, "interpolation");
+    insertLabel(POS_X_C1 - 14, position._y, "interpolation");
 	f1=new UIIntVarField(position,*v,"%s",0,1,1,1) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
     position._y += 1;
 	v=instrument->FindVariable(SIP_LOOPMODE) ;
-    insertLabel(POS_X_C1 - 9, position._y, "loop mode");
+    insertLabel(POS_X_C1 - 10, position._y, "loop mode");
 	f1=new UIIntVarField(position,*v,"%s",0,SILM_LAST-1,1,1) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 	position._y+=1 ;
 
 	v=instrument->FindVariable(SIP_SLICES) ;
-    insertLabel(POS_X_C1 - 6, position._y, "slices");
+    insertLabel(POS_X_C1 - 7, position._y, "slices");
     position._x = POS_X_C1;
 	f1=new UIIntVarField(position,*v,"%2.2X",1,0xFF,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
@@ -230,18 +226,18 @@ void InstrumentView::fillSampleParameters() {
 	position._y += 1;
     position._x = POS_X_C1;
 	v=instrument->FindVariable(SIP_START) ;
-    insertLabel(POS_X_C1 - 5, position._y, "start");
+    insertLabel(POS_X_C1 - 6, position._y, "start");
 	f1=new UIBigHexVarField(position,*v,7,"%7.7X",0,instrument->GetSampleSize()-1,16) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
 	position._y += 1;
 	v=instrument->FindVariable(SIP_LOOPSTART) ;
-    insertLabel(POS_X_C1 - 10, position._y, "loop start");
+    insertLabel(POS_X_C1 - 11, position._y, "loop start");
 	f1=new UIBigHexVarField(position,*v,7,"%7.7X",0,instrument->GetSampleSize()-1,16) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
 	v=instrument->FindVariable(SIP_END) ;
-    insertLabel(POS_X_C2 - 3, position._y, "end");
+    insertLabel(POS_X_C2 - 4, position._y, "end");
     position._x = POS_X_C2;
 	f1=new UIBigHexVarField(position,*v,7,"%7.7X",0,instrument->GetSampleSize()-1,16) ;
 	T_SimpleList<UIField>::Insert(f1) ;
@@ -249,13 +245,13 @@ void InstrumentView::fillSampleParameters() {
 	v=instrument->FindVariable(SIP_TABLEAUTO) ;
 	position._y += 2 ;
     position._x = POS_X_C1;
-    insertLabel(POS_X_C1 - 10, position._y, "automation");
+    insertLabel(POS_X_C1 - 11, position._y, "automation");
 	UIIntVarField *f2=new UIIntVarField(position,*v,"%s",0,1,1,1) ;
 	T_SimpleList<UIField>::Insert(f2) ;
 
 	position._y+=1 ;
 	v=instrument->FindVariable(SIP_TABLE) ;
-    insertLabel(POS_X_C1 - 5, position._y, "table");
+    insertLabel(POS_X_C1 - 6, position._y, "table");
 	f1=new UIIntVarOffField(position,*v,"%2.2X",0x00,0x7F,1,0x10) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
