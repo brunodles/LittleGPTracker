@@ -3,6 +3,7 @@
 #include "Application/Instruments/SampleInstrument.h"
 #include "Application/Instruments/SamplePool.h"
 #include "Application/Model/Config.h"
+#include "BaseClasses/UIStringVarField.h"
 #include "BaseClasses/UIBigHexVarField.h"
 #include "BaseClasses/UIIntVarOffField.h"
 #include "BaseClasses/UINoteVarField.h"
@@ -242,6 +243,27 @@ void InstrumentView::fillSampleParameters() {
 	f1=new UIBigHexVarField(position,*v,7,"%7.7X",0,instrument->GetSampleSize()-1,16) ;
 	T_SimpleList<UIField>::Insert(f1) ;
 
+	// Note detection (one-shot, read-only)
+	position._y += 1;
+    position._x = POS_X_C1;
+	v=instrument->FindVariable(SIP_DETECT) ;
+	insertLabel(POS_X_C1 - 13, position._y, "detect root");
+	f1=new UIIntVarField(position,*v,"%s",0,0,1,1) ;
+	T_SimpleList<UIField>::Insert(f1) ;
+
+	v=instrument->FindVariable(SIP_DETECTED_IN) ;
+	insertLabel(POS_X_C2 - 4, position._y, "IN");
+	position._x = POS_X_C2;
+	UIStringVarField *sf=new UIStringVarField(position,*v) ;
+	T_SimpleList<UIField>::Insert(sf) ;
+
+	position._y += 1;
+	v=instrument->FindVariable(SIP_DETECTED_OUT) ;
+	insertLabel(POS_X_C1 - 5, position._y, "OUT");
+	position._x = POS_X_C1;
+	sf=new UIStringVarField(position,*v) ;
+	T_SimpleList<UIField>::Insert(sf) ;
+
 	v=instrument->FindVariable(SIP_TABLEAUTO) ;
 	position._y += 2 ;
     position._x = POS_X_C1;
@@ -348,6 +370,17 @@ void InstrumentView::ProcessButtonMask(unsigned short mask,bool pressed) {
                     View::SetNotification(printer.GetNotification());
                     break;
                 }
+                case SIP_DETECT: {
+                    int i = viewData_->currentInstrument_;
+                    InstrumentBank *bank = viewData_->project_->GetInstrumentBank();
+                    I_Instrument *instr = bank->GetInstrument(i);
+                    if (instr->GetType() == IT_SAMPLE) {
+                        SampleInstrument *si = (SampleInstrument *)instr;
+                        si->DetectPitch();
+                        isDirty_ = true;
+                    }
+                    break;
+                }
                 default:
                     break ;
 			}
@@ -420,7 +453,8 @@ void InstrumentView::ProcessButtonMask(unsigned short mask,bool pressed) {
         if (mask == EPBM_A) {
             FourCC varID = ((UIIntVarField *)GetFocus())->GetVariableID();
             if ((varID == SIP_TABLE) || (varID == MIP_TABLE) ||
-                (varID == SIP_SAMPLE) || (varID == SIP_PRINTFX)) {
+                (varID == SIP_SAMPLE) || (varID == SIP_PRINTFX) ||
+                (varID == SIP_DETECT)) {
                 viewMode_ = VM_NEW;
 			}
         } else {

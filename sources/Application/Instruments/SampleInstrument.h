@@ -11,6 +11,8 @@
 #include "Foundation/Types/Types.h"
 #include "Foundation/Variables/WatchedVariable.h"
 
+#include "PitchDetector.h"
+
 enum SampleInstrumentLoopMode {
 	SILM_ONESHOT=0,
 	SILM_LOOP,
@@ -51,6 +53,10 @@ enum SampleInstrumentLoopMode {
 #define SIP_PRINTFX MAKE_FOURCC('P', 'R', 'F', 'X')
 #define SIP_IR_PAD MAKE_FOURCC('I', 'R', 'P', 'D')
 #define SIP_IR_WET MAKE_FOURCC('I', 'R', 'W', 'T')
+// Note detection (read-only, one-shot). Values are formatted strings.
+#define SIP_DETECT MAKE_FOURCC('D', 'E', 'T', 'C')
+#define SIP_DETECTED_IN MAKE_FOURCC('D', 'T', 'I', 'N')
+#define SIP_DETECTED_OUT MAKE_FOURCC('D', 'T', 'O', 'U')
 
 #define FB_BUFFER_LENGTH 3500 // (in samples)
 
@@ -92,6 +98,14 @@ public:
        int GetLoopEnd();
        virtual const char *GetName() ; // returns sample name until real
 	                                   // namer is implemented
+ 
+   // Note detection (one-shot, read-only). Fills the IN/OUT readout
+   // variables from the current sample + instrument settings.
+   void DetectPitch();
+   // Renders the instrument in isolation (same pitch arithmetic, interpolation
+   // and loop handling as the real render path) into a mono buffer, without
+   // touching the mix. Returns number of samples written.
+   int RenderForDetection(short *out, int maxSamples, int midinote);
  
   static void EnableDownsamplingLegacy();
 
@@ -137,6 +151,9 @@ private:
        Variable *printFx_;
        Variable *irPad_;
        Variable *irWet_;
+       Variable *detect_;
+       Variable *detectedIn_;
+       Variable *detectedOut_;
 
        static bool useDirtyDownsampling_;
        char *fxPresets[4];

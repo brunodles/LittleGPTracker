@@ -15,6 +15,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "Application/Utils/char.h"
+
 #include "SampleInstrumentDatas.h"
 #include "Application/Player/SyncMaster.h"
 
@@ -126,6 +128,17 @@ SampleInstrument::SampleInstrument() {
 
      irWet_ = new Variable("effect amount", SIP_IR_WET, 45);
      Insert(irWet_);
+
+     // Note detection readout (one-shot, read-only)
+     static char *detectModes[] = {"run"};
+     detect_ = new Variable("detect root", SIP_DETECT, detectModes, 1, 0);
+     Insert(detect_);
+
+     detectedIn_ = new Variable("detected in", SIP_DETECTED_IN, "unknown");
+     Insert(detectedIn_);
+
+     detectedOut_ = new Variable("detected out", SIP_DETECTED_OUT, "unknown");
+     Insert(detectedOut_);
 
      // Initalize instrument's voices update list
 
@@ -1033,6 +1046,176 @@ int SampleInstrument::GetSampleSize(int channel) {
 
 int SampleInstrument::GetLoopEnd() { return loopEnd_->GetInt(); }
 
+// ---------------------------------------------------------------------------
+// Note detection (one-shot, read-only)
+// ---------------------------------------------------------------------------
+
+// Repeats a loop region until it spans at least two periods (or 4096 samples,
+// whichever is larger) and detects pitch there. Handles one-cycle loops where
+// a single period is not enough for the detector to confirm periodicity.
+static float DetectLoopRegion(const short *samples,
+                              int loopStart,
+                              int loopLen,
+                              int sampleRate,
+                              int channelCount) {
+    if (loopLen < 1) return 0.0f;
+    int total = 4096;
+    if (total < loopLen * 2) total = loopLen * 2;
+    short *buf = new short[total * channelCount];
+    for (int i = 0; i < total; i++) {
+        int src = loopStart + (i % loopLen);
+        for (int c = 0; c < channelCount; c++) {
+            buf[i * channelCount + c] = samples[src * channelCount + c];
+        }
+    }
+    float freq = PitchDetector::DetectPitch(buf, total * channelCount,
+                                            sampleRate, channelCount);
+    delete[] buf;
+    return freq;
+}
+
+// Renders the instrument as the real render path would for the given
+// midinote (same speed, interpolation and loop handling) into a mono buffer,
+// but in isolation: no mix, no filters, no feedback. Used to measure what
+// the instrument actually produces.
+int SampleInstrument::RenderForDetection(short *out, int maxSamples, int midinote) {
+    if (!source_ || source_->IsMulti()) return 0;
+    short *wavbuf = (short *)source_->GetSampleBuffer(midinote);
+    if (!wavbuf) return 0;
+    int channelCount = source_->GetChannelCount(midinote);
+    int size = source_->GetSize(midinote);
+    if (channelCount < 1 || size < 1) return 0;
+
+    float driverRate = float(Audio::GetInstance()->GetSampleRate());
+    if (driverRate <= 0.0f) driverRate = 44100.0f;
+
+    SampleInstrumentLoopMode loopmode = (SampleInstrumentLoopMode)loopMode_->GetInt();
+    if (loopmode == SILM_SLICE || loopmode == SILM_LOOPSYNC) return 0; // v2
+
+    int loopStart = loopStart_->GetInt();
+    int loopEnd = loopEnd_->GetInt();
+    bool hasLoop = (loopmode != SILM_ONESHOT) && (loopEnd > loopStart);
+
+    int first = start_->GetInt();
+    if (first < 0) first = 0;
+    if (first >= size) return 0;
+
+    // Same pitch arithmetic as Start()
+    int rootNote = (rootNote_->GetInt() - 60) + source_->GetRootNote(midinote);
+    float fineTune = float(fineTune_->GetInt() - 0x7F) / float(0x80);
+    int offset = midinote - rootNote;
+    float freqFactor = powf(2.0f, (offset + fineTune) / 12.0f);
+    float baseSpeed = float(source_->GetSampleRate(midinote)) / driverRate;
+    float speed = baseSpeed * freqFactor;
+
+    int interp = interpolation_->GetInt(); // 0 = linear, 1 = nearest
+
+    float pos = float(first);
+    int written = 0;
+    while (written < maxSamples) {
+        int idx = (int)pos;
+        if (idx >= size - 1) {
+            if (hasLoop) {
+                pos = float(loopStart);
+                idx = loopStart;
+            } else {
+                break;
+            }
+        }
+        if (idx < 0) idx = 0;
+        short s1 = wavbuf[idx * channelCount];
+        short s2 = wavbuf[(idx + 1) * channelCount];
+        float frac = pos - float(idx);
+        float sample;
+        if (interp == 1) { // nearest
+            sample = (frac > 0.5f) ? float(s2) : float(s1);
+        } else { // linear
+            sample = float(s1) * (1.0f - frac) + float(s2) * frac;
+        }
+        out[written++] = (short)sample;
+        pos += speed;
+        if (hasLoop && pos >= float(loopEnd)) {
+            pos = float(loopStart) + (pos - float(loopEnd));
+        }
+    }
+    return written;
+}
+
+void SampleInstrument::DetectPitch() {
+    detectedIn_->SetString("unknown");
+    detectedOut_->SetString("unknown");
+
+    if (!source_ || source_->IsMulti()) return; // multi/SF2 handled in v2
+
+    int midinote = rootNote_->GetInt();
+    short *sampleBuffer = (short *)source_->GetSampleBuffer(midinote);
+    if (!sampleBuffer) return;
+    int channelCount = source_->GetChannelCount(midinote);
+    int sampleRate = source_->GetSampleRate(midinote);
+    int size = source_->GetSize(midinote);
+    if (sampleRate <= 0 || size <= 0) return;
+
+    SampleInstrumentLoopMode loopmode = (SampleInstrumentLoopMode)loopMode_->GetInt();
+    int loopStart = loopStart_->GetInt();
+    int loopEnd = loopEnd_->GetInt();
+    bool hasLoop = (loopmode != SILM_ONESHOT) && (loopmode != SILM_SLICE) && (loopEnd > loopStart);
+
+    // --- IN: pitch of the raw region ---
+    float inFreq = 0.0f;
+    if (hasLoop) {
+        int len = loopEnd - loopStart;
+        if (len > 0) {
+            inFreq = DetectLoopRegion(sampleBuffer, loopStart, len,
+                                      sampleRate, channelCount);
+        }
+    } else {
+        int start = start_->GetInt();
+        int len = size - start;
+        if (len > 0) {
+            inFreq = PitchDetector::DetectPitch(sampleBuffer + start * channelCount,
+                                                len * channelCount,
+                                                sampleRate, channelCount);
+        }
+    }
+
+    // --- OUT: pitch of the isolated render at the current root note ---
+    float outFreq = 0.0f;
+    {
+        short *renderBuf = new short[4096];
+        int n = RenderForDetection(renderBuf, 4096, midinote);
+        if (n > 0) {
+            outFreq = PitchDetector::DetectPitch(renderBuf, n,
+                                                 int(Audio::GetInstance()->GetSampleRate()), 1);
+        }
+        delete[] renderBuf;
+    }
+
+    // --- Format & store ---
+    char buf[40];
+    if (inFreq > 0.0f) {
+        float midi = PitchDetector::FreqToMidi(inFreq);
+        if (midi < 0.0f) midi = 0.0f;
+        if (midi > 127.0f) midi = 127.0f;
+        int note = (int)(midi + 0.5f);
+        int cents = (int)((midi - note) * 100.0f + 0.5f);
+        char nbuf[8];
+        note2char((unsigned char)note, nbuf);
+        snprintf(buf, sizeof(buf), "%s %+dc", nbuf, cents);
+        detectedIn_->SetString(buf);
+    }
+    if (outFreq > 0.0f) {
+        float midi = PitchDetector::FreqToMidi(outFreq);
+        if (midi < 0.0f) midi = 0.0f;
+        if (midi > 127.0f) midi = 127.0f;
+        int note = (int)(midi + 0.5f);
+        int cents = (int)((midi - note) * 100.0f + 0.5f);
+        char nbuf[8];
+        note2char((unsigned char)note, nbuf);
+        snprintf(buf, sizeof(buf), "%s %+dc", nbuf, cents);
+        detectedOut_->SetString(buf);
+    }
+}
+
 bool SampleInstrument::IsInitialized() {
     return (source_!=0) ;
 } ;
@@ -1083,7 +1266,24 @@ void SampleInstrument::Update(Observable &o,I_ObservableData *d)
 		}
 			break ;
 
-
+		// Region changes invalidate the note detection readouts (Q9: stale
+		// with warning, never auto re-detect).
+		case SIP_START:
+		case SIP_LOOPSTART:
+		case SIP_END:
+		{
+			if (detectedIn_ && detectedOut_) {
+				if (strcmp(detectedIn_->GetString(), "unknown") != 0) {
+					detectedIn_->SetString("stale");
+				}
+				if (strcmp(detectedOut_->GetString(), "unknown") != 0) {
+					detectedOut_->SetString("stale");
+				}
+				SetChanged() ;
+				NotifyObservers();
+			}
+		}
+			break ;
 
 		default:
    //         Trace::Dump("Got notification from %c%c%c%c",fourcc[0],fourcc[1],fourcc[2],fourcc[3]) ;
