@@ -1054,13 +1054,21 @@ int SampleInstrument::GetLoopEnd() { return loopEnd_->GetInt(); }
 // whichever is larger) and detects pitch there. Handles one-cycle loops where
 // a single period is not enough for the detector to confirm periodicity.
 static float DetectLoopRegion(const short *samples,
+                              int size,
                               int loopStart,
                               int loopLen,
                               int sampleRate,
                               int channelCount) {
     if (loopLen < 1) return 0.0f;
-    int total = 4096;
-    if (total < loopLen * 2) total = loopLen * 2;
+    // Clamp the region to the actual buffer (older instruments may carry
+    // loop points past the end of the sample).
+    if (loopStart < 0) loopStart = 0;
+    if (loopStart >= size) return 0.0f;
+    if (loopStart + loopLen > size) loopLen = size - loopStart;
+    if (loopLen < 1) return 0.0f;
+    // Fixed window: the detector caps its analysis at 4096 samples anyway,
+    // so scaling the buffer with the loop length only wastes memory.
+    const int total = 4096;
     short *buf = new short[total * channelCount];
     for (int i = 0; i < total; i++) {
         int src = loopStart + (i % loopLen);
@@ -1084,7 +1092,7 @@ int SampleInstrument::RenderForDetection(short *out, int maxSamples, int midinot
     if (!wavbuf) return 0;
     int channelCount = source_->GetChannelCount(midinote);
     int size = source_->GetSize(midinote);
-    if (channelCount < 1 || size < 1) return 0;
+    if (channelCount < 1 || size < 2) return 0;
 
     float driverRate = float(Audio::GetInstance()->GetSampleRate());
     if (driverRate <= 0.0f) driverRate = 44100.0f;
@@ -1094,6 +1102,14 @@ int SampleInstrument::RenderForDetection(short *out, int maxSamples, int midinot
 
     int loopStart = loopStart_->GetInt();
     int loopEnd = loopEnd_->GetInt();
+    // Clamp loop points to the buffer (older instruments may carry values
+    // past the end; the real render path tolerates that via pointer
+    // comparison, but we index the buffer directly). size-2: the loop body
+    // reads wavbuf[(idx+1)*channelCount], so the wrap target must stay
+    // at least one sample below the end.
+    if (loopStart < 0) loopStart = 0;
+    if (loopStart > size - 2) loopStart = size - 2;
+    if (loopEnd > size) loopEnd = size;
     bool hasLoop = (loopmode != SILM_ONESHOT) && (loopEnd > loopStart);
 
     int first = start_->GetInt();
@@ -1153,11 +1169,16 @@ void SampleInstrument::DetectPitch() {
     int channelCount = source_->GetChannelCount(midinote);
     int sampleRate = source_->GetSampleRate(midinote);
     int size = source_->GetSize(midinote);
-    if (sampleRate <= 0 || size <= 0) return;
+    if (sampleRate <= 0 || size < 2) return;
 
     SampleInstrumentLoopMode loopmode = (SampleInstrumentLoopMode)loopMode_->GetInt();
     int loopStart = loopStart_->GetInt();
     int loopEnd = loopEnd_->GetInt();
+    // Same clamp as RenderForDetection: older instruments may carry loop
+    // points past the end of the buffer.
+    if (loopStart < 0) loopStart = 0;
+    if (loopStart > size - 2) loopStart = size - 2;
+    if (loopEnd > size) loopEnd = size;
     bool hasLoop = (loopmode != SILM_ONESHOT) && (loopmode != SILM_SLICE) && (loopEnd > loopStart);
 
     // --- IN: pitch of the raw region ---
@@ -1165,11 +1186,13 @@ void SampleInstrument::DetectPitch() {
     if (hasLoop) {
         int len = loopEnd - loopStart;
         if (len > 0) {
-            inFreq = DetectLoopRegion(sampleBuffer, loopStart, len,
+            inFreq = DetectLoopRegion(sampleBuffer, size, loopStart, len,
                                       sampleRate, channelCount);
         }
     } else {
         int start = start_->GetInt();
+        if (start < 0) start = 0;
+        if (start > size - 1) start = size - 1;
         int len = size - start;
         if (len > 0) {
             inFreq = PitchDetector::DetectPitch(sampleBuffer + start * channelCount,
@@ -1191,27 +1214,32 @@ void SampleInstrument::DetectPitch() {
     }
 
     // --- Format & store ---
-    char buf[40];
-    if (inFreq > 0.0f) {
-        float midi = PitchDetector::FreqToMidi(inFreq);
+    // Compact "A3 +23c" / "A#2 -5c" form. note2char is not used: it leaves
+    // the string unterminated (UINoteVarField compensates with note[4]=0)
+    // and notes__ has an embedded space ("A "), producing "A  3 +23c".
+    auto formatNote = [](char *out, int outSize, float freq) {
+        float midi = PitchDetector::FreqToMidi(freq);
         if (midi < 0.0f) midi = 0.0f;
         if (midi > 127.0f) midi = 127.0f;
         int note = (int)(midi + 0.5f);
         int cents = (int)((midi - note) * 100.0f + 0.5f);
-        char nbuf[8];
-        note2char((unsigned char)note, nbuf);
-        snprintf(buf, sizeof(buf), "%s %+dc", nbuf, cents);
+        int oct = note / 12 - 2;
+        const char *name = notes__[note % 12]; // "A " or "A#"
+        char letter = name[0];
+        char sharp = (name[1] == '#') ? '#' : 0;
+        if (sharp) {
+            snprintf(out, outSize, "%c%c%d %+dc", letter, sharp, oct, cents);
+        } else {
+            snprintf(out, outSize, "%c%d %+dc", letter, oct, cents);
+        }
+    };
+    char buf[40];
+    if (inFreq > 0.0f) {
+        formatNote(buf, sizeof(buf), inFreq);
         detectedIn_->SetString(buf);
     }
     if (outFreq > 0.0f) {
-        float midi = PitchDetector::FreqToMidi(outFreq);
-        if (midi < 0.0f) midi = 0.0f;
-        if (midi > 127.0f) midi = 127.0f;
-        int note = (int)(midi + 0.5f);
-        int cents = (int)((midi - note) * 100.0f + 0.5f);
-        char nbuf[8];
-        note2char((unsigned char)note, nbuf);
-        snprintf(buf, sizeof(buf), "%s %+dc", nbuf, cents);
+        formatNote(buf, sizeof(buf), outFreq);
         detectedOut_->SetString(buf);
     }
 }
@@ -1266,11 +1294,17 @@ void SampleInstrument::Update(Observable &o,I_ObservableData *d)
 		}
 			break ;
 
-		// Region changes invalidate the note detection readouts (Q9: stale
-		// with warning, never auto re-detect).
+		// Region, pitch and render-parameter changes invalidate the note
+		// detection readouts (Q9: stale with warning, never auto re-detect).
+		// IN depends on the region (start/loopStart/end + loopMode), OUT also
+		// on the pitch arithmetic (rootNote/fineTune/interpolation).
 		case SIP_START:
 		case SIP_LOOPSTART:
 		case SIP_END:
+		case SIP_ROOTNOTE:
+		case SIP_FINETUNE:
+		case SIP_LOOPMODE:
+		case SIP_INTERPOLATION:
 		{
 			if (detectedIn_ && detectedOut_) {
 				if (strcmp(detectedIn_->GetString(), "unknown") != 0) {
