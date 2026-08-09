@@ -1,7 +1,9 @@
 #include "ImportSampleDialog.h"
 #include "Application/Instruments/SamplePool.h"
 #include "Application/Instruments/SampleInstrument.h"
+#ifdef LGPT_ENABLE_MP3
 #include "Application/Instruments/Mp3File.h"
+#endif
 
 #define LIST_SIZE 15
 #define LIST_WIDTH 28
@@ -148,11 +150,15 @@ void ImportSampleDialog::import(Path &element) {
 		lastError_[0]=0 ;
 	} else {
 		Trace::Error("failed to import sample") ;
+#ifdef LGPT_ENABLE_MP3
 		if (element.Matches("*.mp3")) {
 			setLastError(Mp3File::GetLastError()) ;
 		} else {
 			setLastError(WavFile::GetLastError()) ;
 		}
+#else
+		setLastError(WavFile::GetLastError()) ;
+#endif
 	};
 	isDirty_=true ;
 } ;
@@ -187,6 +193,7 @@ void ImportSampleDialog::setLastError(WavFileError err) {
 	}
 } ;
 
+#ifdef LGPT_ENABLE_MP3
 void ImportSampleDialog::setLastError(Mp3FileError err) {
 
 	switch (err) {
@@ -208,6 +215,7 @@ void ImportSampleDialog::setLastError(Mp3FileError err) {
 			break ;
 	}
 } ;
+#endif
 
 void ImportSampleDialog::ProcessButtonMask(unsigned short mask,bool pressed) {
 
@@ -345,7 +353,11 @@ void ImportSampleDialog::setCurrentFolder(Path *path) {
 			for (it->Begin();!it->IsDone();it->Next()) {
 				Path &current=it->CurrentItem() ;
 		 		if (!current.IsDirectory()) {
-					if ((current.Matches("*.wav") || current.Matches("*.mp3")) && current.GetName()[0]!='.') {
+#ifdef LGPT_ENABLE_MP3
+				if ((current.Matches("*.wav") || current.Matches("*.mp3")) && current.GetName()[0]!='.') {
+#else
+				if (current.Matches("*.wav") && current.GetName()[0]!='.') {
+#endif
 						Path *sample=new Path(current) ;
 						sampleList_.Insert(sample) ;
 					}

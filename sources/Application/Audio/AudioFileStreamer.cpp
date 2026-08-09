@@ -3,7 +3,9 @@
 #include "System/Console/Trace.h"
 #include "Application/Model/Config.h"
 #include "Application/Instruments/WavFile.h"
+#ifdef LGPT_ENABLE_MP3
 #include "Application/Instruments/Mp3File.h"
+#endif
 
 AudioFileStreamer::AudioFileStreamer() {
 	wav_=0 ;
@@ -52,10 +54,12 @@ bool AudioFileStreamer::Render(fixed *buffer,int samplecount) {
 	if (!wav_) 
   {
 		wav_=WavFile::Open(path_.GetPath().c_str()) ;
+#ifdef LGPT_ENABLE_MP3
 		if (!wav_) {
 			// not a WAV, try MP3 before giving up
 			wav_=Mp3File::Open(path_.GetPath().c_str()) ;
 		}
+#endif
 		if (!wav_) 
     {
       Trace::Error("Failed to open streaming of %s",path_.GetPath().c_str());

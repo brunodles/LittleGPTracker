@@ -5,7 +5,8 @@ DEFINES := \
 	-DCPP_MEMORY \
 	-DDEBUG \
 	-D__LINUX_ALSA__ \
-	-D_NO_JACK_  
+	-D_NO_JACK_  \
+	-DLGPT_ENABLE_MP3
 
 DEVKIT=/usr/local/angstrom/arm
 

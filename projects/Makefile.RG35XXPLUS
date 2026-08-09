@@ -12,7 +12,8 @@ DEFINES := \
 	-DSDL2 \
 	-DSDLAUDIO \
 	-DDUMMYMIDI \
-	-DFFMPEG_ENABLED
+	-DFFMPEG_ENABLED \
+	-DLGPT_ENABLE_MP3
 
 DEVKIT := /opt/rg35xx-plus-aarch64-SDL2-SDK-0.1.0/
 CROSS_COMPILE:=$(DEVKIT)bin/aarch64-none-linux-gnu-

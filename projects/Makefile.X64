@@ -11,6 +11,7 @@ DEFINES := \
         -DSDLAUDIO \
         -DRTMIDI \
         -DFFMPEG_ENABLED \
+        -DLGPT_ENABLE_MP3 \
         -D_FEAT_MIDI_MULTITHREAD
 
 ALSA_CFLAGS := $(shell pkg-config alsa --cflags)

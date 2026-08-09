@@ -7,7 +7,8 @@ DEFINES := \
 	-D_NO_JACK_ \
 	-D__LINUX_ALSA__ \
 	-D__LINUX_ALSASEQ__ \
-	-DFFMPEG_ENABLED
+	-DFFMPEG_ENABLED \
+	-DLGPT_ENABLE_MP3
 
 CFLAGS := -O3  -Wall $(DEFINES) -I/usr/local/include -I$(PWD)/../sources
 CXXFLAGS:= $(CFLAGS)

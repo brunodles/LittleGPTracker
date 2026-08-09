@@ -5,7 +5,8 @@ DEFINES := \
 	-DCPP_MEMORY \
 	-D_NO_JACK_ \
 	-D__LINUX_ALSA__ \
-	-D__LINUX_ALSASEQ__   
+	-D__LINUX_ALSASEQ__   \
+	-DLGPT_ENABLE_MP3
 
 SYSROOT     := $(shell gcc --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)

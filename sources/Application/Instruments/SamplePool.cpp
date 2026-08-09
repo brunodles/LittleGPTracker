@@ -9,7 +9,9 @@
 #include "SoundFontPreset.h"
 #include "SoundFontManager.h"
 #include "Application/Model/Config.h"
+#ifdef LGPT_ENABLE_MP3
 #include "Mp3File.h"
+#endif
 
 #define SAMPLE_LIB "root:samplelib" 
 
@@ -71,6 +73,7 @@ void SamplePool::Load() {
 
 	// now, let's look at mp3s
 
+#ifdef LGPT_ENABLE_MP3
 	dir->GetContent("*.mp3") ;
 	IteratorPtr<Path> it3(dir->GetIterator()) ;
 
@@ -84,6 +87,7 @@ void SamplePool::Load() {
 		} ;
 
 	} ;
+#endif
 
 	// now, let's look at soundfonts
 
@@ -151,11 +155,15 @@ bool SamplePool::loadSample(const char *path) {
 
     Path wavPath(path);
     AudioFile *wave=0 ;
+#ifdef LGPT_ENABLE_MP3
     if (wavPath.Matches("*.mp3")) {
         wave=Mp3File::Open(path) ;
     } else {
         wave=WavFile::Open(path) ;
     }
+#else
+    wave=WavFile::Open(path) ;
+#endif
 	if (wave) {
 		wav_[count_]=wave ;
 		const std::string name=wavPath.GetName() ;

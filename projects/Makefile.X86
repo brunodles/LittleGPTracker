@@ -9,7 +9,8 @@ DEFINES := \
 	-DSDL2 \
 	-DSDLAUDIO \
 	-DRTMIDI \
-	-DFFMPEG_ENABLED
+	-DFFMPEG_ENABLED \
+	-DLGPT_ENABLE_MP3
 
 ALSA_CFLAGS := $(shell i686-linux-gnu-pkg-config alsa --cflags)
 ALSA_LIBS := $(shell i686-linux-gnu-pkg-config alsa --libs)

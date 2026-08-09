@@ -261,7 +261,7 @@ COMMONFILES := \
 	char.o n_assert.o fixed.o wildcard.o \
 	SyncMaster.o TablePlayback.o Player.o \
 	Table.o TableView.o\
-	InstrumentBank.o WavFileWriter.o WavFile.o Mp3File.o MidiInstrument.o Filters.o SampleVariable.o SampleInstrument.o PitchDetector.o SamplePool.o CommandList.o FxPrinter.o\
+	InstrumentBank.o WavFileWriter.o WavFile.o MidiInstrument.o Filters.o SampleVariable.o SampleInstrument.o PitchDetector.o SamplePool.o CommandList.o FxPrinter.o\
 	PersistencyService.o Persistent.o \
 	Observable.o SingletonRegistry.o \
 	Audio.o AudioMixer.o AudioOutDriver.o AudioDriver.o \
@@ -317,6 +317,11 @@ RTMIDIFILES := \
 	RTMidiOutDevice.o \
 	RTMidiInDevice.o
 
+# MP3 support (optional feature, see -DLGPT_ENABLE_MP3 in the platform
+# Makefiles). Only platforms that define the flag link Mp3File.o.
+MP3FILES := \
+	Mp3File.o
+
 JACKFILES := \
 	JackAudioDriver.o \
 	JackClient.o \
@@ -326,13 +331,13 @@ SDLAUDIOFILES := \
 					SDLAudioDriver.o \
 	SDLAudio.o
 
-DEBFILES := $(DBFILES) $(RTAUDIOFILES) $(RTMIDIFILES) $(JACKFILES)
-BEAGLEBOARDFILES := $(LINUXFILES) $(DUMMYMIDIFILES)
-RASPIFILES := $(DBFILES) $(RTAUDIOFILES) $(RTMIDIFILES)
-RG35XXPLUSFILES := $(LINUXFILES) $(SDLAUDIOFILES) $(DUMMYMIDIFILES)
-STEAMFILES := $(LINUXFILES) $(RTAUDIOFILES) $(RTMIDIFILES) $(JACKFILES)
-X64FILES := $(LINUXFILES) $(RTMIDIFILES) $(SDLAUDIOFILES)
-X86FILES := $(LINUXFILES) $(RTMIDIFILES) $(SDLAUDIOFILES)
+DEBFILES := $(DBFILES) $(RTAUDIOFILES) $(RTMIDIFILES) $(JACKFILES) $(MP3FILES)
+BEAGLEBOARDFILES := $(LINUXFILES) $(DUMMYMIDIFILES) $(MP3FILES)
+RASPIFILES := $(DBFILES) $(RTAUDIOFILES) $(RTMIDIFILES) $(MP3FILES)
+RG35XXPLUSFILES := $(LINUXFILES) $(SDLAUDIOFILES) $(DUMMYMIDIFILES) $(MP3FILES)
+STEAMFILES := $(LINUXFILES) $(RTAUDIOFILES) $(RTMIDIFILES) $(JACKFILES) $(MP3FILES)
+X64FILES := $(LINUXFILES) $(RTMIDIFILES) $(SDLAUDIOFILES) $(MP3FILES)
+X86FILES := $(LINUXFILES) $(RTMIDIFILES) $(SDLAUDIOFILES) $(MP3FILES)
 
 #---------------------------------------------------------------------------------
 # Consoles/Embedded
@@ -457,7 +462,8 @@ W32FILES := \
 	W32Process.o \
 	W32Audio.o \
 	GUIFactory.o \
-	WSDLGUIWindowImp.o
+	WSDLGUIWindowImp.o \
+	$(MP3FILES)
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
