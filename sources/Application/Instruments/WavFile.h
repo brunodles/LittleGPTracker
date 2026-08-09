@@ -3,7 +3,7 @@
 #define _WAV_FILE_H_
 
 #include "System/FileSystem/FileSystem.h"
-#include "SoundSource.h"
+#include "AudioFile.h"
 
 // Why the last WavFile::Open() call failed. The import dialog surfaces
 // this to the user instead of the generic "failed to import sample".
@@ -17,7 +17,7 @@ enum WavFileError {
 	WAVERR_UNSUPPORTED_BIT_DEPTH,   // bit depth not 8 or 16
 };
 
-class WavFile:public SoundSource {
+class WavFile:public AudioFile {
 
 protected: // Factory - see Load method
 	WavFile(I_File *file) ;
@@ -32,7 +32,6 @@ public:
 	bool GetBuffer(long start,long sampleCount) ; // values in smples
 	void Close() ;
 	virtual bool IsMulti() {return false ; } ;
-
 	// Reason the most recent Open() call failed. Meaningful only when
 	// Open() returned 0.
 	static WavFileError GetLastError();

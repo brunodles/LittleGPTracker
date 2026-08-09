@@ -3,6 +3,7 @@
 
 #include "Application/Views/BaseClasses/ModalView.h"
 #include "Application/Instruments/WavFile.h"
+#include "Application/Instruments/Mp3File.h"
 #include "Foundation/T_SimpleList.h"
 #include "System/FileSystem/FileSystem.h"
 #include <string>
@@ -28,6 +29,7 @@ private:
 	bool isSampleLibRoot();
 	void setCurrent(Path *element, unsigned short mask);
 	void setLastError(WavFileError err);
+	void setLastError(Mp3FileError err);
 	T_SimpleList<Path> sampleList_ ;
 	int currentSample_ ;
 	int topIndex_ ;

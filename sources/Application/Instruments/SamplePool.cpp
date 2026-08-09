@@ -9,6 +9,7 @@
 #include "SoundFontPreset.h"
 #include "SoundFontManager.h"
 #include "Application/Model/Config.h"
+#include "Mp3File.h"
 
 #define SAMPLE_LIB "root:samplelib" 
 
@@ -61,6 +62,22 @@ void SamplePool::Load() {
 		Path &path=it->CurrentItem() ;
         Trace::Log("Load", "%s", path.GetCanonicalPath().c_str());
         loadSample(path.GetPath().c_str()) ;
+		if (count_==MAX_PIG_SAMPLES) {
+		   Trace::Error("Warning maximum sample count reached") ;
+		   break ;
+		} ;
+
+	} ;
+
+	// now, let's look at mp3s
+
+	dir->GetContent("*.mp3") ;
+	IteratorPtr<Path> it3(dir->GetIterator()) ;
+
+	for(it3->Begin();!it3->IsDone();it3->Next()) {
+		Path &path=it3->CurrentItem() ;
+		Trace::Log("Load", "%s", path.GetCanonicalPath().c_str());
+		loadSample(path.GetPath().c_str()) ;
 		if (count_==MAX_PIG_SAMPLES) {
 		   Trace::Error("Warning maximum sample count reached") ;
 		   break ;
@@ -133,7 +150,12 @@ bool SamplePool::loadSample(const char *path) {
     Trace::Log("loadSample", "%s", path);
 
     Path wavPath(path);
-    WavFile *wave=WavFile::Open(path) ;
+    AudioFile *wave=0 ;
+    if (wavPath.Matches("*.mp3")) {
+        wave=Mp3File::Open(path) ;
+    } else {
+        wave=WavFile::Open(path) ;
+    }
 	if (wave) {
 		wav_[count_]=wave ;
 		const std::string name=wavPath.GetName() ;

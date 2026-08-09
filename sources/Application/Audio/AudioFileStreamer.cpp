@@ -2,6 +2,8 @@
 #include "Application/Utils/fixed.h"
 #include "System/Console/Trace.h"
 #include "Application/Model/Config.h"
+#include "Application/Instruments/WavFile.h"
+#include "Application/Instruments/Mp3File.h"
 
 AudioFileStreamer::AudioFileStreamer() {
 	wav_=0 ;
@@ -50,6 +52,10 @@ bool AudioFileStreamer::Render(fixed *buffer,int samplecount) {
 	if (!wav_) 
   {
 		wav_=WavFile::Open(path_.GetPath().c_str()) ;
+		if (!wav_) {
+			// not a WAV, try MP3 before giving up
+			wav_=Mp3File::Open(path_.GetPath().c_str()) ;
+		}
 		if (!wav_) 
     {
       Trace::Error("Failed to open streaming of %s",path_.GetPath().c_str());

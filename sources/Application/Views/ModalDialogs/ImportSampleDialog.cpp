@@ -1,6 +1,7 @@
 #include "ImportSampleDialog.h"
 #include "Application/Instruments/SamplePool.h"
 #include "Application/Instruments/SampleInstrument.h"
+#include "Application/Instruments/Mp3File.h"
 
 #define LIST_SIZE 15
 #define LIST_WIDTH 28
@@ -147,7 +148,11 @@ void ImportSampleDialog::import(Path &element) {
 		lastError_[0]=0 ;
 	} else {
 		Trace::Error("failed to import sample") ;
-		setLastError(WavFile::GetLastError()) ;
+		if (element.Matches("*.mp3")) {
+			setLastError(Mp3File::GetLastError()) ;
+		} else {
+			setLastError(WavFile::GetLastError()) ;
+		}
 	};
 	isDirty_=true ;
 } ;
@@ -175,6 +180,28 @@ void ImportSampleDialog::setLastError(WavFileError err) {
 			break ;
 		case WAVERR_UNSUPPORTED_BIT_DEPTH:
 			strcpy(lastError_, "Only 8/16-bit WAV") ;
+			break ;
+		default:
+			strcpy(lastError_, "Failed to import sample") ;
+			break ;
+	}
+} ;
+
+void ImportSampleDialog::setLastError(Mp3FileError err) {
+
+	switch (err) {
+		case MP3ERR_NONE:
+			strcpy(lastError_, "Failed to import sample") ;
+			break ;
+		case MP3ERR_OPEN_FAILED:
+		case MP3ERR_READ_FAILED:
+			strcpy(lastError_, "Failed to open MP3") ;
+			break ;
+		case MP3ERR_DECODE_FAILED:
+			strcpy(lastError_, "Not a valid MP3 stream") ;
+			break ;
+		case MP3ERR_OUT_OF_MEMORY:
+			strcpy(lastError_, "Out of memory decoding MP3") ;
 			break ;
 		default:
 			strcpy(lastError_, "Failed to import sample") ;
@@ -318,7 +345,7 @@ void ImportSampleDialog::setCurrentFolder(Path *path) {
 			for (it->Begin();!it->IsDone();it->Next()) {
 				Path &current=it->CurrentItem() ;
 		 		if (!current.IsDirectory()) {
-					if (current.Matches("*.wav") && current.GetName()[0]!='.') {
+					if ((current.Matches("*.wav") || current.Matches("*.mp3")) && current.GetName()[0]!='.') {
 						Path *sample=new Path(current) ;
 						sampleList_.Insert(sample) ;
 					}
