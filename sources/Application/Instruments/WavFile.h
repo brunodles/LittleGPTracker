@@ -5,6 +5,18 @@
 #include "System/FileSystem/FileSystem.h"
 #include "SoundSource.h"
 
+// Why the last WavFile::Open() call failed. The import dialog surfaces
+// this to the user instead of the generic "failed to import sample".
+enum WavFileError {
+	WAVERR_NONE = 0,
+	WAVERR_NOT_RIFF,       // file does not start with RIFF
+	WAVERR_NOT_WAVE,       // RIFF container is not a WAVE file
+	WAVERR_BAD_FMT_CHUNK,  // no fmt chunk found
+	WAVERR_BAD_FMT_SIZE,   // fmt chunk smaller than 16 bytes
+	WAVERR_UNSUPPORTED_COMPRESSION, // compression code != 1 (float/ADPCM/...)
+	WAVERR_UNSUPPORTED_BIT_DEPTH,   // bit depth not 8 or 16
+};
+
 class WavFile:public SoundSource {
 
 protected: // Factory - see Load method
@@ -20,6 +32,10 @@ public:
 	bool GetBuffer(long start,long sampleCount) ; // values in smples
 	void Close() ;
 	virtual bool IsMulti() {return false ; } ;
+
+	// Reason the most recent Open() call failed. Meaningful only when
+	// Open() returned 0.
+	static WavFileError GetLastError();
 
 protected:
 	long readBlock(long position,long count) ;
@@ -37,5 +53,6 @@ private:
 
 	static int bufferChunkSize_ ;
 	static bool initChunkSize_ ;
+	static WavFileError lastError_ ;
 } ;
 #endif

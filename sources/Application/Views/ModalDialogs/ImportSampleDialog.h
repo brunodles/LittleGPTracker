@@ -2,6 +2,7 @@
 #define _IMPORT_SAMPLE_DIALOG_H_
 
 #include "Application/Views/BaseClasses/ModalView.h"
+#include "Application/Instruments/WavFile.h"
 #include "Foundation/T_SimpleList.h"
 #include "System/FileSystem/FileSystem.h"
 #include <string>
@@ -26,11 +27,13 @@ private:
 	Path *getImportElement();
 	bool isSampleLibRoot();
 	void setCurrent(Path *element, unsigned short mask);
+	void setLastError(WavFileError err);
 	T_SimpleList<Path> sampleList_ ;
 	int currentSample_ ;
 	int topIndex_ ;
 	int toInstr_ ;
 	int selected_ ;
+	char lastError_[32] ;
 	static bool initStatic_ ;
 	static Path sampleLib_ ;
 	static Path currentPath_ ;

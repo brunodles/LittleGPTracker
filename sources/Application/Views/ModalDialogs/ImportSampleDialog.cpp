@@ -23,6 +23,7 @@ ImportSampleDialog::ImportSampleDialog(View &view):ModalView(view) {
 		initStatic_=true ;
 	}
 	selected_=0 ;
+	lastError_[0]=0 ;
 } ;
 
 ImportSampleDialog::~ImportSampleDialog() {
@@ -42,6 +43,14 @@ void ImportSampleDialog::DrawView() {
 
     //	sprintf(title,"Sample Import from %s",currentPath_.GetName()) ;
     //	w_.DrawString(title,pos,props) ;
+
+    // Draw status line (last import error, if any)
+
+    if (lastError_[0]) {
+        SetColor(CD_TEXT_TITLE);
+        props.invert_=false;
+        DrawString(1, 0, lastError_, props);
+    }
 
     // Draw samples
 
@@ -135,10 +144,42 @@ void ImportSampleDialog::import(Path &element) {
 			sinstr->AssignSample(sampleID) ;
 			toInstr_=viewData_->project_->GetInstrumentBank()->GetNext() ;
 		};
+		lastError_[0]=0 ;
 	} else {
 		Trace::Error("failed to import sample") ;
+		setLastError(WavFile::GetLastError()) ;
 	};
 	isDirty_=true ;
+} ;
+
+void ImportSampleDialog::setLastError(WavFileError err) {
+
+	switch (err) {
+		case WAVERR_NONE:
+			strcpy(lastError_, "Failed to import sample") ;
+			break ;
+		case WAVERR_NOT_RIFF:
+			strcpy(lastError_, "Not a RIFF/WAV file") ;
+			break ;
+		case WAVERR_NOT_WAVE:
+			strcpy(lastError_, "Not a WAVE container") ;
+			break ;
+		case WAVERR_BAD_FMT_CHUNK:
+			strcpy(lastError_, "Missing fmt chunk") ;
+			break ;
+		case WAVERR_BAD_FMT_SIZE:
+			strcpy(lastError_, "Malformed fmt chunk") ;
+			break ;
+		case WAVERR_UNSUPPORTED_COMPRESSION:
+			strcpy(lastError_, "Unsupported codec (use PCM)") ;
+			break ;
+		case WAVERR_UNSUPPORTED_BIT_DEPTH:
+			strcpy(lastError_, "Only 8/16-bit WAV") ;
+			break ;
+		default:
+			strcpy(lastError_, "Failed to import sample") ;
+			break ;
+	}
 } ;
 
 void ImportSampleDialog::ProcessButtonMask(unsigned short mask,bool pressed) {
@@ -246,6 +287,8 @@ void ImportSampleDialog::setCurrent(Path *element, unsigned short mask) {
 void ImportSampleDialog::setCurrentFolder(Path *path) {
 
 	Path formerPath(currentPath_) ;
+
+	lastError_[0]=0 ; // navigating clears the previous import error
 
 	topIndex_=0 ;
 	currentSample_=0 ;

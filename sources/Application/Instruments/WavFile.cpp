@@ -8,6 +8,7 @@
 
 int WavFile::bufferChunkSize_=-1 ;
 bool WavFile::initChunkSize_=true ;
+WavFileError WavFile::lastError_ = WAVERR_NONE ;
 
 short Swap16 (short from)
 {
@@ -61,6 +62,10 @@ WavFile::~WavFile() {
 
 WavFile *WavFile::Open(const char *path) {
 
+    // reset the error before parsing
+
+    lastError_ = WAVERR_NONE ;
+
     // open file
 
 	FileSystem *fs=FileSystem::GetInstance() ;
@@ -91,6 +96,7 @@ WavFile *WavFile::Open(const char *path) {
 		
 	if (chunk!=0x46464952) {
 		Trace::Error("Bad RIFF format %x",chunk) ;
+		lastError_=WAVERR_NOT_RIFF ;
 		delete(wav) ;
 		return 0 ;
 	}
@@ -111,6 +117,7 @@ WavFile *WavFile::Open(const char *path) {
 
 	if (chunk!=0x45564157) {
 		Trace::Error("Bad WAV format") ;
+		lastError_=WAVERR_NOT_WAVE ;
 		delete wav ;
 		return 0 ;
 	}
@@ -138,6 +145,7 @@ WavFile *WavFile::Open(const char *path) {
 
     if (chunk!=0x20746D66) {
 		Trace::Error("Bad WAV/fmt format") ;
+		lastError_=WAVERR_BAD_FMT_CHUNK ;
 		delete wav ;
 		return 0 ;
 	}
@@ -150,6 +158,7 @@ WavFile *WavFile::Open(const char *path) {
 
 	if (size<16) {
 		Trace::Error("Bad fmt size format") ;
+		lastError_=WAVERR_BAD_FMT_SIZE ;
 		delete wav ;
 		return 0 ;
 	}
@@ -164,6 +173,7 @@ WavFile *WavFile::Open(const char *path) {
 
 	if (comp!=1) {
 		Trace::Error("Unsupported compression") ;
+		lastError_=WAVERR_UNSUPPORTED_COMPRESSION ;
 		delete wav ;
 		return 0 ;
 	}
@@ -194,6 +204,7 @@ WavFile *WavFile::Open(const char *path) {
 		
 	if ((bitPerSample!=16)&&(bitPerSample!=8)) {
 		Trace::Error("Only 8/16 bit supported") ;
+		lastError_=WAVERR_UNSUPPORTED_BIT_DEPTH ;
 		delete wav ;
 		return 0 ;
 	} ;
@@ -348,4 +359,8 @@ void WavFile::Close() {
 
 int WavFile::GetRootNote(int note) {
 	return 60 ;
+} 
+
+WavFileError WavFile::GetLastError() {
+	return lastError_ ;
 } 
