@@ -154,6 +154,9 @@ bool SamplePool::loadSample(const char *path) {
     Trace::Log("loadSample", "%s", path);
 
     Path wavPath(path);
+    if (wavPath.Matches("*.sf2")) {
+        return loadSoundFont(path);
+    }
     AudioFile *wave=0 ;
 #ifdef LGPT_ENABLE_MP3
     if (wavPath.Matches("*.mp3")) {

@@ -150,15 +150,19 @@ void ImportSampleDialog::import(Path &element) {
 		lastError_[0]=0 ;
 	} else {
 		Trace::Error("failed to import sample") ;
-#ifdef LGPT_ENABLE_MP3
-		if (element.Matches("*.mp3")) {
-			setLastError(Mp3File::GetLastError()) ;
+		if (element.Matches("*.sf2")) {
+			strcpy(lastError_, "Not a valid SF2 sound font") ;
 		} else {
-			setLastError(WavFile::GetLastError()) ;
-		}
+#ifdef LGPT_ENABLE_MP3
+			if (element.Matches("*.mp3")) {
+				setLastError(Mp3File::GetLastError()) ;
+			} else {
+				setLastError(WavFile::GetLastError()) ;
+			}
 #else
-		setLastError(WavFile::GetLastError()) ;
+			setLastError(WavFile::GetLastError()) ;
 #endif
+		}
 	};
 	isDirty_=true ;
 } ;
@@ -353,11 +357,11 @@ void ImportSampleDialog::setCurrentFolder(Path *path) {
 			for (it->Begin();!it->IsDone();it->Next()) {
 				Path &current=it->CurrentItem() ;
 		 		if (!current.IsDirectory()) {
+				if ((current.Matches("*.wav") || current.Matches("*.sf2")
 #ifdef LGPT_ENABLE_MP3
-				if ((current.Matches("*.wav") || current.Matches("*.mp3")) && current.GetName()[0]!='.') {
-#else
-				if (current.Matches("*.wav") && current.GetName()[0]!='.') {
+				     || current.Matches("*.mp3")
 #endif
+				     ) && current.GetName()[0]!='.') {
 						Path *sample=new Path(current) ;
 						sampleList_.Insert(sample) ;
 					}
