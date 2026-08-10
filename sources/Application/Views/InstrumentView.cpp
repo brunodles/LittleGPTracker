@@ -244,7 +244,7 @@ void InstrumentView::fillSampleParameters() {
 	T_SimpleList<UIField>::Insert(f1) ;
 
 	// Note detection (one-shot, read-only)
-	position._y += 1;
+	position._y += 2;
     position._x = POS_X_C1;
 	v=instrument->FindVariable(SIP_DETECT) ;
 	insertLabel(POS_X_C1 - 13, position._y, "detect root");
@@ -263,6 +263,7 @@ void InstrumentView::fillSampleParameters() {
 	position._x = POS_X_C1;
 	sf=new UIStringVarField(position,*v) ;
 	T_SimpleList<UIField>::Insert(sf) ;
+	// Note detection (one-shot, read-only) - end
 
 	v=instrument->FindVariable(SIP_TABLEAUTO) ;
 	position._y += 2 ;
