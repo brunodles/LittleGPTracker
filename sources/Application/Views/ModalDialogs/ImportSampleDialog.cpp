@@ -129,8 +129,23 @@ void ImportSampleDialog::OnFocus() {
 } ;
 
 void ImportSampleDialog::preview(Path &element) {
+	// SoundFonts are preset banks, not playable audio: the preview streamer
+	// only knows WAV/MP3, so never try to listen to a .sf2.
+	if (element.Matches("*.sf2")) return ;
 	Player::GetInstance()->StartStreaming(element) ;
-}
+} ;
+
+// Highest sample-instrument slot that has a sample assigned, or -1 if none.
+// Used to place SoundFont presets right after the last used instrument.
+static int lastUsedSampleInstrument(InstrumentBank *bank) {
+	int last=-1 ;
+	for (int i=0;i<MAX_SAMPLEINSTRUMENT_COUNT;i++) {
+		SampleInstrument *si=(SampleInstrument *)bank->GetInstrument(i) ;
+		Variable *sample=si->FindVariable(SIP_SAMPLE) ;
+		if (sample && sample->GetInt()!=NO_SAMPLE) last=i ;
+	}
+	return last ;
+} ;
 
 void ImportSampleDialog::endPreview() {
 	Player::GetInstance()->StopStreaming() ;
@@ -139,6 +154,31 @@ void ImportSampleDialog::endPreview() {
 void ImportSampleDialog::import(Path &element) {
 
 	SamplePool *pool=SamplePool::GetInstance() ;
+
+	if (element.Matches("*.sf2")) {
+		// A SoundFont is a preset bank: every preset lands in the sample pool
+		// (loadSoundFont appends them all), and each one is assigned to a fresh
+		// sample instrument placed right after the last used instrument slot.
+		int before=pool->GetNameListSize() ;
+		int sampleID=pool->ImportSample(element) ;
+		if (sampleID>=0) {
+			int after=pool->GetNameListSize() ;
+			InstrumentBank *bank=viewData_->project_->GetInstrumentBank() ;
+			int slot=lastUsedSampleInstrument(bank)+1 ;
+			for (int i=before ; i<after ; i++,slot++) {
+				if (slot>=MAX_SAMPLEINSTRUMENT_COUNT) break ;
+				SampleInstrument *si=(SampleInstrument *)bank->GetInstrument(slot) ;
+				si->AssignSample(i) ;
+			}
+			lastError_[0]=0 ;
+		} else {
+			Trace::Error("failed to import sample") ;
+			strcpy(lastError_, "Not a valid SF2 sound font") ;
+		}
+		isDirty_=true ;
+		return ;
+	}
+
 	int sampleID=pool->ImportSample(element) ;
 	if (sampleID>=0) {
 		I_Instrument *instr=viewData_->project_->GetInstrumentBank()->GetInstrument(toInstr_) ;
