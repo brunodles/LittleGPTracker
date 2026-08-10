@@ -35,8 +35,11 @@ static void SaveAsProjectCallback(View &v,ModalView &dialog) {
 		std::string str_dstprjdir;
 		std::string str_dstsmpdir;
 
-		Path root("root:");
-		str_dstprjdir = root.GetName() + "/" + npd.GetName();
+		Path root("root:projects");
+		if (!root.Exists()) {
+			FileSystem::GetInstance()->MakeDir(root.GetPath().c_str());
+		}
+		str_dstprjdir = root.GetPath() + "/" + npd.GetName();
 		str_dstsmpdir = str_dstprjdir + "/samples/";
 
 		Path path_srcprjdir("project:");

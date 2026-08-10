@@ -56,6 +56,13 @@ void DEBSystem::Boot(int argc,char **argv) {
 
 	Path::SetAlias("root",".") ;
 
+  // New-style projects live in a dedicated projects/ folder; create it on
+  // startup so the project selection dialog can always show it.
+  Path projectsPath("root:projects") ;
+  if (!projectsPath.Exists()) {
+    FileSystem::GetInstance()->MakeDir(projectsPath.GetPath().c_str()) ;
+  }
+
 #ifdef _DEBUG
   Trace::GetInstance()->SetLogger(*(new StdOutLogger()));
 #else

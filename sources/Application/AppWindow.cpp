@@ -676,12 +676,10 @@ Path AppWindow::GetLastProjectPath() {
 
     Path result;
     if (strlen(buffer) > 0) {
-        if (strstr(buffer, "lgpt_") != NULL) { // Ensure it's an lgpt project
-            result = Path(buffer);
-        } else {
-            Trace::Error("GetLastProject: Invalid project path format: %s",
-                         buffer);
-        }
+        // Legacy projects carry the "lgpt_" prefix, new-style projects live
+        // under projects/ without it; the existence check below validates
+        // either form.
+        result = Path(buffer);
     }
     if (!result.IsDirectory()) {
         Trace::Error("GetLastProject: path does not exist: %s", result.GetPath().c_str());

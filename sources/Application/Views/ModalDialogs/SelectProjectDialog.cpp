@@ -11,6 +11,17 @@
 
 static char *buttonText[3] = {"Load", "New", "Exit"};
 
+// A directory is a project when it uses the legacy "lgpt" prefix or when it
+// holds a lgptsav.dat file (new-style projects, no prefix required).
+static bool isProjectDirectory(Path &p) {
+    std::string name = p.GetName();
+    std::string first = name.substr(0, 4);
+    std::transform(first.begin(), first.end(), first.begin(), ::tolower);
+    if (first == "lgpt")
+        return true;
+    return p.Descend("lgptsav.dat").Exists();
+}
+
 Path SelectProjectDialog::lastFolder_("root:") ;
 int SelectProjectDialog::lastProject_ = 0 ;
 
@@ -62,27 +73,38 @@ void SelectProjectDialog::DrawView() {
 			Path &current=it->CurrentItem() ;
 			std::string p=current.GetName() ;
 
-			std::string firstFourChars = p.substr(0,4);
-			std::transform(firstFourChars.begin(), firstFourChars.end(), firstFourChars.begin(), ::tolower);
-			if(firstFourChars == "lgpt" && p.size()>4)
-      {
-        int namestart = 4;
-        // skip _ if needed
-        if ((!isalnum(p[4])) && (p.size()>4))
-        {
-          namestart++;
-        }
-				std::string t=p ;
-				p=" " ;
-        p+=t.substr(namestart) ;
-      }
-      else
-      {
+			if (isProjectDirectory(current))
+			{
+				// legacy "lgpt_xxx" dirs are displayed sans prefix
+				std::string firstFourChars = p.substr(0,4);
+				std::transform(firstFourChars.begin(), firstFourChars.end(), firstFourChars.begin(), ::tolower);
+				if(firstFourChars == "lgpt" && p.size()>4)
+				{
+					int namestart = 4;
+					// skip _ if needed
+					if ((!isalnum(p[4])) && (p.size()>4))
+					{
+						namestart++;
+					}
+					std::string t=p ;
+					p=" " ;
+					p+=t.substr(namestart) ;
+				}
+				else
+				{
+					// new-style project: plain name, no prefix
+					std::string t=p ;
+					p=" " ;
+					p+=t ;
+				}
+			}
+			else
+			{
 				std::string t=p ;
 				p="[" ;
 				p+=t ;
 				p+="]" ;
-      };
+			};
 
 			if (count==currentProject_) {
                 SetColor(CD_CURSOR);
@@ -149,11 +171,9 @@ void SelectProjectDialog::ProcessButtonMask(unsigned short mask,bool pressed) {
                     count++;
                 }
 
-					//check if folder is a project, indicated by 'lgpt' being the first 4 characters of the folder name
-					std::string name = current->GetName() ;
-					std::string firstFourChars = name.substr(0,4);
-					std::transform(firstFourChars.begin(), firstFourChars.end(), firstFourChars.begin(), ::tolower);
-					if(firstFourChars == "lgpt"){
+					//check if folder is a project (legacy "lgpt" prefix or
+					//containing a lgptsav.dat file)
+					if (isProjectDirectory(*current)) {
 						//ugly hack to make the "name" include subdirectories
 						//we pass along everything past the root dir
 						selection_ = *current ;
@@ -229,7 +249,15 @@ Path SelectProjectDialog::GetSelection() {
 
 Result SelectProjectDialog::OnNewProject(std::string &name) {
 
-    Path path = currentPath_.Descend(name);
+	// New-style projects live in the dedicated projects/ folder; it is created
+	// on startup, but create it defensively in case it went missing.
+	Path projectsPath("root:projects") ;
+	if (!projectsPath.Exists()) {
+		Result r = FileSystem::GetInstance()->MakeDir(projectsPath.GetPath().c_str()) ;
+		RETURN_IF_FAILED(r, ("Failed to create projects dir '%s'", projectsPath.GetPath().c_str())) ;
+	}
+
+    Path path = projectsPath.Descend(name);
     if (path.Exists()) {
         Trace::Log("SelectProjectDialog:OnNewProj","path already exists %s", path.GetPath().c_str());
 		std::string res("Name " + name + " busy");

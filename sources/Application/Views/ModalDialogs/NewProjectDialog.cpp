@@ -292,7 +292,8 @@ std::string NewProjectDialog::GetName() {
             break;
         }
     }
-    std::string name = "lgpt_";
-    name += name_;
+    // New-style projects drop the legacy "lgpt_" prefix: the name the user
+    // typed is used as-is (legacy projects keep their prefixed folders).
+    std::string name = name_;
 	return name;
 }

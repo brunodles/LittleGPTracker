@@ -925,7 +925,9 @@ void SongView::DrawView() {
     os << ": ";
 
     if (songname_.substr(0, 5) == "lgpt_") {
-        os << songname_.substr(5);
+        os << songname_.substr(5); // strip legacy prefix
+    } else {
+        os << songname_;           // new-style project: plain name
     }
 
     std::string buffer(os.str());
