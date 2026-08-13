@@ -4,6 +4,48 @@ on: [pull_request]
 
 jobs:
 
+  cxx03-compat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+
+      - name: Check C++03 compatibility on changed files
+        run: |
+            CHANGED_FILES=$(git diff --name-only origin/master...HEAD --diff-filter=ACM | grep -iE '\.(cpp|h|c|hpp)$' || true)
+
+            if [ -z "$CHANGED_FILES" ]; then
+                echo "No C/C++ files changed."
+                exit 0
+            fi
+
+            FAILED=0
+            for FILE in $CHANGED_FILES; do
+                if g++ -std=gnu++03 -fsyntax-only \
+                       -Isources \
+                       -x c++ "$FILE" 2>/dev/null; then
+                    echo "OK: $FILE"
+                else
+                    echo "FAIL: $FILE"
+                    g++ -std=gnu++03 -fsyntax-only \
+                        -Isources \
+                        -x c++ "$FILE" 2>&1 | head -20
+                    FAILED=1
+                fi
+            done
+
+            if [ $FAILED -eq 1 ]; then
+                echo ""
+                echo "One or more files are not compatible with -std=gnu++03."
+                echo "Many embedded targets (RG35XXPLUS, GARLIC, MIYOO, BITTBOY ...) compile"
+                echo "with -std=gnu++03. Avoid C++11 features (lambdas, auto, range-for,"
+                echo "nullptr, etc.) in shared source files."
+                exit 1
+            fi
+            echo "All changed files pass C++03 compatibility check."
+
   clang-format:
     runs-on: ubuntu-latest
     steps:

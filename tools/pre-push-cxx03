@@ -1,0 +1,44 @@
+#!/bin/sh
+# pre-push-cxx03: Check C++03 compatibility on files changed relative to master.
+#
+# Many embedded targets (RG35XXPLUS, GARLIC, MIYOO, BITTBOY ...) compile with
+# -std=gnu++03.  Avoid C++11 features (lambdas, auto, range-for, nullptr, etc.)
+# in shared source files.
+#
+# Install:
+#   cp tools/pre-push-cxx03 .git/hooks/pre-push-cxx03
+#   chmod +x .git/hooks/pre-push-cxx03
+# Or invoke directly before pushing:
+#   ./tools/pre-push-cxx03
+
+CHANGED_FILES=$(git diff --name-only origin/master...HEAD --diff-filter=ACM 2>/dev/null | grep -iE '\.(cpp|h|c|hpp)$' || true)
+
+if [ -z "$CHANGED_FILES" ]; then
+    echo "No C/C++ files changed."
+    exit 0
+fi
+
+FAILED=0
+for FILE in $CHANGED_FILES; do
+    if g++ -std=gnu++03 -fsyntax-only \
+           -Isources \
+           -x c++ "$FILE" 2>/dev/null; then
+        echo "OK: $FILE"
+    else
+        echo "FAIL: $FILE"
+        g++ -std=gnu++03 -fsyntax-only \
+            -Isources \
+            -x c++ "$FILE" 2>&1 | head -20
+        FAILED=1
+    fi
+done
+
+if [ $FAILED -eq 1 ]; then
+    echo ""
+    echo "One or more files are not compatible with -std=gnu++03."
+    echo "Fix the issues above before pushing."
+    exit 1
+fi
+
+echo "All changed files pass C++03 compatibility check."
+exit 0

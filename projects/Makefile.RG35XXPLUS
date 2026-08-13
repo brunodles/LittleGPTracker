@@ -21,8 +21,9 @@ TRIPLET:=aarch64-linux-gnu
 CC = $(CROSS_COMPILE)gcc
 CXX = $(CROSS_COMPILE)g++
 TOOLPATH=$(DEVKIT)/usr/bin
+SYSROOT := $(DEVKIT)/$(TRIPLET)
 
-SDL_CFLAGS  := -I/$(SYSROOT)/include -D_REENTRANT
+SDL_CFLAGS  := -I$(SYSROOT)/include -D_REENTRANT
 SDL_LIBS    := -lSDL2
 
 OPT_FLAGS = -O3 -mlittle-endian -mabi=lp64 -march=armv8-a+crypto+crc -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -dumpbase
