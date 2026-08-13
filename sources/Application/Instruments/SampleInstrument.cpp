@@ -1157,6 +1157,26 @@ int SampleInstrument::RenderForDetection(short *out, int maxSamples, int midinot
     return written;
 }
 
+// Compact "A3 +23c" / "A#2 -5c" form. note2char is not used: it leaves
+// the string unterminated (UINoteVarField compensates with note[4]=0)
+// and notes__ has an embedded space ("A "), producing "A  3 +23c".
+static void formatNote(char *out, int outSize, float freq) {
+    float midi = PitchDetector::FreqToMidi(freq);
+    if (midi < 0.0f) midi = 0.0f;
+    if (midi > 127.0f) midi = 127.0f;
+    int note = (int)(midi + 0.5f);
+    int cents = (int)((midi - note) * 100.0f + 0.5f);
+    int oct = note / 12 - 2;
+    const char *name = notes__[note % 12]; // "A " or "A#"
+    char letter = name[0];
+    char sharp = (name[1] == '#') ? '#' : 0;
+    if (sharp) {
+        snprintf(out, outSize, "%c%c%d %+dc", letter, sharp, oct, cents);
+    } else {
+        snprintf(out, outSize, "%c%d %+dc", letter, oct, cents);
+    }
+}
+
 void SampleInstrument::DetectPitch() {
     detectedIn_->SetString("unknown");
     detectedOut_->SetString("unknown");
@@ -1214,25 +1234,6 @@ void SampleInstrument::DetectPitch() {
     }
 
     // --- Format & store ---
-    // Compact "A3 +23c" / "A#2 -5c" form. note2char is not used: it leaves
-    // the string unterminated (UINoteVarField compensates with note[4]=0)
-    // and notes__ has an embedded space ("A "), producing "A  3 +23c".
-    auto formatNote = [](char *out, int outSize, float freq) {
-        float midi = PitchDetector::FreqToMidi(freq);
-        if (midi < 0.0f) midi = 0.0f;
-        if (midi > 127.0f) midi = 127.0f;
-        int note = (int)(midi + 0.5f);
-        int cents = (int)((midi - note) * 100.0f + 0.5f);
-        int oct = note / 12 - 2;
-        const char *name = notes__[note % 12]; // "A " or "A#"
-        char letter = name[0];
-        char sharp = (name[1] == '#') ? '#' : 0;
-        if (sharp) {
-            snprintf(out, outSize, "%c%c%d %+dc", letter, sharp, oct, cents);
-        } else {
-            snprintf(out, outSize, "%c%d %+dc", letter, oct, cents);
-        }
-    };
     char buf[40];
     if (inFreq > 0.0f) {
         formatNote(buf, sizeof(buf), inFreq);
