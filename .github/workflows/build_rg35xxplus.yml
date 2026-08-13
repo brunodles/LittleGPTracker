@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
 
       - name: Install rg35xx Stock Toolchain
         run: |
@@ -25,6 +25,9 @@ jobs:
       - name: Package build
         working-directory: projects
         run: |
+          TAG=$(curl "https://api.github.com/repos/djdiskmachine/lgpt-resources/tags" | jq -r '.[0].name')
+          curl -L -o lgpt-resources.zip https://github.com/djdiskmachine/lgpt-resources/archive/refs/tags/${TAG}.zip
+          unzip lgpt-resources.zip
           mv lgpt-resources-${TAG}/*/ ./resources/packaging
           rm -rf lgpt-resources*
           ./resources/packaging/lgpt_package.sh
