@@ -6,7 +6,8 @@ For features, please include a detailed description of the new feature and how i
 
 All PR:s are run through line-by-line clang-format and builds for all supported platforms.
 clang-format can be applied locally on commit by installing pre-commit from repo root:
-    cp pre-commit .git/hooks/
+    cp tools/pre-commit .git/hooks/
+    cp tools/pre-push .git/hooks/
 
 In section below, delete any option that isn't relevant.
 ## Type of change
@@ -31,5 +32,5 @@ Provide instructions on how to reproduce.
 - [ ] I have commented particularly in hard-to-understand areas
 - [ ] I have updated CHANGELOG
 - [ ] I have updated docs/wiki/What-is-LittlePiggyTracker.md reflecting my changes
-- [ ] I have version bumped in `sources/Application/Model/Project.h`
-- [ ] My changes generate no new warnings (build without your change then apply your change to check this)
+- [ ] I have version bumped in `sources/Application/Build.h`
+- [ ] My changes generate no new warnings (build without your change then apply your change to check this). Commit all your changes and run the command `tools/compare-builds`.
