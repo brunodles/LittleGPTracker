@@ -705,7 +705,7 @@ void ChainView::DrawView() {
     pos._y -= 1;
     SetColor(CD_COL_TITLE);
     DrawString(pos._x, pos._y, "Ph", props);
-    DrawString(pos._x + 3, pos._y, "Tsp", props);
+    DrawString(pos._x + 3, pos._y, "Ts", props);
 
     SetColor(CD_NORMAL);
 

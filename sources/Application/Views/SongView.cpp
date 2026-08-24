@@ -1027,7 +1027,7 @@ void SongView::DrawView() {
     char chbuf[4];
     short dx = 3;
     for (int i = 0; i < SONG_CHANNEL_COUNT; i++) {
-        snprintf(chbuf, sizeof(chbuf), "%2d", i);
+        snprintf(chbuf, sizeof(chbuf), "%02d", i);
         DrawString(pos._x + i * dx, pos._y, chbuf, props);
     }
 
