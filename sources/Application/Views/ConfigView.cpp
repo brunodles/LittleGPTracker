@@ -1,5 +1,4 @@
 #include "ConfigView.h"
-#include "Application/Mixer/MixerService.h"
 #include "Application/Model/Project.h"
 #include "Application/Model/ProjectDatas.h"
 #include "Application/Model/Scale.h"
@@ -15,6 +14,8 @@
 #include "Services/Midi/MidiService.h"
 #include "System/System/System.h"
 
+#ifdef CONFIG_VIEW_ENABLED
+
 #define ACTION_SAVE MAKE_FOURCC('S', 'A', 'V', 'E')
 
 /** Horizontal position of the label */
@@ -22,17 +23,13 @@
 /** Horizontal position of the values */
 #define POS_X_VALUE 18
 
-void ConfigView::insertLabel(GUIPoint position, char *name) {
+void ConfigView::insertLabel(GUIPoint position, const char *name) {
     position._x = POS_X_LABEL;
     UIStaticField *f = new UIStaticField(position, name, CD_SONGVIEW00);
     Insert(f);
 }
 
 ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
-
-    lastClock_ = 0;
-    lastTick_ = 0;
-
     project_ = data->project_;
     Config *config = Config::GetInstance();
 
@@ -48,7 +45,6 @@ ConfigView::ConfigView(GUIWindow &w, ViewData *data) : FieldView(w, data) {
     position._y += 2;
     insertLabel(position, "Auto Load");
     autoLoadField = new UIBoolField(position, config->projectAutoLoadEnabled);
-    //autoLoadField->AddObserver(*this);
     Insert(autoLoadField);
 
     position._y += 2;
@@ -98,19 +94,6 @@ void ConfigView::DrawView() {
     FieldView::Redraw();
     drawMap();
 
-    int currentMode = project_->GetRenderMode();
-    if ((viewData_->renderMode_ != currentMode) &&
-        !MixerService::GetInstance()->IsRendering()) {
-        // Mode changed
-        if (currentMode > 0 && viewData_->renderMode_ == 0) {
-            View::SetNotification("Rendering on, press start");
-        } else if (currentMode == 0 && viewData_->renderMode_ > 0) {
-            View::SetNotification("Rendering off");
-        }
-        viewData_->renderMode_ = currentMode;
-        MixerService::GetInstance()->SetRenderMode(currentMode);
-    }
-
     View::EnableNotification();
 };
 
@@ -126,7 +109,6 @@ void ConfigView::Update(Observable &o, I_ObservableData *data) {
 #endif
 
     UIField *focus = GetFocus();
-    Player *player = Player::GetInstance();
     switch (fourcc) {
     case ACTION_SAVE: {
         View::SetNotification("Saving...");
@@ -140,6 +122,10 @@ void ConfigView::Update(Observable &o, I_ObservableData *data) {
         NInvalid;
         break;
     };
-    focus->Draw(w_);
+    if (focus) {
+        focus->Draw(w_);
+    }
     isDirty_ = true;
 };
+
+#endif

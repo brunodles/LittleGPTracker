@@ -1,9 +1,7 @@
 #ifndef _CONFIG_VIEW_H_
 #define _CONFIG_VIEW_H_
 
-// Disable ConfigView for Win32 and Apple.
-#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__MACH__)
-#define CONFIG_VIEW_ENABLED
+#ifdef CONFIG_VIEW_ENABLED
 
 #include "BaseClasses/FieldView.h"
 #include "BaseClasses/UIBoolField.h"
@@ -26,14 +24,11 @@ public:
 
 protected:
 private:
-  Project *project_;
-  // Debug
-  unsigned long lastTick_;
-  unsigned long lastClock_;
+ Project *project_;
 
-  UIBoolField *autoLoadField;
+ UIBoolField *autoLoadField;
 
-  void insertLabel(GUIPoint position, char *name);
+  void insertLabel(GUIPoint position, const char *name);
 
 } ;
 

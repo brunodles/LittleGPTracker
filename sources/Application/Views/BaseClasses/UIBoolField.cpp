@@ -25,7 +25,7 @@ void UIBoolField::Draw(GUIWindow &w, int offset) {
     w.DrawString(text, pos, props);
 }
 
-void UIBoolField::OnClick() {}
+void UIBoolField::OnClick() { SetValue(!value_); }
 
 void UIBoolField::ProcessArrow(unsigned short mask) {
     switch (mask) {

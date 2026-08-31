@@ -1,6 +1,7 @@
 #include "Config.h"
 #include <ctype.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <string.h>
 
 /**
@@ -42,8 +43,15 @@ inline bool strToBool(const char* value) {
  *         Returns 0 if the string is null, empty, or not a valid integer.
  */
 inline int strToInt(const char* value) {
+    if (!value) return 0;
 	return atoi(value);
 }
+
+inline char *copyConfigString(const char *value) {
+    return value ? strdup(value) : 0;
+}
+
+static const char *kUserConfigPath = "config2.xml";
 
 Config::Config() {
     // initialize default values
@@ -59,7 +67,7 @@ Config::Config() {
 	sampleLibPath = 0;
 	sampleChunkSize = -1;
 	// Wave File
-	wavePreListenAttenuation = 1;
+	wavePreListenAttenuation = true;
 	waveLegacyDownSampling = false;
 	// Midi
 	midiControlDevice = 0;
@@ -117,11 +125,11 @@ void Config::loadPath(Path path) {
                         if (isKeyEqualTo(key, "VOLUME")) {
                             volume = strToInt(value);
                         } else if (isKeyEqualTo(key, "ROOTFOLDER")) {
-                            rootPath = (char*)value;
+                            rootPath = copyConfigString(value);
                         } else if (isKeyEqualTo(key, "AUTO_LOAD_LAST")) {
                             projectAutoLoadEnabled = strToBool(value);
                         } else if (isKeyEqualTo(key, "SAMPLELIB")) {
-                            sampleLibPath = (char*)value;
+                            sampleLibPath = copyConfigString(value);
                         } else if (isKeyEqualTo(key, "SAMPLELOADCHUNKSIZE")) {
                             sampleChunkSize = strToInt(value);
                         } else if (isKeyEqualTo(key, "PRELISTENATTENUATION")) {
@@ -129,15 +137,15 @@ void Config::loadPath(Path path) {
                         } else if (isKeyEqualTo(key, "LEGACYDOWNSAMPLING")) {
                             waveLegacyDownSampling = strToBool(value);
                         } else if (isKeyEqualTo(key, "MIDICTRLDEVICE")) {
-                            midiControlDevice = (char*)value;
+                            midiControlDevice = copyConfigString(value);
                         } else if (isKeyEqualTo(key, "MIDIDELAY")) {
                             midiDelay = strToInt(value);
                         } else if (isKeyEqualTo(key, "MIDISENDSYNC")) {
                             midiSendSync = strToBool(value);
                         } else if (isKeyEqualTo(key, "AUDIOAPI")) {
-                            audioApi = (char*)value;
+                            audioApi = copyConfigString(value);
                         } else if (isKeyEqualTo(key, "AUDIODEVICE")) {
-                            audioDevice = (char*)value;
+                            audioDevice = copyConfigString(value);
                         } else if (isKeyEqualTo(key, "AUDIOBUFFERSIZE")) {
                             audioBufferSize = strToInt(value);
                         } else if (isKeyEqualTo(key, "AUDIOPREBUFFERCOUNT")) {
@@ -153,7 +161,7 @@ void Config::loadPath(Path path) {
                         } else if (isKeyEqualTo(key, "MAJORBEATNUMBER")) {
                             majorBeatNumber = strToInt(value);
                         } else if (isKeyEqualTo(key, "FONTTYPE")) {
-                            fontType = (char*)value;
+                            fontType = copyConfigString(value);
                         } else if (isKeyEqualTo(key, "SHOW_COLUMN_TITLES")) {
                             isColumnTitleEnabled = strToBool(value);
                         } else if (isKeyEqualTo(key, "DUMPEVENT")) {
@@ -165,17 +173,17 @@ void Config::loadPath(Path path) {
 
 #ifdef PLATFORM_CAANOO
 						} else if (isKeyEqualTo(key, "CAANOO_DSP")) {
-							caanooDsp = (char*)value;
+							caanooDsp = copyConfigString(value);
 						} else if (isKeyEqualTo(key, "CAANOO_MIXER")) {
-							caanooMixer = (char*)value;
+							caanooMixer = copyConfigString(value);
 						} else if (isKeyEqualTo(key, "CAANOO_MIDIDEVICE")) {
-							caanooMidiDevice = (char*)value;
+							caanooMidiDevice = copyConfigString(value);
 #endif
 #ifdef PLATFORM_GP2X
 						} else if (isKeyEqualTo(key, "GP2X_DSP")) {
-							gp2xDsp = (char*)value;
+							gp2xDsp = copyConfigString(value);
 						} else if (isKeyEqualTo(key, "GP2X_MIXER")) {
-							gp2xMixer = (char*)value;
+							gp2xMixer = copyConfigString(value);
 #endif								
                         } else {
                             Variable *v=new Variable(key,0,value) ;
@@ -193,7 +201,7 @@ void Config::loadPath(Path path) {
 }
 
 void Config::Load() {
-    Path path2("config2.xml");
+    Path path2(kUserConfigPath);
 	if (path2.Exists()) {
 		// load saved config file
 		loadPath(path2);
@@ -207,7 +215,7 @@ void Config::Load() {
 void Config::Save() {
     // save to config file
 
-    Path path("config2.xml");
+    Path path(kUserConfigPath);
     TiXmlDocument document(path.GetPath());
 	TiXmlElement *root = new TiXmlElement("CONFIG");
 	document.LinkEndChild(root);
@@ -345,13 +353,21 @@ void Config::Save() {
 		elem->SetAttribute("value", v.GetString());
 		root->LinkEndChild(elem);
 	}
+    delete iterator;
 
     document.SaveFile();
 }
 
 //------------------------------------------------------------------------------
 
-Config::~Config() {}
+Config::~Config() {
+    free(rootPath);
+    free(sampleLibPath);
+    free(midiControlDevice);
+    free(audioApi);
+    free(audioDevice);
+    free(fontType);
+}
 
 //------------------------------------------------------------------------------
 

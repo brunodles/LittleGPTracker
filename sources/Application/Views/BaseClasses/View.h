@@ -20,6 +20,10 @@
 #define VU_METER_CLIP_LEVEL 7
 #define VU_METER_WARN_LEVEL 5
 
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__MACH__)
+#define CONFIG_VIEW_ENABLED
+#endif
+
 enum GUIEventPadButtonMasks {
     EPBM_LEFT = 1,
     EPBM_DOWN = 2,
