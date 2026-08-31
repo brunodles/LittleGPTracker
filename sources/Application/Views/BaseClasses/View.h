@@ -20,6 +20,10 @@
 #define VU_METER_CLIP_LEVEL 7
 #define VU_METER_WARN_LEVEL 5
 
+#if !defined(_WIN32) && !defined(__APPLE__) && !defined(__MACH__)
+#define CONFIG_VIEW_ENABLED
+#endif
+
 enum GUIEventPadButtonMasks {
     EPBM_LEFT = 1,
     EPBM_DOWN = 2,
@@ -44,6 +48,9 @@ enum ViewType {
     VT_TABLE,  // Table screen under phrase
     VT_TABLE2, // Table screen under instrument
     VT_GROOVE,
+#ifdef CONFIG_VIEW_ENABLED
+    VT_CONFIG,
+#endif
     VT_MIXER
 };
 

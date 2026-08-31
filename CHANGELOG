@@ -1,3 +1,5 @@
+1.7.0-pork8
+    Create the Config view on top of Project view. The new View used for overall app configuration. Project configuration was split.
 
     Migrate W32 to SDL2, removing need for building in vs2008
 

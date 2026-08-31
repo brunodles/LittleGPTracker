@@ -133,6 +133,11 @@ void View::drawMap() {
 			pos._x+=2;
 	        DrawString(pos._x,pos._y,"G",props) ;
 			break;
+#ifdef CONFIG_VIEW_ENABLED
+        case VT_CONFIG:
+            DrawString(pos._x, pos._y - 1, "C", props);
+            break;
+#endif
         case VT_MIXER:
             pos._x+=1;
 			pos._y+=2;
@@ -141,9 +146,7 @@ void View::drawMap() {
 		default: //VT_SONG
 			pos._y+=1;
 	        DrawString(pos._x,pos._y,"S",props) ;
-			int foo=0;
 		}
-
 	}//!minilayout
 }
 

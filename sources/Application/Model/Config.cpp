@@ -1,66 +1,373 @@
 #include "Config.h"
+#include <ctype.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <string.h>
 
+/**
+ * Compares two strings for equality.
+ * @param key The first string to compare.
+ * @param value The second string to compare.
+ * @param caseSensitive Whether the comparison should be case-sensitive
+ * (default: false for case-insensitive).
+ * @return true if both strings are equal, false otherwise. Returns false if
+ * either string is null.
+ */
+inline bool isKeyEqualTo(const char* key, const char* value, bool caseSensitive = false) {
+	if (!key || !value) return false;
+	if (caseSensitive) {
+		return strcmp(key, value) == 0;
+	}
+	return strcasecmp(key, value) == 0;
+}
 
-Config::Config() 
-{
-	Path path("bin:config.xml") ;
-	Trace::Log("CONFIG","Got config path=%s",path.GetPath().c_str()) ;
+/**
+ * Converts a string to a boolean value.
+ * @param value The string to convert. Can be null or empty.
+ * @return true if value starts with 'Y', 'y', 'T', or 't', or equals "YES" or
+ * "TRUE" (case-insensitive). false otherwise.
+ */
+inline bool strToBool(const char* value) {
+    if (!value) return false;
+	char firstChar = tolower(value[0]);
+	if (firstChar == '1' || firstChar == 'y' || firstChar == 't') return true;
+    if (strcasecmp(value, "yes") == 0) return true;
+    if (strcasecmp(value, "true") == 0) return true;
+    return false;
+}
+
+/**
+ * Converts a string to an integer value.
+ * @param value The string to convert. Can be null or empty.
+ * @return The integer value parsed from the string using atoi().
+ *         Returns 0 if the string is null, empty, or not a valid integer.
+ */
+inline int strToInt(const char* value) {
+    if (!value) return 0;
+	return atoi(value);
+}
+
+inline char *copyConfigString(const char *value) {
+    return value ? strdup(value) : 0;
+}
+
+static const char *kUserConfigPath = "config2.xml";
+
+Config::Config() {
+    // initialize default values
+
+	// Screen
+	fullscreen = false;
+	screenMultiply = -1;
+	// Project
+	volume = -1;
+	rootPath = 0;
+    projectAutoLoadEnabled = true;
+	// Sample Configs
+	sampleLibPath = 0;
+	sampleChunkSize = -1;
+	// Wave File
+	wavePreListenAttenuation = true;
+	waveLegacyDownSampling = false;
+	// Midi
+	midiControlDevice = 0;
+    midiDelay = -1;
+	midiSendSync = false;
+	audioApi = 0;
+	audioDevice = 0;
+	audioBufferSize = -1;
+	audioPreBufferCount = -1;
+	// Wip Key/input Config
+	inputKeyDelay = -1;
+	inputKeyRepeat = -1;
+	inputKeyInvertTriggers = false;
+	// Theme
+	altRowNumber = 4;
+	majorBeatNumber = 4;
+	fontType = 0;
+    isColumnTitleEnabled = false;
+	// log
+	dumpEvent = false;
+
+    Load();
+}
+
+void Config::loadPath(Path path) {
+    Trace::Log("CONFIG","Got config path=%s",path.GetPath().c_str()) ;
 	TiXmlDocument *document=new TiXmlDocument(path.GetPath());
-	bool loadOkay = document->LoadFile();
+    bool loadOkay = document->LoadFile();
 
-	if (loadOkay) 
-  { 
-		// Check first node is CONFIG/ GPCONFIG
+    if (loadOkay) {
+        // Check first node is CONFIG/ GPCONFIG
 
 		TiXmlNode* rootnode = 0;
 
-		rootnode = document->FirstChild( "CONFIG" );
-		if (!rootnode)
-    {
-		   rootnode = document->FirstChild( "GPCONFIG" );
-    }
-    
-		if (rootnode)
-    {
+        rootnode = document->FirstChild("CONFIG");
+        if (!rootnode) {
+            rootnode = document->FirstChild("GPCONFIG");
+        }
+
+        if (rootnode) {
 			TiXmlElement *rootelement = rootnode->ToElement();
 			TiXmlNode *node = rootelement->FirstChildElement() ;
 
-			// Loop on all children
-		
-			if (node)
-      {
-				TiXmlElement *element = node->ToElement();
-				while (element) 
-        {
-					const char *key=element->Value() ;
-					const char *value=element->Attribute("value") ;
-					if (!value)
-          {
-						value=element->Attribute("VALUE") ;
-					}
-					if (key&&value)
-          {
-						Variable *v=new Variable(key,0,value) ;
-						Insert(v) ;
-					}
-					element = element->NextSiblingElement(); 
-				}
-			}
+            // Loop on all children
 
+            if (node) {
+                TiXmlElement *element = node->ToElement();
+                while (element) {
+                    const char *key = element->Value();
+                    const char *value=element->Attribute("value") ;
+                    if (!value) {
+                        value=element->Attribute("VALUE") ;
+                    }
+                    if (key && value) {
+                        if (isKeyEqualTo(key, "VOLUME")) {
+                            volume = strToInt(value);
+                        } else if (isKeyEqualTo(key, "ROOTFOLDER")) {
+                            rootPath = copyConfigString(value);
+                        } else if (isKeyEqualTo(key, "AUTO_LOAD_LAST")) {
+                            projectAutoLoadEnabled = strToBool(value);
+                        } else if (isKeyEqualTo(key, "SAMPLELIB")) {
+                            sampleLibPath = copyConfigString(value);
+                        } else if (isKeyEqualTo(key, "SAMPLELOADCHUNKSIZE")) {
+                            sampleChunkSize = strToInt(value);
+                        } else if (isKeyEqualTo(key, "PRELISTENATTENUATION")) {
+                            wavePreListenAttenuation = strToBool(value);
+                        } else if (isKeyEqualTo(key, "LEGACYDOWNSAMPLING")) {
+                            waveLegacyDownSampling = strToBool(value);
+                        } else if (isKeyEqualTo(key, "MIDICTRLDEVICE")) {
+                            midiControlDevice = copyConfigString(value);
+                        } else if (isKeyEqualTo(key, "MIDIDELAY")) {
+                            midiDelay = strToInt(value);
+                        } else if (isKeyEqualTo(key, "MIDISENDSYNC")) {
+                            midiSendSync = strToBool(value);
+                        } else if (isKeyEqualTo(key, "AUDIOAPI")) {
+                            audioApi = copyConfigString(value);
+                        } else if (isKeyEqualTo(key, "AUDIODEVICE")) {
+                            audioDevice = copyConfigString(value);
+                        } else if (isKeyEqualTo(key, "AUDIOBUFFERSIZE")) {
+                            audioBufferSize = strToInt(value);
+                        } else if (isKeyEqualTo(key, "AUDIOPREBUFFERCOUNT")) {
+                            audioPreBufferCount = strToInt(value);
+                        } else if (isKeyEqualTo(key, "KEYDELAY")) {
+                            inputKeyDelay = strToInt(value);
+                        } else if (isKeyEqualTo(key, "KEYREPEAT")) {
+                            inputKeyRepeat = strToInt(value);
+                        } else if (isKeyEqualTo(key, "INVERT")) {
+                            inputKeyInvertTriggers = strToBool(value);
+                        } else if (isKeyEqualTo(key, "ALTROWNUMBER")) {
+                            altRowNumber = strToInt(value);
+                        } else if (isKeyEqualTo(key, "MAJORBEATNUMBER")) {
+                            majorBeatNumber = strToInt(value);
+                        } else if (isKeyEqualTo(key, "FONTTYPE")) {
+                            fontType = copyConfigString(value);
+                        } else if (isKeyEqualTo(key, "SHOW_COLUMN_TITLES")) {
+                            isColumnTitleEnabled = strToBool(value);
+                        } else if (isKeyEqualTo(key, "DUMPEVENT")) {
+                            dumpEvent = strToBool(value);
+                        } else if (isKeyEqualTo(key, "FULLSCREEN")) {
+                            fullscreen = strToBool(value);
+                        } else if (isKeyEqualTo(key, "SCREENMULT")) {
+                            screenMultiply = strToInt(value);
+
+#ifdef PLATFORM_CAANOO
+						} else if (isKeyEqualTo(key, "CAANOO_DSP")) {
+							caanooDsp = copyConfigString(value);
+						} else if (isKeyEqualTo(key, "CAANOO_MIXER")) {
+							caanooMixer = copyConfigString(value);
+						} else if (isKeyEqualTo(key, "CAANOO_MIDIDEVICE")) {
+							caanooMidiDevice = copyConfigString(value);
+#endif
+#ifdef PLATFORM_GP2X
+						} else if (isKeyEqualTo(key, "GP2X_DSP")) {
+							gp2xDsp = copyConfigString(value);
+						} else if (isKeyEqualTo(key, "GP2X_MIXER")) {
+							gp2xMixer = copyConfigString(value);
+#endif								
+                        } else {
+                            Variable *v=new Variable(key,0,value) ;
+							Insert(v) ;
+                        }
+                    }
+                    element = element->NextSiblingElement();
+                }
+            }
     }
     } else {
-		Trace::Log("CONFIG","No (bad?) config.xml") ;
-	}
- 	delete(document) ;
+        Trace::Log("CONFIG", "No (bad?) config.xml");
+    }
+    delete(document) ;
 }
 
+void Config::Load() {
+    Path path2(kUserConfigPath);
+	if (path2.Exists()) {
+		// load saved config file
+		loadPath(path2);
+	} else {
+		// load default config file
+		Path path("bin:config.xml") ;
+		loadPath(path);
+	}
+}
+
+void Config::Save() {
+    // save to config file
+
+    Path path(kUserConfigPath);
+    TiXmlDocument document(path.GetPath());
+	TiXmlElement *root = new TiXmlElement("CONFIG");
+	document.LinkEndChild(root);
+
+	// Save all known configuration values
+	if (volume >= 0) {
+		TiXmlElement *elem = new TiXmlElement("VOLUME");
+		elem->SetAttribute("value", volume);
+		root->LinkEndChild(elem);
+	}
+
+    if (rootPath && strlen(rootPath) > 0) {
+		TiXmlElement *elem = new TiXmlElement("ROOTFOLDER");
+		elem->SetAttribute("value", rootPath);
+		root->LinkEndChild(elem);
+	}
+
+    TiXmlElement *elem = new TiXmlElement("AUTO_LOAD_LAST");
+	elem->SetAttribute("value", projectAutoLoadEnabled ? "true" : "false");
+	root->LinkEndChild(elem);
+
+    if (sampleLibPath != NULL && strlen(sampleLibPath) > 0) {
+        elem = new TiXmlElement("SAMPLELIB");
+		elem->SetAttribute("value", sampleLibPath);
+		root->LinkEndChild(elem);
+    }
+
+    if (sampleChunkSize >= 0) {
+		elem = new TiXmlElement("SAMPLELOADCHUNKSIZE");
+		elem->SetAttribute("value", sampleChunkSize);
+		root->LinkEndChild(elem);
+	}
+
+    elem = new TiXmlElement("PRELISTENATTENUATION");
+	elem->SetAttribute("value", wavePreListenAttenuation ? "true" : "false");
+	root->LinkEndChild(elem);
+
+	elem = new TiXmlElement("LEGACYDOWNSAMPLING");
+	elem->SetAttribute("value", waveLegacyDownSampling ? "true" : "false");
+	root->LinkEndChild(elem);
+
+    if (midiControlDevice != NULL && strlen(midiControlDevice) > 0) {
+        elem = new TiXmlElement("MIDICTRLDEVICE");
+		elem->SetAttribute("value", midiControlDevice);
+		root->LinkEndChild(elem);
+    }
+
+    if (midiDelay >= 0) {
+		elem = new TiXmlElement("MIDIDELAY");
+		elem->SetAttribute("value", midiDelay);
+		root->LinkEndChild(elem);
+	}
+
+    elem = new TiXmlElement("MIDISENDSYNC");
+	elem->SetAttribute("value", midiSendSync ? "true" : "false");
+	root->LinkEndChild(elem);
+
+    if (audioApi != NULL && strlen(audioApi) > 0) {
+        elem = new TiXmlElement("AUDIOAPI");
+		elem->SetAttribute("value", audioApi);
+		root->LinkEndChild(elem);
+    }
+
+    if (audioDevice != NULL && strlen(audioDevice) > 0) {
+        elem = new TiXmlElement("AUDIODEVICE");
+		elem->SetAttribute("value", audioDevice);
+		root->LinkEndChild(elem);
+    }
+
+    if (audioBufferSize >= 0) {
+		elem = new TiXmlElement("AUDIOBUFFERSIZE");
+		elem->SetAttribute("value", audioBufferSize);
+		root->LinkEndChild(elem);
+	}
+
+    if (audioPreBufferCount >= 0) {
+		elem = new TiXmlElement("AUDIOPREBUFFERCOUNT");
+		elem->SetAttribute("value", audioPreBufferCount);
+		root->LinkEndChild(elem);
+	}
+
+	if (inputKeyDelay >= 0) {
+		elem = new TiXmlElement("KEYDELAY");
+		elem->SetAttribute("value", inputKeyDelay);
+		root->LinkEndChild(elem);
+	}
+
+    if (inputKeyRepeat >= 0) {
+		elem = new TiXmlElement("KEYREPEAT");
+		elem->SetAttribute("value", inputKeyRepeat);
+		root->LinkEndChild(elem);
+	}
+
+    elem = new TiXmlElement("INVERT");
+	elem->SetAttribute("value", inputKeyInvertTriggers ? "true" : "false");
+	root->LinkEndChild(elem);
+
+	elem = new TiXmlElement("ALTROWNUMBER");
+	elem->SetAttribute("value", altRowNumber);
+	root->LinkEndChild(elem);
+
+	elem = new TiXmlElement("MAJORBEATNUMBER");
+	elem->SetAttribute("value", majorBeatNumber);
+	root->LinkEndChild(elem);
+
+    if (fontType != NULL && strlen(fontType) > 0) {
+        elem = new TiXmlElement("FONTTYPE");
+		elem->SetAttribute("value", fontType);
+		root->LinkEndChild(elem);
+    }
+
+    elem = new TiXmlElement("SHOW_COLUMN_TITLES");
+	elem->SetAttribute("value", isColumnTitleEnabled ? "true" : "false");
+	root->LinkEndChild(elem);
+
+	elem = new TiXmlElement("DUMPEVENT");
+	elem->SetAttribute("value", dumpEvent ? "true" : "false");
+	root->LinkEndChild(elem);
+
+	elem = new TiXmlElement("FULLSCREEN");
+	elem->SetAttribute("value", fullscreen ? "true" : "false");
+	root->LinkEndChild(elem);
+
+	if (screenMultiply >= 0) {
+		elem = new TiXmlElement("SCREENMULT");
+		elem->SetAttribute("value", screenMultiply);
+		root->LinkEndChild(elem);
+	}
+
+	// Save custom variables
+	I_Iterator<Variable> *iterator = GetIterator();
+	for (iterator->Begin(); !iterator->IsDone(); iterator->Next()) {
+		Variable v = iterator->CurrentItem();
+		elem = new TiXmlElement(v.GetName());
+		elem->SetAttribute("value", v.GetString());
+		root->LinkEndChild(elem);
+	}
+    delete iterator;
+
+    document.SaveFile();
+}
 
 //------------------------------------------------------------------------------
 
-Config::~Config()
-{
+Config::~Config() {
+    free(rootPath);
+    free(sampleLibPath);
+    free(midiControlDevice);
+    free(audioApi);
+    free(audioDevice);
+    free(fontType);
 }
-
 
 //------------------------------------------------------------------------------
 
@@ -94,6 +401,5 @@ void Config::ProcessArguments(int argc,char **argv)
 		}
 	}
 } ;
-
 
 //------------------------------------------------------------------------------
