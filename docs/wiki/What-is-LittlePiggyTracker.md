@@ -507,7 +507,7 @@ ARPG 4050: loops between original pitch, +4 semitones, +0 semitones, + 5 semiton
 
 ## HOP aabb
 
-**play position will jump to the next phrase in a chain, jumping directly at position bb in the phrase.**
+**play position will jump to the next phrase in a chain, jumping directly at position bb in the phrase, unless bb = FF, in which case the channel will be stopped**
 
 - hop is instant: instrument triggers and commands on the same row will be run.
 - no effect on instruments
