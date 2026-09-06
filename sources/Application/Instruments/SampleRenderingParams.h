@@ -4,6 +4,7 @@
 
 #include "Foundation/Types/Types.h"
 #include "SRPUpdaters.h"
+#include "VowelFilter.h"
 #include <vector>
 
 enum FeedbackMode {
@@ -63,6 +64,10 @@ struct renderParams {
 
 	std::vector<I_SRPUpdater *> updaters_ ;
 	std::vector<I_SRPUpdater *> activeUpdaters_ ;
+
+	VowelFilter vowelFilter_ ;
+	ushort vowelValue_ ;
+	bool vowelEnabled_ ;
 
 	VolumeRamp volumeRamp_ ;
 	Panner panner_ ;

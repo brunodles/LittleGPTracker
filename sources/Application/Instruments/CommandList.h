@@ -9,6 +9,7 @@
 #define I_CMD_LPOF MAKE_FOURCC('L','P','O','F')
 #define I_CMD_ARPG MAKE_FOURCC('A','R','P','G')
 #define I_CMD_VOLM MAKE_FOURCC('V','O','L','M')
+#define I_CMD_VOWL MAKE_FOURCC('V','O','W','L')
 #define I_CMD_PTCH MAKE_FOURCC('P','T','C','H')
 #define I_CMD_HOP  MAKE_FOURCC('H','O','P',' ')
 #define I_CMD_LEGA MAKE_FOURCC('L','E','G','A')

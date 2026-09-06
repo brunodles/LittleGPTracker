@@ -141,7 +141,10 @@ SampleInstrument::SampleInstrument() {
          rp->updaters_.push_back(&rp->speedRamp_);
          rp->updaters_.push_back(&rp->legato_);
          rp->updaters_.push_back(&rp->pfin_);
-	} ;
+         rp->vowelFilter_.Reset(44100.0f);
+         rp->vowelValue_ = 0;
+         rp->vowelEnabled_ = false;
+         } ;
 
  // Reset table state
 
@@ -334,6 +337,9 @@ bool SampleInstrument::Start(int channel, unsigned char midinote, int flags) {
 
 	rp->baseFbTun_=rp->fbTun_=fl2fp(fbTune_->GetInt()/255.0f) ; 
 	rp->baseFbMix_=rp->fbMix_=fl2fp(fbMix_->GetInt()/255.0f) ; 
+	rp->vowelFilter_.Reset(float(Audio::GetInstance()->GetSampleRate())) ;
+	rp->vowelValue_=0 ;
+	rp->vowelEnabled_=false ;
 
   // If we do a clean start (there was a instr number on the line)
 
@@ -939,8 +945,12 @@ bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
 						fltHeightPtr++ ;
 						fltSpeedPtr++ ;
 					}
+					// apply vowel eq before attenuation
+					if (rp->vowelEnabled_) {
+						s2 = fl2fp(rp->vowelFilter_.Process(fp2fl(s2))) ;
+					}
 					// apply attenuation
-					s2=fp_mul(s2,fpattenuate) ;
+						s2=fp_mul(s2,fpattenuate) ;
 				}
 
 				if (channelCount==1) {
@@ -1193,6 +1203,14 @@ void SampleInstrument::ProcessCommand(int channel,FourCC cc,ushort value) {
 					rp->volumeRamp_.Enable() ;
 					rp->activeUpdaters_.push_back(&rp->volumeRamp_) ;
 				}
+			}
+			break ;
+
+		case I_CMD_VOWL:
+			{
+				rp->vowelValue_ = value ;
+				rp->vowelFilter_.SetValue(value) ;
+				rp->vowelEnabled_ = rp->vowelFilter_.Enabled() ;
 			}
 			break ;
 

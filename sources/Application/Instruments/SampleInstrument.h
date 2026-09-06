@@ -4,6 +4,7 @@
 #include "I_Instrument.h"
 #include "SampleRenderingParams.h"
 #include "SRPUpdaters.h"
+#include "VowelFilter.h"
 
 #include "SoundSource.h"
 #include "Application/Model/Song.h" 
