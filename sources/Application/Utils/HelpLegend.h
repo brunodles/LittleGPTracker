@@ -31,7 +31,7 @@ static inline std::string* getHelpLegend(FourCC command) {
 		case I_CMD_VOWL:
 			result[0].assign("VOWL:vvii");
 			result[1].assign("vv = vowel morph");
-			result[2].assign("ii = intensity, 00 bypass");
+			result[2].assign("ii = dry/wet, FF full wet");
 			break;
 		case I_CMD_PTCH:
 			result[0].assign("PiTCH:aabb");
