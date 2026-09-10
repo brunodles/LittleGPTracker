@@ -48,7 +48,7 @@ public:
         }
 
         float wet = (band1_.Process(sample) + band2_.Process(sample)) * 0.5f;
-        return sample + (wet * amount_ * 0.75f);
+        return sample * (1.0f - amount_) + (wet * amount_ * 1.5f);
     }
 
 private:
