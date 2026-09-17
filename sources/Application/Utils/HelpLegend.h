@@ -1,6 +1,8 @@
 #ifndef _HELP_LEGEND_H_
 #define _HELP_LEGEND_H_
 
+#include "Application/Instruments/CommandList.h"
+#include <stdio.h>
 #include <string>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +10,27 @@
 static inline std::string* getHelpLegend(FourCC command) {
 	std::string* result = new std::string[3];
 	result[2].assign("bb at speed aa");
+	char *cmd = (char *)&command;
+	if ((cmd[0] == 'E') && (cmd[1] == 'Q') && (cmd[2] == 'F') &&
+	    (cmd[3] >= '1') && (cmd[3] <= '6')) {
+		int band = cmd[3] - '0';
+		char buffer[80];
+		sprintf(buffer, "EQF%d: band %d frequency", band, band);
+		result[0].assign(buffer);
+		result[1].assign("ffff = 20 Hz .. 20 kHz");
+		result[2].assign("hex value is mapped logarithmically");
+		return result;
+	}
+	if ((cmd[0] == 'E') && (cmd[1] == 'Q') && (cmd[2] == 'G') &&
+	    (cmd[3] >= '1') && (cmd[3] <= '6')) {
+		int band = cmd[3] - '0';
+		char buffer[80];
+		sprintf(buffer, "EQG%d: band %d gain/Q", band, band);
+		result[0].assign(buffer);
+		result[1].assign("ggqq = gain / Q");
+		result[2].assign("gg = -24..+24 dB, qq = Q");
+		return result;
+	}
 	switch (command) {
 		case I_CMD_KILL:
 			result[0].assign("KILl:--bb");

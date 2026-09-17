@@ -672,13 +672,8 @@ void TableView::processNormalButtonMask(unsigned short mask) {
                     NotifyObservers(&ve);
                 }
                 if (mask & EPBM_LEFT) {
-                    if (viewType_ == VT_TABLE2) {
-                        ViewType vt = VT_TABLE;
-                        ViewEvent ve(VET_SWITCH_VIEW, &vt);
-                        SetChanged();
-                        NotifyObservers(&ve);
-                    } else if (VT_TABLE) {
-                        ViewType vt = VT_MIXER;
+                    if (viewType_ == VT_TABLE) {
+                        ViewType vt = VT_INSTRUMENT;
                         ViewEvent ve(VET_SWITCH_VIEW, &vt);
                         SetChanged();
                         NotifyObservers(&ve);
@@ -686,7 +681,7 @@ void TableView::processNormalButtonMask(unsigned short mask) {
                 }
                 if (mask & EPBM_RIGHT) {
                     if (viewType_ == VT_TABLE) {
-                        ViewType vt = VT_TABLE2;
+                        ViewType vt = VT_MIXER;
                         ViewEvent ve(VET_SWITCH_VIEW, &vt);
                         SetChanged();
                         NotifyObservers(&ve);

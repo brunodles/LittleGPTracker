@@ -4,6 +4,7 @@
 
 #include "Foundation/Types/Types.h"
 #include "SRPUpdaters.h"
+#include "ParametricEQ.h"
 #include "VowelFilter.h"
 #include <vector>
 
@@ -68,6 +69,7 @@ struct renderParams {
 	VowelFilter vowelFilter_ ;
 	ushort vowelValue_ ;
 	bool vowelEnabled_ ;
+	EqUtils::ParametricEQ eq_ ;
 
 	VolumeRamp volumeRamp_ ;
 	Panner panner_ ;

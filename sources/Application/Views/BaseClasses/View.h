@@ -41,8 +41,8 @@ enum ViewType {
     VT_PHRASE,
     VT_PROJECT,
     VT_INSTRUMENT,
-    VT_TABLE,  // Table screen under phrase
-    VT_TABLE2, // Table screen under instrument
+    VT_EQUALIZER,
+    VT_TABLE, // Table screen right of instrument
     VT_GROOVE,
     VT_MIXER
 };

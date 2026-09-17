@@ -82,18 +82,18 @@ void View::drawMap() {
 
 		//draw entire map
 		SetColor(CD_HILITE1) ;
-    	char buffer[5] ;
+		char buffer[6] ;
 		props.invert_=true ;
 		//row1
 		sprintf(buffer,"P G ");
         DrawString(pos._x,pos._y,buffer,props) ;
 		pos._y++ ;		
 		//row2
-		sprintf(buffer,"SCPI");
+		sprintf(buffer,"SCPIT");
         DrawString(pos._x,pos._y,buffer,props) ;
 		pos._y++ ;		
 		//row3
-        sprintf(buffer, " MTT");
+        sprintf(buffer, " M E ");
         DrawString(pos._x,pos._y,buffer,props) ;
 
 		//draw current screen on map
@@ -115,19 +115,19 @@ void View::drawMap() {
 	        DrawString(pos._x,pos._y,"P",props) ;
 			break;
 		case VT_INSTRUMENT:
-			pos._x+=3;
-			pos._y+=1;
-	        DrawString(pos._x,pos._y,"I",props) ;
-			break;
-		case VT_TABLE: //under phrase
-			pos._x+=2;
-			pos._y+=2;
-	        DrawString(pos._x,pos._y,"T",props) ;
-			break;
-		case VT_TABLE2: //under instrument
-			pos._x+=3;
-			pos._y+=2;
-	        DrawString(pos._x,pos._y,"T",props) ;
+		    pos._x+=3;
+		    pos._y+=1;
+		DrawString(pos._x,pos._y,"I",props) ;
+		    break;
+		case VT_EQUALIZER:
+		    pos._x+=3;
+		    pos._y+=2;
+		DrawString(pos._x,pos._y,"E",props) ;
+		    break;
+		case VT_TABLE: //right of instrument
+		    pos._x+=4;
+		    pos._y+=1;
+		        DrawString(pos._x,pos._y,"T",props) ;
 			break;
 		case VT_GROOVE:
 			pos._x+=2;

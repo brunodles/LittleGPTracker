@@ -5,6 +5,7 @@
 #include "Application/Views/ChainView.h"
 #include "Application/Views/ConsoleView.h"
 #include "Application/Views/GrooveView.h"
+#include "Application/Views/EqualizerView.h"
 #include "Application/Views/InstrumentView.h"
 #include "Application/Views/MixerView.h"
 #include "Application/Views/NullView.h"
@@ -68,6 +69,7 @@ class AppWindow : public GUIWindow, I_Observer, Status {
     PhraseView *_phraseView;
     ProjectView *_projectView;
     InstrumentView *_instrumentView;
+    EqualizerView *_equalizerView;
     TableView *_tableView;
     GrooveView *_grooveView;
     NullView *_nullView;

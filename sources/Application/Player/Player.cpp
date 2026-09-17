@@ -4,6 +4,7 @@
 #include "System/System/System.h"
 #include "Application/Instruments/CommandList.h"
 #include "Application/Instruments/I_Instrument.h"
+#include "Application/Instruments/InstrumentBank.h"
 #include "Application/Utils/char.h"
 #include "System/Console/n_assert.h"
 #include "Application/Player/TablePlayback.h"
@@ -591,6 +592,18 @@ void Player::ProcessCommands() {
                 if (gs->TriggerChannel(
                         i)) { // If groove says it is time to play
                     int pos=viewData_->phrasePlayPos_[i];
+                    unsigned char instr =
+                        viewData_->song_->phrase_->instr_[phrase * 16 + pos];
+                    InstrumentBank *bank = viewData_->project_->GetInstrumentBank();
+                    I_Instrument *instrument = 0;
+                    if (instr != 0xFF) {
+                        instrument = bank->GetInstrument(instr);
+                    } else {
+                        instrument = mixer_->GetInstrument(i);
+                    }
+                    if (instrument == 0) {
+                        instrument = bank->GetInstrument(0);
+                    }
                     FourCC cc =
                         viewData_->song_->phrase_->cmd1_[phrase * 16 + pos];
                     ushort param =
@@ -601,7 +614,6 @@ void Player::ProcessCommands() {
 
                     if (cc != I_CMD_NONE) {
                         if (!ProcessChannelCommand(i, cc, param)) {
-                            I_Instrument *instrument = mixer_->GetInstrument(i);
                             if (instrument) {
                                 instrument->ProcessCommand(i, cc, param);
                             }
@@ -619,7 +631,6 @@ void Player::ProcessCommands() {
 
                     if (cc != I_CMD_NONE) {
                         if (!ProcessChannelCommand(i,cc,param)) {
-                            I_Instrument *instrument = mixer_->GetInstrument(i);
                             if (instrument) {
                                 instrument->ProcessCommand(i, cc, param);
                             }

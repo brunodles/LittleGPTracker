@@ -2,6 +2,7 @@
 #define _SAMPLE_INSTRUMENT_H_
 
 #include "I_Instrument.h"
+#include "CommandList.h"
 #include "SampleRenderingParams.h"
 #include "SRPUpdaters.h"
 #include "VowelFilter.h"
@@ -52,6 +53,7 @@ enum SampleInstrumentLoopMode {
 #define SIP_IR_WET MAKE_FOURCC('I', 'R', 'W', 'T')
 
 #define FB_BUFFER_LENGTH 3500 // (in samples)
+#define SAMPLE_EQ_BANDS 6
 
 class SampleInstrument: public I_Instrument,I_Observer {
 
@@ -98,6 +100,8 @@ protected:
 		void updateInstrumentData(bool search) ;
 		void doTickUpdate(int channel) ;
 		void doKRateUpdate(int channel) ;
+		void applyEqToVoice(renderParams *rp) ;
+		void applyEqBandToVoice(renderParams *rp,int band) ;
 		void updateFeedback(renderParams *rp) ;
 
 private:
@@ -123,6 +127,8 @@ private:
 	   Variable *drive_ ;
 	   Variable *fbMix_ ;
 	   Variable *fbTune_ ;
+	   Variable *eqFreq_[SAMPLE_EQ_BANDS] ;
+	   Variable *eqGainQ_[SAMPLE_EQ_BANDS] ;
 	   WatchedVariable *start_ ;
 	   WatchedVariable *loopStart_ ;
 	   WatchedVariable *loopEnd_ ;

@@ -118,6 +118,23 @@ SampleInstrument::SampleInstrument() {
 	 fbMix_=new Variable("feedback mix",SIP_FBMIX,0x00) ;
 	 Insert(fbMix_) ;
 
+	 static const FourCC eqFreqIds[SAMPLE_EQ_BANDS] = {
+	     I_CMD_EQF1, I_CMD_EQF2, I_CMD_EQF3, I_CMD_EQF4, I_CMD_EQF5,
+	     I_CMD_EQF6};
+	 static const FourCC eqGainIds[SAMPLE_EQ_BANDS] = {
+	     I_CMD_EQG1, I_CMD_EQG2, I_CMD_EQG3, I_CMD_EQG4, I_CMD_EQG5,
+	     I_CMD_EQG6};
+	 for (int i = 0; i < SAMPLE_EQ_BANDS; ++i) {
+	     char name[32];
+	     sprintf(name, "eq freq %d", i + 1);
+	     eqFreq_[i] = new Variable(name, eqFreqIds[i], 0x8000, 0xFFFF);
+	     Insert(eqFreq_[i]);
+
+	     sprintf(name, "eq gain/q %d", i + 1);
+	     eqGainQ_[i] = new Variable(name, eqGainIds[i], 0x8080, 0xFFFF);
+	     Insert(eqGainQ_[i]);
+	 }
+
      printFx_ = new Variable("print fx", SIP_PRINTFX, fxPresets, 4, 3);
      Insert(printFx_);
 
@@ -169,10 +186,28 @@ void SampleInstrument::OnStart() {
 	tableState_.Reset() ;
 } ;
 
+void SampleInstrument::applyEqBandToVoice(renderParams *rp,int band) {
+	if (!rp) return ;
+	if ((band<0)||(band>=SAMPLE_EQ_BANDS)) return ;
+	unsigned short freqRaw=(unsigned short)eqFreq_[band]->GetInt() ;
+	unsigned short gainQRaw=(unsigned short)eqGainQ_[band]->GetInt() ;
+	float gainDb=0.0f ;
+	float q=0.0f ;
+	EqUtils::DecodeGainQ(gainQRaw,gainDb,q) ;
+	rp->eq_.SetBand(band,EqUtils::DecodeFrequency(freqRaw),gainDb,q) ;
+} ;
+
+void SampleInstrument::applyEqToVoice(renderParams *rp) {
+	if (!rp) return ;
+	rp->eq_.Reset(float(Audio::GetInstance()->GetSampleRate())) ;
+	for (int band=0; band<SAMPLE_EQ_BANDS; ++band) {
+		applyEqBandToVoice(rp,band) ;
+	}
+} ;
+
 bool SampleInstrument::Start(int channel, unsigned char midinote, int flags) {
     bool cleanstart = flags & 1;
-
-    // Look if we're dirty & need to update this instrument's data
+	// Look if we're dirty & need to update this instrument's data
 
   if (dirty_) 
   {
@@ -340,6 +375,8 @@ bool SampleInstrument::Start(int channel, unsigned char midinote, int flags) {
 	rp->vowelFilter_.Reset(float(Audio::GetInstance()->GetSampleRate())) ;
 	rp->vowelValue_=0 ;
 	rp->vowelEnabled_=false ;
+	rp->eq_.Reset(float(Audio::GetInstance()->GetSampleRate())) ;
+	applyEqToVoice(rp) ;
 
   // If we do a clean start (there was a instr number on the line)
 
@@ -948,6 +985,7 @@ bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
 				if (rp->vowelEnabled_) {
 						s2 = fl2fp(rp->vowelFilter_.Process(fp2fl(s2))) ;
 					}
+					s2 = fl2fp(rp->eq_.Process(fp2fl(s2))) ;
 					s2=fp_mul(s2,fpattenuate) ;
 
 				if (channelCount==1) {
@@ -1095,6 +1133,29 @@ void SampleInstrument::ProcessCommand(int channel,FourCC cc,ushort value) {
 	
  	renderParams *rp=renderParams_+channel ;
 	if (!source_) return ;
+
+	char *cmd=(char *)&cc ;
+	if ((cmd[0]=='E') && (cmd[1]=='Q') && (cmd[3]>='1') && (cmd[3]<='6')) {
+		int band=cmd[3]-'1' ;
+		if (cmd[2]=='F') {
+			eqFreq_[band]->SetInt(value) ;
+			for (int i=0; i<SONG_CHANNEL_COUNT; ++i) {
+				applyEqBandToVoice(renderParams_+i,band) ;
+			}
+			SetChanged() ;
+			NotifyObservers() ;
+			return ;
+		}
+		if (cmd[2]=='G') {
+			eqGainQ_[band]->SetInt(value) ;
+			for (int i=0; i<SONG_CHANNEL_COUNT; ++i) {
+				applyEqBandToVoice(renderParams_+i,band) ;
+			}
+			SetChanged() ;
+			NotifyObservers() ;
+			return ;
+		}
+	}
 
 	switch(cc) {
     case I_CMD_LPOF: {

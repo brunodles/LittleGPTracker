@@ -409,23 +409,30 @@ void InstrumentView::ProcessButtonMask(unsigned short mask,bool pressed) {
                     NotifyObservers(&ve);
                 }
 
-                if (mask & EPBM_DOWN) {
-
-                    // Go to table view
-
-                    ViewType vt = VT_TABLE2;
-
+                if (mask & (EPBM_DOWN | EPBM_RIGHT)) {
                     int i = viewData_->currentInstrument_;
                     InstrumentBank *bank =
                         viewData_->project_->GetInstrumentBank();
                     I_Instrument *instr = bank->GetInstrument(i);
-                    int table = instr->GetTable();
-                    if (table != VAR_OFF) {
-                        viewData_->currentTable_ = table;
+                    if (mask & EPBM_RIGHT) {
+                        // Go to table view
+                        ViewType vt = VT_TABLE;
+                        int table = instr->GetTable();
+                        if (table != VAR_OFF) {
+                            viewData_->currentTable_ = table;
+                        }
+                        ViewEvent ve(VET_SWITCH_VIEW, &vt);
+                        SetChanged();
+                        NotifyObservers(&ve);
                     }
-                    ViewEvent ve(VET_SWITCH_VIEW, &vt);
-                    SetChanged();
-                    NotifyObservers(&ve);
+                    if (mask & EPBM_DOWN) {
+                        if (instr->GetType() == IT_SAMPLE) {
+                            ViewType vt = VT_EQUALIZER;
+                            ViewEvent ve(VET_SWITCH_VIEW, &vt);
+                            SetChanged();
+                            NotifyObservers(&ve);
+                        }
+                    }
                 }
 
                 // if (mask&EPBM_RIGHT) {
