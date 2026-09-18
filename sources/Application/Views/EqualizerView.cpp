@@ -3,6 +3,7 @@
 #include "Application/Instruments/MidiInstrument.h"
 #include "Application/Instruments/SampleInstrument.h"
 #include "Application/Instruments/InstrumentBank.h"
+#include "Application/AppWindow.h"
 #include "BaseClasses/UIActionField.h"
 #include "BaseClasses/UIBigHexVarField.h"
 #include "BaseClasses/UIStaticField.h"
@@ -36,6 +37,86 @@ static void formatGainQ(unsigned short raw, char *buffer, int size) {
     EqUtils::DecodeGainQ(raw, gainDb, q);
     snprintf(buffer, size, "Gain %+0.1f dB  Q %0.2f", gainDb, q);
 }
+
+class UIEqByteField : public UIField {
+public:
+    UIEqByteField(GUIPoint &position, Variable &src, bool highByte, int bandIndex,
+                  const char *label)
+        : UIField(position), src_(src), highByte_(highByte), nibblePos_(0),
+          bandIndex_(bandIndex), label_(label) {}
+
+    virtual void Draw(GUIWindow &w, int offset = 0) {
+        GUITextProperties props;
+        GUIPoint position = GetPosition();
+        position._y += offset;
+
+        if (focus_) {
+            ((AppWindow &)w).SetColor(CD_HILITE2);
+            props.invert_ = true;
+        } else {
+            ((AppWindow &)w).SetColor(CD_NORMAL);
+        }
+
+        unsigned short packed = (unsigned short)src_.GetInt();
+        int byteValue = highByte_ ? ((packed >> 8) & 0xFF) : (packed & 0xFF);
+
+        char buffer[8];
+        snprintf(buffer, sizeof(buffer), "%2.2X", byteValue);
+        w.DrawString(buffer, position, props);
+
+        int markerOffset = (nibblePos_ == 0) ? 1 : 0;
+        GUIPoint markerPos(position._x + markerOffset, position._y);
+        ((AppWindow &)w).SetColor(CD_NORMAL);
+        w.DrawString(buffer + markerOffset, markerPos, props);
+    }
+
+    virtual void ProcessArrow(unsigned short mask) {
+        unsigned short packed = (unsigned short)src_.GetInt();
+        int byteValue = highByte_ ? ((packed >> 8) & 0xFF) : (packed & 0xFF);
+        int delta = (nibblePos_ == 0) ? 1 : 0x10;
+
+        switch (mask) {
+        case EPBM_LEFT:
+            nibblePos_ = 1;
+            return;
+        case EPBM_RIGHT:
+            nibblePos_ = 0;
+            return;
+        case EPBM_UP:
+            byteValue += delta;
+            break;
+        case EPBM_DOWN:
+            byteValue -= delta;
+            break;
+        }
+
+        if (byteValue < 0) {
+            byteValue = 0;
+        }
+        if (byteValue > 0xFF) {
+            byteValue = 0xFF;
+        }
+
+        if (highByte_) {
+            packed = (unsigned short)((packed & 0x00FF) | (byteValue << 8));
+        } else {
+            packed = (unsigned short)((packed & 0xFF00) | byteValue);
+        }
+        src_.SetInt(packed);
+    }
+
+    virtual void OnClick() {}
+
+    int GetBandIndex() const { return bandIndex_; }
+    const char *GetLabel() const { return label_; }
+
+private:
+    Variable &src_;
+    bool highByte_;
+    int nibblePos_;
+    int bandIndex_;
+    const char *label_;
+};
 } // namespace
 
 EqualizerView::EqualizerView(GUIWindow &w, ViewData *data)
@@ -100,6 +181,15 @@ void EqualizerView::describeFocus(char *line1, char *line2, int size) {
         }
     }
 
+    UIEqByteField *byteField = dynamic_cast<UIEqByteField *>(focus);
+    if (byteField) {
+        snprintf(line1, size, "Band %d %s", byteField->GetBandIndex() + 1,
+                 byteField->GetLabel());
+        snprintf(line2, size, "2-digit edit (%s byte)",
+                 !strcmp(byteField->GetLabel(), "Q") ? "low" : "high");
+        return;
+    }
+
     UIIntVarField *field = dynamic_cast<UIIntVarField *>(focus);
     if (!field) {
         snprintf(line1, size, "Band selection");
@@ -137,6 +227,24 @@ void EqualizerView::fillParameters() {
     SampleInstrument *instrument = (SampleInstrument *)current_;
     GUIPoint position = GetAnchor();
 
+    UIStaticField *headerBand = new UIStaticField(position, "B");
+    T_SimpleList<UIField>::Insert(headerBand);
+
+    GUIPoint headerPos = position;
+    headerPos._x += 4;
+    UIStaticField *headerFreq = new UIStaticField(headerPos, "FREQ");
+    T_SimpleList<UIField>::Insert(headerFreq);
+
+    headerPos._x += 6;
+    UIStaticField *headerGain = new UIStaticField(headerPos, "GAIN");
+    T_SimpleList<UIField>::Insert(headerGain);
+
+    headerPos._x += 5;
+    UIStaticField *headerQ = new UIStaticField(headerPos, "Q");
+    T_SimpleList<UIField>::Insert(headerQ);
+
+    position._y += 1;
+
     for (int band = 0; band < EqUtils::kEqBandCount; ++band) {
         static const char *bandNames[EqUtils::kEqBandCount] = {
             "B1", "B2", "B3", "B4", "B5", "B6"};
@@ -147,14 +255,19 @@ void EqualizerView::fillParameters() {
         fieldPos._x += 4;
         Variable *freq = instrument->FindVariable(kEqFreqIds[band]);
         UIBigHexVarField *freqField =
-            new UIBigHexVarField(fieldPos, *freq, 4, "freq: %4.4X", 0, 0xFFFF, 16);
+            new UIBigHexVarField(fieldPos, *freq, 4, "%4.4X", 0, 0xFFFF, 16);
         T_SimpleList<UIField>::Insert(freqField);
 
-        fieldPos._x += 11;
+        fieldPos._x += 6;
         Variable *gainQ = instrument->FindVariable(kEqGainIds[band]);
-        UIBigHexVarField *gainField = new UIBigHexVarField(
-            fieldPos, *gainQ, 4, "gain/q: %4.4X", 0, 0xFFFF, 16);
+        UIEqByteField *gainField =
+            new UIEqByteField(fieldPos, *gainQ, true, band, "Gain");
         T_SimpleList<UIField>::Insert(gainField);
+
+        fieldPos._x += 5;
+        UIEqByteField *qField =
+            new UIEqByteField(fieldPos, *gainQ, false, band, "Q");
+        T_SimpleList<UIField>::Insert(qField);
 
         position._y += 1;
     }
