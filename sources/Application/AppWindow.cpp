@@ -156,19 +156,43 @@ AppWindow::~AppWindow() { MidiService::GetInstance()->Close(); }
 void AppWindow::DrawString(const char *string, GUIPoint &pos,
                            GUITextProperties &props, bool force) {
 
-    // we know we don't have mode than 40 chars
+    if (!string) {
+        return;
+    }
+
+    if (pos._y < 0 || pos._y >= 30) {
+        return;
+    }
+
+    int startX = pos._x;
+    int offset = 0;
+    if (startX < 0) {
+        offset = -startX;
+        startX = 0;
+    }
+    if (startX >= 40) {
+        return;
+    }
+
+    int totalLen = (int)strlen(string);
+    if (offset >= totalLen) {
+        return;
+    }
+
+    int len = totalLen - offset;
+    int available = 40 - startX;
+    if (len > available) {
+        len = available;
+    }
+    if (len <= 0) {
+        return;
+    }
 
     char buffer[41];
-    int len = strlen(string);
-    int offset = (pos._x < 0) ? -pos._x / 8 : 0;
-    len -= offset;
-    int available = 40 - ((pos._x < 0) ? 0 : pos._x);
-    len = MIN(len, available);
     memcpy(buffer, string + offset, len);
     buffer[len] = 0;
 
-    NAssert((pos._x < 40) && (pos._y < 30));
-    int index = pos._x + 40 * pos._y;
+    int index = startX + 40 * pos._y;
     memcpy(_charScreen + index, buffer, len);
     unsigned char prop = colorIndex_ + (props.invert_ ? PROP_INVERT : 0);
     memset(_charScreenProp + index, prop, len);
