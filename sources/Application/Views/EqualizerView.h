@@ -28,6 +28,7 @@ private:
     int getBandIndex(FourCC id, bool *isGainQ = 0) const;
     void savePresetSlot();
     void applyPresetSlot();
+    void purgePresetSlot();
 
 private:
     Project *project_;

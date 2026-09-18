@@ -109,7 +109,7 @@ void EqualizerView::fillParameters() {
     }
 
     SampleInstrument *instrument = (SampleInstrument *)current_;
-    GUIPoint position(2, 4);
+    GUIPoint position = GetAnchor();
 
     for (int band = 0; band < EqUtils::kEqBandCount; ++band) {
         static const char *bandNames[EqUtils::kEqBandCount] = {
@@ -203,6 +203,18 @@ void EqualizerView::applyPresetSlot() {
     isDirty_ = true;
 }
 
+void EqualizerView::purgePresetSlot() {
+    EqPreset preset;
+    if (!project_->GetEqPreset(presetSlot_, preset)) {
+        View::SetNotification("Preset slot already empty");
+        return;
+    }
+
+    project_->RemoveEqPreset(presetSlot_);
+    View::SetNotification("EQ preset slot purged");
+    isDirty_ = true;
+}
+
 void EqualizerView::onInstrumentChange() {
     ClearFocus();
 
@@ -239,6 +251,10 @@ void EqualizerView::ProcessButtonMask(unsigned short mask, bool pressed) {
     }
 
     if (mask & EPBM_L) {
+        if (mask & EPBM_B) {
+            purgePresetSlot();
+            return;
+        }
         if (mask & EPBM_LEFT) {
             presetSlot_--;
             if (presetSlot_ < 0) {
@@ -332,7 +348,7 @@ void EqualizerView::DrawView() {
     DrawString(pos._x, pos._y, presetLine, props);
     pos._y += 1;
     SetColor(CD_NORMAL);
-    DrawString(pos._x, pos._y, "L+LEFT/RIGHT slot  L+UP save  L+DOWN load", props);
+    DrawString(pos._x, pos._y, "L+LEFT/RIGHT slot  L+UP save  L+DOWN load  L+B purge", props);
 
     if (current_ && current_->GetType() == IT_SAMPLE) {
         FieldView::Redraw();
