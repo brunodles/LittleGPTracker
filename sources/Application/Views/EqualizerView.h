@@ -26,11 +26,14 @@ private:
     void renderHelpLine(const char *line1, const char *line2);
     void describeFocus(char *line1, char *line2, int size);
     int getBandIndex(FourCC id, bool *isGainQ = 0) const;
+    void savePresetSlot();
+    void applyPresetSlot();
 
 private:
     Project *project_;
     I_Instrument *current_;
     FourCC lastFocusID_;
+    int presetSlot_;
 };
 
 #endif

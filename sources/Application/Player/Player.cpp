@@ -613,7 +613,7 @@ void Player::ProcessCommands() {
                     // player then pass it on to the instrument
 
                     if (cc != I_CMD_NONE) {
-                        if (!ProcessChannelCommand(i, cc, param)) {
+                        if (!ProcessChannelCommand(i, cc, param, instrument)) {
                             if (instrument) {
                                 instrument->ProcessCommand(i, cc, param);
                             }
@@ -630,7 +630,7 @@ void Player::ProcessCommands() {
                     // player then pass it on to the instrument
 
                     if (cc != I_CMD_NONE) {
-                        if (!ProcessChannelCommand(i,cc,param)) {
+                        if (!ProcessChannelCommand(i,cc,param,instrument)) {
                             if (instrument) {
                                 instrument->ProcessCommand(i, cc, param);
                             }
@@ -642,9 +642,13 @@ void Player::ProcessCommands() {
     }
 }
 
-bool Player::ProcessChannelCommand(int channel, FourCC cmd, ushort param) {
+bool Player::ProcessChannelCommand(int channel, FourCC cmd, ushort param,
+                                   I_Instrument *resolvedInstrument) {
 
-    I_Instrument *instr = mixer_->GetInstrument(channel);
+    I_Instrument *instr = resolvedInstrument;
+    if (!instr) {
+        instr = mixer_->GetInstrument(channel);
+    }
 
     switch (cmd) {
     case I_CMD_KILL:
@@ -668,6 +672,31 @@ bool Player::ProcessChannelCommand(int channel, FourCC cmd, ushort param) {
         param = param & 0x7F;
         Table &table = th->GetTable(param);
         tpb.Start(instr, table, false);
+        return true;
+        break;
+    }
+    case I_CMD_EQPS: {
+        if (!instr || instr->GetType() != IT_SAMPLE) {
+            return true;
+        }
+        int slot = project_->FindEqPresetById(param);
+        if (slot < 0) {
+            return true;
+        }
+        EqPreset preset;
+        if (!project_->GetEqPreset(slot, preset)) {
+            return true;
+        }
+        const FourCC eqFreqCmd[EQ_PRESET_BANDS] = {
+            I_CMD_EQF1, I_CMD_EQF2, I_CMD_EQF3,
+            I_CMD_EQF4, I_CMD_EQF5, I_CMD_EQF6};
+        const FourCC eqGainCmd[EQ_PRESET_BANDS] = {
+            I_CMD_EQG1, I_CMD_EQG2, I_CMD_EQG3,
+            I_CMD_EQG4, I_CMD_EQG5, I_CMD_EQG6};
+        for (int i = 0; i < EQ_PRESET_BANDS; i++) {
+            instr->ProcessCommand(channel, eqFreqCmd[i], preset.bands[i].frequency);
+            instr->ProcessCommand(channel, eqGainCmd[i], preset.bands[i].gainQ);
+        }
         return true;
         break;
     }

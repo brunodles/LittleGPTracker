@@ -33,6 +33,7 @@
 #define I_CMD_EQG5 MAKE_FOURCC('E','Q','G','5')
 #define I_CMD_EQF6 MAKE_FOURCC('E','Q','F','6')
 #define I_CMD_EQG6 MAKE_FOURCC('E','Q','G','6')
+#define I_CMD_EQPS MAKE_FOURCC('E','q','P','s')
 #define I_CMD_TABL MAKE_FOURCC('T','A','B','L')
 #define I_CMD_CRSH MAKE_FOURCC('C','R','S','H')
 #define I_CMD_FCUT MAKE_FOURCC('F','C','U','T')

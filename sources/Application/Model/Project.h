@@ -24,6 +24,21 @@
 #define BUILD_COUNT "0-bacon20"
 
 #define MAX_TAP 3
+#define EQ_PRESET_BANDS 6
+#define MAX_EQ_PRESET_COUNT 32
+#define EQ_PRESET_NAME_MAX 16
+
+struct EqPresetBand {
+  unsigned short frequency;
+  unsigned short gainQ;
+};
+
+struct EqPreset {
+  bool used;
+  unsigned short id;
+  char name[EQ_PRESET_NAME_MAX + 1];
+  EqPresetBand bands[EQ_PRESET_BANDS];
+};
 
 class Project: public Persistent,public VariableContainer,I_Observer  {
 public:
@@ -52,6 +67,15 @@ public:
   virtual void Update(Observable &o, I_ObservableData *d);
 
   InstrumentBank *GetInstrumentBank();
+
+  int GetEqPresetCount() const;
+  bool GetEqPreset(int index, EqPreset &out) const;
+  bool SetEqPreset(int index, const EqPreset &preset);
+  bool RemoveEqPreset(int index);
+  bool RenameEqPreset(int index, const char *name);
+  int FindEqPresetById(unsigned short id) const;
+  unsigned short AllocateEqPresetId();
+
   virtual void SaveContent(TiXmlNode *node);
   virtual void RestoreContent(TiXmlElement *element);
 
@@ -67,5 +91,8 @@ private:
   int tempoNudge_;
   unsigned long lastTap_[MAX_TAP];
   unsigned int tempoTapCount_;
+
+  EqPreset eqPresets_[MAX_EQ_PRESET_COUNT];
+  unsigned short nextEqPresetId_;
 };
 #endif

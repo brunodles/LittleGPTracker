@@ -34,7 +34,8 @@ static void formatGainQ(unsigned short raw, char *buffer, int size) {
 } // namespace
 
 EqualizerView::EqualizerView(GUIWindow &w, ViewData *data)
-    : FieldView(w, data), project_(data->project_), current_(0), lastFocusID_(0) {
+    : FieldView(w, data), project_(data->project_), current_(0), lastFocusID_(0),
+      presetSlot_(0) {
     onInstrumentChange();
 }
 
@@ -133,6 +134,75 @@ void EqualizerView::fillParameters() {
     }
 }
 
+void EqualizerView::savePresetSlot() {
+    if (!current_ || current_->GetType() != IT_SAMPLE) {
+        View::SetNotification("EQ preset requires sample instrument");
+        return;
+    }
+
+    EqPreset preset;
+    memset(&preset, 0, sizeof(preset));
+    EqPreset existing;
+    if (project_->GetEqPreset(presetSlot_, existing)) {
+        preset = existing;
+    }
+
+    preset.used = true;
+    if (!preset.id) {
+        preset.id = project_->AllocateEqPresetId();
+    }
+    if (!preset.name[0]) {
+        snprintf(preset.name, EQ_PRESET_NAME_MAX + 1, "EQ %02X", presetSlot_);
+    }
+
+    for (int band = 0; band < EQ_PRESET_BANDS; ++band) {
+        Variable *freq = current_->FindVariable(kEqFreqIds[band]);
+        Variable *gain = current_->FindVariable(kEqGainIds[band]);
+        preset.bands[band].frequency = freq ? (unsigned short)freq->GetInt() : 0;
+        preset.bands[band].gainQ = gain ? (unsigned short)gain->GetInt() : 0;
+    }
+
+    project_->SetEqPreset(presetSlot_, preset);
+    char msg[80];
+    snprintf(msg, sizeof(msg), "Saved EqPreset %4.4X", preset.id);
+    View::SetNotification(msg);
+    isDirty_ = true;
+}
+
+void EqualizerView::applyPresetSlot() {
+    if (!current_ || current_->GetType() != IT_SAMPLE) {
+        View::SetNotification("EQ preset requires sample instrument");
+        return;
+    }
+
+    EqPreset preset;
+    if (!project_->GetEqPreset(presetSlot_, preset)) {
+        View::SetNotification("Preset slot is empty");
+        return;
+    }
+
+    for (int band = 0; band < EQ_PRESET_BANDS; ++band) {
+        Variable *freq = current_->FindVariable(kEqFreqIds[band]);
+        Variable *gain = current_->FindVariable(kEqGainIds[band]);
+        if (freq) {
+            freq->SetInt(preset.bands[band].frequency);
+        }
+        if (gain) {
+            gain->SetInt(preset.bands[band].gainQ);
+        }
+        current_->ProcessCommand(0, kEqFreqIds[band], preset.bands[band].frequency);
+        current_->ProcessCommand(0, kEqGainIds[band], preset.bands[band].gainQ);
+    }
+
+    current_->SetChanged();
+    current_->NotifyObservers();
+
+    char msg[80];
+    snprintf(msg, sizeof(msg), "Applied EqPreset %4.4X", preset.id);
+    View::SetNotification(msg);
+    isDirty_ = true;
+}
+
 void EqualizerView::onInstrumentChange() {
     ClearFocus();
 
@@ -155,9 +225,9 @@ void EqualizerView::onInstrumentChange() {
 
     IteratorPtr<UIField> it(T_SimpleList<UIField>::GetIterator());
     for (it->Begin(); !it->IsDone(); it->Next()) {
-        UIIntVarField &field = (UIIntVarField &)it->CurrentItem();
-        if (field.GetVariableID() == lastFocusID_) {
-            SetFocus(&field);
+        UIIntVarField *field = dynamic_cast<UIIntVarField *>(&it->CurrentItem());
+        if (field && field->GetVariableID() == lastFocusID_) {
+            SetFocus(field);
             break;
         }
     }
@@ -166,6 +236,33 @@ void EqualizerView::onInstrumentChange() {
 void EqualizerView::ProcessButtonMask(unsigned short mask, bool pressed) {
     if (!pressed) {
         return;
+    }
+
+    if (mask & EPBM_L) {
+        if (mask & EPBM_LEFT) {
+            presetSlot_--;
+            if (presetSlot_ < 0) {
+                presetSlot_ = MAX_EQ_PRESET_COUNT - 1;
+            }
+            isDirty_ = true;
+            return;
+        }
+        if (mask & EPBM_RIGHT) {
+            presetSlot_++;
+            if (presetSlot_ >= MAX_EQ_PRESET_COUNT) {
+                presetSlot_ = 0;
+            }
+            isDirty_ = true;
+            return;
+        }
+        if (mask & EPBM_UP) {
+            savePresetSlot();
+            return;
+        }
+        if (mask & EPBM_DOWN) {
+            applyPresetSlot();
+            return;
+        }
     }
 
     if (mask & EPBM_R) {
@@ -221,6 +318,21 @@ void EqualizerView::DrawView() {
     pos._y += 1;
     SetColor(CD_NORMAL);
     DrawString(pos._x, pos._y, help2, props);
+
+    char presetLine[80];
+    EqPreset preset;
+    if (project_->GetEqPreset(presetSlot_, preset)) {
+        snprintf(presetLine, sizeof(presetLine), "P%02X id:%4.4X %s", presetSlot_,
+                 preset.id, preset.name);
+    } else {
+        snprintf(presetLine, sizeof(presetLine), "P%02X <empty>", presetSlot_);
+    }
+    pos._y += 1;
+    SetColor(CD_HILITE1);
+    DrawString(pos._x, pos._y, presetLine, props);
+    pos._y += 1;
+    SetColor(CD_NORMAL);
+    DrawString(pos._x, pos._y, "L+LEFT/RIGHT slot  L+UP save  L+DOWN load", props);
 
     if (current_ && current_->GetType() == IT_SAMPLE) {
         FieldView::Redraw();

@@ -14,11 +14,13 @@
 
 #include "ProjectDatas.h"
 #include <math.h>
+#include <string.h>
 
 Project::Project()
 :Persistent("PROJECT")
 ,midiDeviceList_(0),
-tempoNudge_(0)
+tempoNudge_(0),
+nextEqPresetId_(1)
 {
     WatchedVariable *tempo = new WatchedVariable("tempo", VAR_TEMPO, 138);
     this->Insert(tempo);
@@ -66,6 +68,16 @@ tempoNudge_(0)
 	Groove::GetInstance()->Clear() ;
 
 	tempoTapCount_=0 ;
+
+	for (int i = 0; i < MAX_EQ_PRESET_COUNT; i++) {
+		eqPresets_[i].used = false;
+		eqPresets_[i].id = 0;
+		eqPresets_[i].name[0] = 0;
+		for (int b = 0; b < EQ_PRESET_BANDS; b++) {
+			eqPresets_[i].bands[b].frequency = 0;
+			eqPresets_[i].bands[b].gainQ = 0;
+		}
+	}
 
 	Status::Set("About to load project") ;
 
@@ -153,6 +165,97 @@ bool Project::Wrap() {
 InstrumentBank* Project::GetInstrumentBank() {
 	return instrumentBank_ ;
 } ;
+
+int Project::GetEqPresetCount() const {
+	int count = 0;
+	for (int i = 0; i < MAX_EQ_PRESET_COUNT; i++) {
+		if (eqPresets_[i].used) {
+			count++;
+		}
+	}
+	return count;
+}
+
+bool Project::GetEqPreset(int index, EqPreset &out) const {
+	if (index < 0 || index >= MAX_EQ_PRESET_COUNT) {
+		return false;
+	}
+	if (!eqPresets_[index].used) {
+		return false;
+	}
+	out = eqPresets_[index];
+	return true;
+}
+
+bool Project::SetEqPreset(int index, const EqPreset &preset) {
+	if (index < 0 || index >= MAX_EQ_PRESET_COUNT) {
+		return false;
+	}
+
+	eqPresets_[index] = preset;
+	eqPresets_[index].used = true;
+	eqPresets_[index].name[EQ_PRESET_NAME_MAX] = 0;
+	if (!eqPresets_[index].id) {
+		eqPresets_[index].id = AllocateEqPresetId();
+	}
+	return true;
+}
+
+bool Project::RemoveEqPreset(int index) {
+	if (index < 0 || index >= MAX_EQ_PRESET_COUNT) {
+		return false;
+	}
+	eqPresets_[index].used = false;
+	eqPresets_[index].id = 0;
+	eqPresets_[index].name[0] = 0;
+	return true;
+}
+
+bool Project::RenameEqPreset(int index, const char *name) {
+	if (index < 0 || index >= MAX_EQ_PRESET_COUNT || !name) {
+		return false;
+	}
+	if (!eqPresets_[index].used) {
+		return false;
+	}
+	strncpy(eqPresets_[index].name, name, EQ_PRESET_NAME_MAX);
+	eqPresets_[index].name[EQ_PRESET_NAME_MAX] = 0;
+	return true;
+}
+
+int Project::FindEqPresetById(unsigned short id) const {
+	if (!id) {
+		return -1;
+	}
+	for (int i = 0; i < MAX_EQ_PRESET_COUNT; i++) {
+		if (eqPresets_[i].used && eqPresets_[i].id == id) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+unsigned short Project::AllocateEqPresetId() {
+	unsigned short candidate = nextEqPresetId_;
+	if (!candidate) {
+		candidate = 1;
+	}
+
+	for (int i = 0; i < 0xFFFF; i++) {
+		if (!candidate) {
+			candidate = 1;
+		}
+		if (FindEqPresetById(candidate) < 0) {
+			nextEqPresetId_ = candidate + 1;
+			if (!nextEqPresetId_) {
+				nextEqPresetId_ = 1;
+			}
+			return candidate;
+		}
+		candidate++;
+	}
+	return 0;
+}
 
 //bool Project::MidiEnabled() {
 //	Variable *v=FindVariable(VAR_MIDIENABLE) ;
@@ -320,16 +423,83 @@ void Project::RestoreContent(TiXmlElement *element) {
 	}
 	SyncMaster::GetInstance()->SetTableRatio(tableRatio) ;
 
-	// Now loop on all variables
+	// Now loop on project content
 
 	TiXmlElement *current=element->FirstChildElement() ;
 	while (current) {
-		const char *name=current->Attribute("NAME") ;
-		const char *value=current->Attribute("VALUE") ;
-		Variable *v=FindVariable(name) ;
-		if (v) {
-			v->SetString(value) ;
-		} ;
+		if (!strcmp(current->Value(),"PARAMETER")) {
+			const char *name=current->Attribute("NAME") ;
+			const char *value=current->Attribute("VALUE") ;
+			if (name && value) {
+				Variable *v=FindVariable(name) ;
+				if (v) {
+					v->SetString(value) ;
+				}
+			}
+		} else if (!strcmp(current->Value(),"EQPRESETS")) {
+			int nextId = 1;
+			current->Attribute("NEXTID", &nextId);
+			if (nextId <= 0 || nextId > 0xFFFF) {
+				nextId = 1;
+			}
+			nextEqPresetId_ = (unsigned short)nextId;
+
+			for (int i = 0; i < MAX_EQ_PRESET_COUNT; i++) {
+				eqPresets_[i].used = false;
+				eqPresets_[i].id = 0;
+				eqPresets_[i].name[0] = 0;
+			}
+
+			TiXmlElement *presetNode = current->FirstChildElement("PRESET");
+			while (presetNode) {
+				int slot = -1;
+				if (presetNode->Attribute("SLOT", &slot) && slot >= 0 &&
+				    slot < MAX_EQ_PRESET_COUNT) {
+					EqPreset &preset = eqPresets_[slot];
+					preset.used = true;
+
+					int presetId = 0;
+					presetNode->Attribute("ID", &presetId);
+					if (presetId <= 0 || presetId > 0xFFFF) {
+						presetId = AllocateEqPresetId();
+					}
+					preset.id = (unsigned short)presetId;
+
+					const char *name = presetNode->Attribute("NAME");
+					if (name) {
+						strncpy(preset.name, name, EQ_PRESET_NAME_MAX);
+						preset.name[EQ_PRESET_NAME_MAX] = 0;
+					} else {
+						preset.name[0] = 0;
+					}
+
+					for (int b = 0; b < EQ_PRESET_BANDS; b++) {
+						preset.bands[b].frequency = 0;
+						preset.bands[b].gainQ = 0;
+					}
+
+					TiXmlElement *bandNode = presetNode->FirstChildElement("BAND");
+					while (bandNode) {
+						int bandIndex = -1;
+						if (bandNode->Attribute("INDEX", &bandIndex) &&
+						    bandIndex >= 0 && bandIndex < EQ_PRESET_BANDS) {
+							int freq = 0;
+							int gainQ = 0;
+							bandNode->Attribute("FREQ", &freq);
+							bandNode->Attribute("GAINQ", &gainQ);
+							if (freq < 0) freq = 0;
+							if (freq > 0xFFFF) freq = 0xFFFF;
+							if (gainQ < 0) gainQ = 0;
+							if (gainQ > 0xFFFF) gainQ = 0xFFFF;
+							preset.bands[bandIndex].frequency = (unsigned short)freq;
+							preset.bands[bandIndex].gainQ = (unsigned short)gainQ;
+						}
+						bandNode = bandNode->NextSiblingElement("BAND");
+					}
+				}
+				presetNode = presetNode->NextSiblingElement("PRESET");
+			}
+		}
 		current=current->NextSiblingElement() ;
 	} ;
 };
@@ -358,6 +528,27 @@ void Project::SaveContent(TiXmlNode *node) {
 		param.SetAttribute("VALUE",v.GetString()) ;
 		node->InsertEndChild(param) ;
 	}
+
+	TiXmlElement eqPresets("EQPRESETS");
+	eqPresets.SetAttribute("NEXTID", (int)nextEqPresetId_);
+	for (int i = 0; i < MAX_EQ_PRESET_COUNT; i++) {
+		if (!eqPresets_[i].used) {
+			continue;
+		}
+		TiXmlElement preset("PRESET");
+		preset.SetAttribute("SLOT", i);
+		preset.SetAttribute("ID", (int)eqPresets_[i].id);
+		preset.SetAttribute("NAME", eqPresets_[i].name);
+		for (int b = 0; b < EQ_PRESET_BANDS; b++) {
+			TiXmlElement band("BAND");
+			band.SetAttribute("INDEX", b);
+			band.SetAttribute("FREQ", (int)eqPresets_[i].bands[b].frequency);
+			band.SetAttribute("GAINQ", (int)eqPresets_[i].bands[b].gainQ);
+			preset.InsertEndChild(band);
+		}
+		eqPresets.InsertEndChild(preset);
+	}
+	node->InsertEndChild(eqPresets);
 } ;
 
 void Project::LoadFirstGen(const char *root) {

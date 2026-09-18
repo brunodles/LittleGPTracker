@@ -22,6 +22,7 @@ static FourCC _all[]= {
 	I_CMD_EQG5,
 	I_CMD_EQF6,
 	I_CMD_EQG6,
+	I_CMD_EQPS,
 	I_CMD_FRES,
 	I_CMD_GROV,
 	I_CMD_HOP,

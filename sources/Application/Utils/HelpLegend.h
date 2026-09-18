@@ -31,6 +31,12 @@ static inline std::string* getHelpLegend(FourCC command) {
 		result[2].assign("gg = -24..+24 dB, qq = Q");
 		return result;
 	}
+	if (command == I_CMD_EQPS) {
+		result[0].assign("EqPs:----");
+		result[1].assign("apply EQ preset id");
+		result[2].assign("aaaa = preset id (hex)");
+		return result;
+	}
 	switch (command) {
 		case I_CMD_KILL:
 			result[0].assign("KILl:--bb");
