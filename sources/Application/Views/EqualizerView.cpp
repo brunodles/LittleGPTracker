@@ -3,6 +3,7 @@
 #include "Application/Instruments/MidiInstrument.h"
 #include "Application/Instruments/SampleInstrument.h"
 #include "Application/Instruments/InstrumentBank.h"
+#include "BaseClasses/UIActionField.h"
 #include "BaseClasses/UIBigHexVarField.h"
 #include "BaseClasses/UIStaticField.h"
 #include "Foundation/Variables/Variable.h"
@@ -15,6 +16,10 @@ static const FourCC kEqFreqIds[EqUtils::kEqBandCount] = {
     I_CMD_EQF1, I_CMD_EQF2, I_CMD_EQF3, I_CMD_EQF4, I_CMD_EQF5, I_CMD_EQF6};
 static const FourCC kEqGainIds[EqUtils::kEqBandCount] = {
     I_CMD_EQG1, I_CMD_EQG2, I_CMD_EQG3, I_CMD_EQG4, I_CMD_EQG5, I_CMD_EQG6};
+
+static const unsigned int ACTION_EQ_PRESET_SAVE = MAKE_FOURCC('E', 'P', 'S', 'V');
+static const unsigned int ACTION_EQ_PRESET_LOAD = MAKE_FOURCC('E', 'P', 'L', 'D');
+static const unsigned int ACTION_EQ_PRESET_PURGE = MAKE_FOURCC('E', 'P', 'D', 'L');
 
 static void formatFrequency(unsigned short raw, char *buffer, int size) {
     float hz = EqUtils::DecodeFrequency(raw);
@@ -74,7 +79,28 @@ void EqualizerView::describeFocus(char *line1, char *line2, int size) {
     line1[0] = 0;
     line2[0] = 0;
 
-    UIIntVarField *field = (UIIntVarField *)GetFocus();
+    UIField *focus = GetFocus();
+    UIActionField *action = dynamic_cast<UIActionField *>(focus);
+    if (action) {
+        const char *name = action->GetString();
+        if (!strcmp(name, "Save")) {
+            snprintf(line1, size, "EQ Preset Save");
+            snprintf(line2, size, "Store Instrument EQ into selected preset slot");
+            return;
+        }
+        if (!strcmp(name, "Load")) {
+            snprintf(line1, size, "EQ Preset Load");
+            snprintf(line2, size, "Apply selected preset slot into Instrument EQ");
+            return;
+        }
+        if (!strcmp(name, "Delete")) {
+            snprintf(line1, size, "EQ Preset Delete");
+            snprintf(line2, size, "Purge selected preset slot");
+            return;
+        }
+    }
+
+    UIIntVarField *field = dynamic_cast<UIIntVarField *>(focus);
     if (!field) {
         snprintf(line1, size, "Band selection");
         snprintf(line2, size, "Use arrows to move between bands");
@@ -132,6 +158,27 @@ void EqualizerView::fillParameters() {
 
         position._y += 1;
     }
+
+    position._y += 1;
+    UIStaticField *presetLabel = new UIStaticField(position, "Preset buttons:");
+    T_SimpleList<UIField>::Insert(presetLabel);
+
+    GUIPoint actionPos = position;
+    actionPos._x += 16;
+    UIActionField *saveAction = new UIActionField("Save", ACTION_EQ_PRESET_SAVE, actionPos);
+    saveAction->AddObserver(*this);
+    T_SimpleList<UIField>::Insert(saveAction);
+
+    actionPos._x += 6;
+    UIActionField *loadAction = new UIActionField("Load", ACTION_EQ_PRESET_LOAD, actionPos);
+    loadAction->AddObserver(*this);
+    T_SimpleList<UIField>::Insert(loadAction);
+
+    actionPos._x += 6;
+    UIActionField *deleteAction =
+        new UIActionField("Delete", ACTION_EQ_PRESET_PURGE, actionPos);
+    deleteAction->AddObserver(*this);
+    T_SimpleList<UIField>::Insert(deleteAction);
 }
 
 void EqualizerView::savePresetSlot() {
@@ -250,6 +297,25 @@ void EqualizerView::ProcessButtonMask(unsigned short mask, bool pressed) {
         return;
     }
 
+    if (mask & EPBM_B) {
+        if (mask & EPBM_LEFT) {
+            presetSlot_--;
+            if (presetSlot_ < 0) {
+                presetSlot_ = MAX_EQ_PRESET_COUNT - 1;
+            }
+            isDirty_ = true;
+            return;
+        }
+        if (mask & EPBM_RIGHT) {
+            presetSlot_++;
+            if (presetSlot_ >= MAX_EQ_PRESET_COUNT) {
+                presetSlot_ = 0;
+            }
+            isDirty_ = true;
+            return;
+        }
+    }
+
     if (mask & EPBM_L) {
         if (mask & EPBM_B) {
             purgePresetSlot();
@@ -300,7 +366,7 @@ void EqualizerView::ProcessButtonMask(unsigned short mask, bool pressed) {
 
     FieldView::ProcessButtonMask(mask);
 
-    UIIntVarField *field = (UIIntVarField *)GetFocus();
+    UIIntVarField *field = dynamic_cast<UIIntVarField *>(GetFocus());
     if (field) {
         lastFocusID_ = field->GetVariableID();
     }
@@ -319,7 +385,7 @@ void EqualizerView::DrawView() {
     if (current_) {
         instrumentName = current_->GetName();
     }
-    snprintf(title, sizeof(title), "Equalizer %2.2X", viewData_->currentInstrument_);
+    snprintf(title, sizeof(title), "Instrument EQ %2.2X", viewData_->currentInstrument_);
     DrawString(pos._x, pos._y, title, props);
 
     pos._y += 1;
@@ -345,10 +411,12 @@ void EqualizerView::DrawView() {
     }
     pos._y += 1;
     SetColor(CD_HILITE1);
+    DrawString(pos._x, pos._y, "EQ Preset", props);
+    pos._y += 1;
     DrawString(pos._x, pos._y, presetLine, props);
     pos._y += 1;
     SetColor(CD_NORMAL);
-    DrawString(pos._x, pos._y, "L+LEFT/RIGHT slot  L+UP save  L+DOWN load  L+B purge", props);
+    DrawString(pos._x, pos._y, "Buttons: Save/Load/Delete   Shortcuts: B< >  L+UP/DOWN  L+B", props);
 
     if (current_ && current_->GetType() == IT_SAMPLE) {
         FieldView::Redraw();
@@ -364,10 +432,31 @@ void EqualizerView::DrawView() {
 
 void EqualizerView::OnFocus() { onInstrumentChange(); }
 
-void EqualizerView::Update(Observable &o, I_ObservableData *) {
+void EqualizerView::Update(Observable &o, I_ObservableData *data) {
     if (&o == current_) {
         isDirty_ = true;
         return;
     }
+
+#ifdef _64BIT
+    int fourcc = data ? *((int *)data) : 0;
+#else
+    int fourcc = (unsigned int)data;
+#endif
+
+    switch (fourcc) {
+    case ACTION_EQ_PRESET_SAVE:
+        savePresetSlot();
+        return;
+    case ACTION_EQ_PRESET_LOAD:
+        applyPresetSlot();
+        return;
+    case ACTION_EQ_PRESET_PURGE:
+        purgePresetSlot();
+        return;
+    default:
+        break;
+    }
+
     onInstrumentChange();
 }
