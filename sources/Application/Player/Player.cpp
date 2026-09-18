@@ -613,12 +613,30 @@ void Player::ProcessCommands() {
                     // player then pass it on to the instrument
 
                     if (cc != I_CMD_NONE) {
-                        // Temporary isolation: keep EqPs as no-op until crash root cause is confirmed.
-                        if (cc != I_CMD_EQPS) {
-                            if (!ProcessChannelCommand(i, cc, param)) {
-                                if (instrument) {
-                                    instrument->ProcessCommand(i, cc, param);
+                        if (cc == I_CMD_EQPS) {
+                            if (instrument && instrument->GetType() == IT_SAMPLE) {
+                                int slot = project_->FindEqPresetById(param);
+                                if (slot >= 0) {
+                                    EqPreset preset;
+                                    if (project_->GetEqPreset(slot, preset)) {
+                                        const FourCC eqFreqCmd[EQ_PRESET_BANDS] = {
+                                            I_CMD_EQF1, I_CMD_EQF2, I_CMD_EQF3,
+                                            I_CMD_EQF4, I_CMD_EQF5, I_CMD_EQF6};
+                                        const FourCC eqGainCmd[EQ_PRESET_BANDS] = {
+                                            I_CMD_EQG1, I_CMD_EQG2, I_CMD_EQG3,
+                                            I_CMD_EQG4, I_CMD_EQG5, I_CMD_EQG6};
+                                        for (int b = 0; b < EQ_PRESET_BANDS; b++) {
+                                            instrument->ProcessCommand(i, eqFreqCmd[b],
+                                                                      preset.bands[b].frequency);
+                                            instrument->ProcessCommand(i, eqGainCmd[b],
+                                                                      preset.bands[b].gainQ);
+                                        }
+                                    }
                                 }
+                            }
+                        } else if (!ProcessChannelCommand(i, cc, param)) {
+                            if (instrument) {
+                                instrument->ProcessCommand(i, cc, param);
                             }
                         }
                     }
@@ -633,12 +651,30 @@ void Player::ProcessCommands() {
                     // player then pass it on to the instrument
 
                     if (cc != I_CMD_NONE) {
-                        // Temporary isolation: keep EqPs as no-op until crash root cause is confirmed.
-                        if (cc != I_CMD_EQPS) {
-                            if (!ProcessChannelCommand(i,cc,param)) {
-                                if (instrument) {
-                                    instrument->ProcessCommand(i, cc, param);
+                        if (cc == I_CMD_EQPS) {
+                            if (instrument && instrument->GetType() == IT_SAMPLE) {
+                                int slot = project_->FindEqPresetById(param);
+                                if (slot >= 0) {
+                                    EqPreset preset;
+                                    if (project_->GetEqPreset(slot, preset)) {
+                                        const FourCC eqFreqCmd[EQ_PRESET_BANDS] = {
+                                            I_CMD_EQF1, I_CMD_EQF2, I_CMD_EQF3,
+                                            I_CMD_EQF4, I_CMD_EQF5, I_CMD_EQF6};
+                                        const FourCC eqGainCmd[EQ_PRESET_BANDS] = {
+                                            I_CMD_EQG1, I_CMD_EQG2, I_CMD_EQG3,
+                                            I_CMD_EQG4, I_CMD_EQG5, I_CMD_EQG6};
+                                        for (int b = 0; b < EQ_PRESET_BANDS; b++) {
+                                            instrument->ProcessCommand(i, eqFreqCmd[b],
+                                                                      preset.bands[b].frequency);
+                                            instrument->ProcessCommand(i, eqGainCmd[b],
+                                                                      preset.bands[b].gainQ);
+                                        }
+                                    }
                                 }
+                            }
+                        } else if (!ProcessChannelCommand(i,cc,param)) {
+                            if (instrument) {
+                                instrument->ProcessCommand(i, cc, param);
                             }
                         }
                     }
