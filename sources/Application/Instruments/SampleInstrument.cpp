@@ -1139,15 +1139,15 @@ void SampleInstrument::ProcessCommand(int channel,FourCC cc,ushort value) {
 		int band=cmd[3]-'1' ;
 		if (cmd[2]=='F') {
 			eqFreq_[band]->SetInt(value) ;
-			for (int i=0; i<SONG_CHANNEL_COUNT; ++i) {
-				applyEqBandToVoice(renderParams_+i,band) ;
+			if ((channel>=0)&&(channel<SONG_CHANNEL_COUNT)) {
+				applyEqBandToVoice(renderParams_+channel,band) ;
 			}
 			return ;
 		}
 		if (cmd[2]=='G') {
 			eqGainQ_[band]->SetInt(value) ;
-			for (int i=0; i<SONG_CHANNEL_COUNT; ++i) {
-				applyEqBandToVoice(renderParams_+i,band) ;
+			if ((channel>=0)&&(channel<SONG_CHANNEL_COUNT)) {
+				applyEqBandToVoice(renderParams_+channel,band) ;
 			}
 			return ;
 		}
