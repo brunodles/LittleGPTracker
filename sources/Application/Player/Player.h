@@ -71,7 +71,7 @@ public:
     bool Clipped() ;
 
     void ProcessCommands();
-    bool ProcessChannelCommand(int channel,FourCC cmd,ushort param,I_Instrument *resolvedInstrument=0) ;
+    bool ProcessChannelCommand(int channel,FourCC cmd,ushort param) ;
 
 	void StartStreaming(const Path &path) ;
 	void StopStreaming() ;
