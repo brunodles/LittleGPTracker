@@ -63,11 +63,6 @@ public:
         char buffer[8];
         snprintf(buffer, sizeof(buffer), "%2.2X", byteValue);
         w.DrawString(buffer, position, props);
-
-        int markerOffset = (nibblePos_ == 0) ? 1 : 0;
-        GUIPoint markerPos(position._x + markerOffset, position._y);
-        ((AppWindow &)w).SetColor(CD_NORMAL);
-        w.DrawString(buffer + markerOffset, markerPos, props);
     }
 
     virtual void ProcessArrow(unsigned short mask) {
