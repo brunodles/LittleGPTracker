@@ -51,6 +51,11 @@ static inline std::string* getHelpLegend(FourCC command) {
 			result[1].assign("sets the tempo to hex");
 			result[2].assign("value bb");
 			break;
+        case I_CMD_CHDI:
+            result[0].assign("Chord Int Voices: aabb");
+            result[1].assign("root + 4 notes");
+            result[2].assign("repeat notes rise 1 octave");
+            break;
         case I_CMD_MCHD:
             result[0].assign("MiDiCHorD:aabb");
 			result[1].assign("send notes aa and bb");

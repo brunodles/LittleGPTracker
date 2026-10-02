@@ -141,6 +141,10 @@ SampleInstrument::SampleInstrument() {
          rp->updaters_.push_back(&rp->speedRamp_);
          rp->updaters_.push_back(&rp->legato_);
          rp->updaters_.push_back(&rp->pfin_);
+		for (int j = 0; j < CHDI_EXTRA_VOICES; ++j) {
+			chordVoices_[i][j].active = false;
+			chordVoices_[i][j].note = 0;
+		}
 	} ;
 
  // Reset table state
@@ -164,7 +168,72 @@ bool SampleInstrument::Init() {
 
 void SampleInstrument::OnStart() {
 	tableState_.Reset() ;
+	for (int i = 0; i < SONG_CHANNEL_COUNT; ++i) {
+		clearChordVoices(i);
+	}
 } ;
+
+void SampleInstrument::clearChordVoices(int channel) {
+    for (int i = 0; i < CHDI_EXTRA_VOICES; ++i) {
+        chordVoices_[channel][i].active = false;
+        chordVoices_[channel][i].note = 0;
+    }
+}
+
+void SampleInstrument::syncChordVoice(int channel, int voiceIndex, unsigned char note, int rootChannel) {
+    if (voiceIndex < 0 || voiceIndex >= CHDI_EXTRA_VOICES) {
+        return;
+    }
+    if (!source_) {
+        return;
+    }
+
+    renderParams *root = renderParams_ + rootChannel;
+    ChordVoice &voice = chordVoices_[channel][voiceIndex];
+    voice.rp = *root;
+    voice.rp.midiNote_ = note;
+    voice.rp.sampleBuffer_ = source_->GetSampleBuffer(note);
+    voice.rp.channelCount_ = source_->GetChannelCount(note);
+    if (!voice.rp.sampleBuffer_ || voice.rp.channelCount_ <= 0) {
+        voice.active = false;
+        return;
+    }
+    voice.rp.baseSpeed_ = fp_mul(root->baseSpeed_, fl2fp(pow(2.0f, float(int(note) - int(root->midiNote_)) / 12.0f)));
+    voice.rp.speed_ = voice.rp.baseSpeed_;
+    voice.rp.finished_ = false;
+    voice.note = note;
+    voice.active = true;
+}
+
+void SampleInstrument::setupChordVoices(int channel, unsigned char rootNote, ushort value) {
+    clearChordVoices(channel);
+
+    unsigned char resolved[CHDI_EXTRA_VOICES + 1];
+    int resolvedCount = 0;
+    resolved[resolvedCount++] = rootNote;
+
+    for (int slot = 0; slot < CHDI_EXTRA_VOICES; ++slot) {
+        int note = int(rootNote) + int((value >> (slot * 4)) & 0x0F);
+        while (note <= 127) {
+            bool exists = false;
+            for (int i = 0; i < resolvedCount; ++i) {
+                if (resolved[i] == note) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                break;
+            }
+            note += 12;
+        }
+        if (note > 127) {
+            continue;
+        }
+        resolved[resolvedCount++] = (unsigned char)note;
+        syncChordVoice(channel, slot, (unsigned char)note, channel);
+    }
+}
 
 bool SampleInstrument::Start(int channel, unsigned char midinote, int flags) {
     bool cleanstart = flags & 1;
@@ -177,6 +246,7 @@ bool SampleInstrument::Start(int channel, unsigned char midinote, int flags) {
   }
 
   running_=true ;
+  clearChordVoices(channel);
 
   if (source_==0) return false ;
 
@@ -383,15 +453,14 @@ void SampleInstrument::Stop(int channel) {
 
 	// Get Rendering params for current voice & fill init data
 
-	 renderParams *rp=renderParams_+channel ;
+	 clearChordVoices(channel);
 	 running_=false ;
 }
 
-void SampleInstrument::doTickUpdate(int channel) {
+void SampleInstrument::doTickUpdate(renderParams *rp) {
 
   // Process updaters
 
-	renderParams *rp=renderParams_+channel ;
 	std::vector<I_SRPUpdater *>::iterator it ;
 
 	for (it=rp->activeUpdaters_.begin();it!=rp->activeUpdaters_.end();it++) {
@@ -400,9 +469,8 @@ void SampleInstrument::doTickUpdate(int channel) {
 	}
 } ;
 
-void SampleInstrument::doKRateUpdate(int channel) {
+void SampleInstrument::doKRateUpdate(renderParams *rp) {
 
-	renderParams *rp=renderParams_+channel ;
 	std::vector<I_SRPUpdater *>::iterator it ;
 
 	for (it=rp->activeUpdaters_.begin();it!=rp->activeUpdaters_.end();it++) {
@@ -454,14 +522,12 @@ void SampleInstrument::updateFeedback(renderParams *rp) {
 
 // Size in samples
 
-bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
+bool SampleInstrument::renderVoice(int channel, renderParams *rp, fixed *buffer, int size, bool updateTick) {
 
     bool somethingToMix = false;
-    bool updateTick = flags & 1;
 
     // Get Current render parameters
 
-    renderParams *rp = renderParams_ + channel;
     lastMidiNote_[channel] = rp->midiNote_;
     bool *rpFinished = &(rp->finished_);
 
@@ -495,7 +561,7 @@ bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
 
             if (hasUpdaters) {
 
-                doTickUpdate(channel);
+                doTickUpdate(rp);
 
 				struct RUParams rup ;
 				rup.cutOffset_=rup.resOffset_=rup.volumeOffset_=rup.panOffset_=0 ;
@@ -763,7 +829,7 @@ bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
 					rpKrateCount=KRATE_SAMPLE_COUNT ;
 
 					if (hasUpdaters) {
-						doKRateUpdate(channel) ;
+						doKRateUpdate(rp) ;
 						struct RUParams rup ;
 						rup.cutOffset_=rup.resOffset_=rup.volumeOffset_=rup.panOffset_=rup.fbMixOffset_=rup.fbTunOffset_=0 ;
 						rup.speedOffset_=FP_ONE;
@@ -994,6 +1060,37 @@ bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
     return somethingToMix;
 };
 
+bool SampleInstrument::Render(int channel, fixed *buffer, int size, int flags) {
+    if (!source_) {
+        return false;
+    }
+
+    bool updateTick = flags & 1;
+    bool mixed = renderVoice(channel, renderParams_ + channel, buffer, size, updateTick);
+    if (!(renderParams_[channel].finished_)) {
+        std::vector<fixed> temp(size * 2);
+        for (int i = 0; i < CHDI_EXTRA_VOICES; ++i) {
+            ChordVoice &voice = chordVoices_[channel][i];
+            if (!voice.active) {
+                continue;
+            }
+            SYS_MEMSET(temp.data(), 0, size * 2 * sizeof(fixed));
+            bool voiceMixed = renderVoice(channel, &voice.rp, temp.data(), size, updateTick);
+            mixed = mixed || voiceMixed;
+            if (voice.rp.finished_) {
+                voice.active = false;
+                continue;
+            }
+            for (int sample = 0; sample < size * 2; ++sample) {
+                buffer[sample] = fp_add(buffer[sample], temp[sample]);
+            }
+        }
+    } else {
+        clearChordVoices(channel);
+    }
+    return mixed;
+}
+
 void SampleInstrument::AssignSample(int i) {
 
 	 Variable *v=FindVariable(SIP_SAMPLE) ;
@@ -1087,6 +1184,11 @@ void SampleInstrument::ProcessCommand(int channel,FourCC cc,ushort value) {
 	
  	renderParams *rp=renderParams_+channel ;
 	if (!source_) return ;
+
+	if (cc == I_CMD_CHDI) {
+        setupChordVoices(channel, (unsigned char)rp->midiNote_, value);
+        return;
+    }
 
 	switch(cc) {
     case I_CMD_LPOF: {

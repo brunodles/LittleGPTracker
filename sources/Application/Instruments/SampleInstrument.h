@@ -95,8 +95,12 @@ public:
 
 protected:
 		void updateInstrumentData(bool search) ;
-		void doTickUpdate(int channel) ;
-		void doKRateUpdate(int channel) ;
+		void doTickUpdate(renderParams *rp) ;
+		void doKRateUpdate(renderParams *rp) ;
+		void clearChordVoices(int channel) ;
+		void setupChordVoices(int channel, unsigned char rootNote, ushort value) ;
+		void syncChordVoice(int channel, int voiceIndex, unsigned char note, int rootChannel) ;
+		bool renderVoice(int channel, renderParams *rp, fixed *buffer, int size, bool updateTick) ;
 		void updateFeedback(renderParams *rp) ;
 
 private:
@@ -109,6 +113,14 @@ private:
 	   static int lastMidiNote_[SONG_CHANNEL_COUNT] ;
 	   static fixed lastSample_[SONG_CHANNEL_COUNT][2] ;
 	   static fixed feedback_[SONG_CHANNEL_COUNT][FB_BUFFER_LENGTH*2] ;
+
+	   static const int CHDI_EXTRA_VOICES = 4;
+	   struct ChordVoice {
+	       renderParams rp;
+	       bool active;
+	       unsigned char note;
+	   };
+	   ChordVoice chordVoices_[SONG_CHANNEL_COUNT][CHDI_EXTRA_VOICES];
 
 	   Variable *volume_ ;
 	   Variable *crush_ ;
